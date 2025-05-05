@@ -6,31 +6,7 @@
 //
 
 import SwiftUI
-
-//struct SegmentControl: View {
-//    @State private var selected = "HR"
-//    let options = ["HR", "RHR", "HRV"]
-//
-//    var body: some View {
-//        HStack(spacing: 0) {
-//            ForEach(options, id: \.self) { option in
-//                Text(option)
-//                    .fontWeight(.medium)
-//                    .foregroundColor(selected == option ? .white : .white.opacity(0.6))
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(selected == option ? Color.red : Color.gray)
-//                    .clipShape(RoundedRectangle(cornerRadius: 12))
-//                    .onTapGesture {
-//                        selected = option
-//                    }
-//            }
-//        }
-//        .padding(4)
-//        .background(Color.gray.opacity(0.5))
-//        .clipShape(RoundedRectangle(cornerRadius: 16))
-//    }
-//}
+import Charts
 
 
 struct SegmentedControl: View {
@@ -61,6 +37,7 @@ struct SimpleCard: View {
     var content : String
     var titleColor : Color = .black
     var showIcon : Bool = false
+    var backgroundColor : Color = .white
     
     var body: some View {
         
@@ -86,7 +63,7 @@ struct SimpleCard: View {
                 .foregroundColor(.primary)
         }
         .padding(24)
-        .background(Color.white)
+        .background(backgroundColor)
         .cornerRadius(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
@@ -98,6 +75,53 @@ struct SimpleCard: View {
 
 
 
+//Ini CHART
+
+struct AverageHeartRate: Identifiable {
+    var day: String
+    var averageHeartRate: Double
+    var id = UUID()
+}
+
+
+
+struct MyChart: View {
+    
+    var data: [AverageHeartRate] = [
+        .init(day: "Monday", averageHeartRate: 92),
+        .init(day: "Tuesday", averageHeartRate: 105),
+        .init(day: "Wednesday", averageHeartRate: 107),
+        .init(day: "Thursday", averageHeartRate: 140),
+        .init(day: "Friday", averageHeartRate: 88),
+        .init(day: "Saturday", averageHeartRate: 120),
+        .init(day: "Sunday", averageHeartRate: 115)
+    ]
+    
+    var body: some View {
+        Chart {
+            ForEach(Array(data.enumerated()), id: \.element.day) { index, item in
+            BarMark(
+                x: .value("Day", item.day),
+                y: .value("Average Heart Rate", item.averageHeartRate)
+            )
+            .foregroundStyle(index == data.count - 1 ? Color("OrangeOnex") : Color("Barx"))
+            .cornerRadius(5)
+                
+            }
+
+        }
+        .frame(height: 200)
+        .padding()
+        .chartXAxis {
+              AxisMarks(values: .stride(by: 1)) // Customize the x-axis if needed
+              
+          }
+     
+        
+        
+    }
+}
+
 
 //INI SECTION PERTAMA
 struct AverageHeartRateSection: View {
@@ -105,11 +129,37 @@ struct AverageHeartRateSection: View {
      var body: some View {
          
          ScrollView {
-             
-             
-             
              Text("Average Heart Rate Section")
                  .padding()
+             
+             VStack{
+                 Text("Average Heart Rate")
+                 
+                 HStack{
+                     Image(systemName: "exclamationmark.icloud.fill")
+                     Text("123")
+                     Text("bpm")
+                         .font(.caption)
+                     
+                     Spacer()
+                     
+                     Text("12-19 April 2025")
+                         
+                 }
+                 
+                 
+                     
+                 
+                 MyChart()
+             }
+             .padding(.vertical)
+             .background(Color.white)
+             .cornerRadius(12)
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .padding(.horizontal)
+             .padding(.bottom, 16)
+             
+             
              
              SimpleCard(title: "Highlight",
                         content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering"
@@ -124,7 +174,8 @@ struct AverageHeartRateSection: View {
              SimpleCard(title: "Disclaimer",
                         content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",
                         titleColor: Color("OrangeOnex"),
-                        showIcon: true)
+                        showIcon: true,
+                        backgroundColor: Color("OrangeBGx"))
              
              
          }
