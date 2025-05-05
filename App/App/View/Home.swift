@@ -32,6 +32,7 @@ struct HomeView: View {
             Button("Go to first screen") {
                 router.navigate(to: .first)
             }
+            // test push
             Button("Print WORKOUT DATA") {
                 healthKitViewModel.printActivities()
             }
