@@ -225,6 +225,60 @@ struct WorkoutActivity: Identifiable, Codable {
     }
 }
 
+struct DailyWorkoutSummary: Identifiable {
+    let id = UUID()
+    let date: Date
+    let workouts: [WorkoutDetails]
+    
+    var hasWorkouts: Bool { !workouts.isEmpty }
+    var totalDuration: TimeInterval { workouts.reduce(0) { $0 + $1.duration } }
+    var totalCalories: Double { workouts.reduce(0) { $0 + $1.caloriesBurned } }
+    var totalDistance: Double? {
+        let distances = workouts.compactMap { $0.distance }
+        return distances.isEmpty ? nil : distances.reduce(0, +)
+    }
+    
+    static func emptyDay(date: Date) -> DailyWorkoutSummary {
+        DailyWorkoutSummary(date: date, workouts: [])
+    }
+}
+
+struct WorkoutDetails {
+    let workout: HKWorkout
+    let type: HKWorkoutActivityType
+    let startDate: Date
+    let endDate: Date
+    let duration: TimeInterval
+    let distance: Double?
+    let caloriesBurned: Double
+    
+    init(from workout: HKWorkout) {
+        self.workout = workout
+        self.type = workout.workoutActivityType
+        self.startDate = workout.startDate
+        self.endDate = workout.endDate
+        self.duration = workout.duration
+        
+        // Extract distance if available
+        let distanceType = HKQuantityType(.distanceWalkingRunning)
+        if let statsD = workout.statistics(for: distanceType),
+           let sumD = statsD.sumQuantity() {
+            self.distance = sumD.doubleValue(for: .meter())
+        } else {
+            self.distance = nil
+        }
+        
+        // Extract calories
+        let energyType = HKQuantityType(.activeEnergyBurned)
+        if let stats = workout.statistics(for: energyType),
+           let sumQty = stats.sumQuantity() {
+            self.caloriesBurned = sumQty.doubleValue(for: .kilocalorie())
+        } else {
+            self.caloriesBurned = 0
+        }
+    }
+}
+
 extension WorkoutActivity {
     var activityTypeEnum: HKWorkoutActivityType? {
         return HKWorkoutActivityType(rawValue: activityType)
