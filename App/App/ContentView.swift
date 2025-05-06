@@ -14,16 +14,20 @@ struct ContentView: View {
     var body: some View {
         TabView {
           
-            Tab("Home", systemImage: "music.note.house.fill") {
+            Tab("Home", systemImage: "house.fill") {
                 HomeView()
                     .environmentObject(HealthKitViewModel)
             }
             
-            Tab("Profile", systemImage: "movieclapper.fill") {
+            Tab("Profile", systemImage: "figure.run.circle.fill") {
                 ActivityView()
             }
             
         }
+        .onAppear {
+            UITabBar.appearance().unselectedItemTintColor = UIColor.lightGray
+        }
+        .accentColor(Color("primary_1"))
     }
 }
 

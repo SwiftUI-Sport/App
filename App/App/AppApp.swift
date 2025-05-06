@@ -11,11 +11,12 @@ import SwiftUI
 struct AppApp: App {
     
     @StateObject private var di = Injection.shared
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(di.getHealthViewModel())
+                .preferredColorScheme(.light)
         }
     }
 }
