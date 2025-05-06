@@ -11,6 +11,7 @@ struct ActivityView: View {
     
     @StateObject private var router = ActivityFlowRouter()
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
+    @State private var showHeader = true
 
     var body: some View {
         NavigationStack(path: $router.navPaths) {
@@ -26,62 +27,107 @@ struct ActivityView: View {
     
     
     private var mainView: some View {
-        VStack(alignment:.leading) {
-            ForEach(healthKitViewModel.activities, id: \.startDate) { activity in
-                
-                Text(activity.startDate.formatted(.dateTime.weekday(.wide)))
-                    .padding()
-                    .font(.title)
-                
-                Button(action:{
-                    router.navigate(to: .secondProfile(activity))
-                }) {
-                    VStack{
-                        
-                        HStack{
-                            VStack (alignment:.leading){
-                                Text(activity.name)
+        ScrollView{
+            VStack(alignment: .leading ) {
+                VStack{
+                    if showHeader {
+                        headerView // Ekstrak header ke komponen terpisah
+                    }
+                }
+                .padding(.bottom,20)
+                VStack(alignment:.leading) {
+                    ForEach(Array(healthKitViewModel.activities.enumerated()), id: \.element.startDate) { index, activity in
+                        // Tampilkan header tanggal hanya jika ini aktivitas pertama atau tanggal berbeda dengan sebelumnya
+                        if index == 0 || !Calendar.current.isDate(healthKitViewModel.activities[index-1].startDate, inSameDayAs: activity.startDate) {
+                            HStack {
+                                Text(activity.startDate.formatted(.dateTime.weekday(.wide)))
+                                    .padding(.horizontal)
                                     .font(.headline)
-                                Text("\(formatDuration(activity.duration))")
-                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                Spacer()
+                                Text(activity.startDate.formatted(.dateTime.day().month(.wide)))
+                                    .padding(.horizontal)
+                                    .font(.headline)
                                     .foregroundColor(.gray)
                             }
-                            Spacer()
-                            HStack{
-                                Text("\(Int(activity.averageHeartRate))")
-                                    .fontWeight(.bold)
-                                    .font(.title)
-                                Text("Bpm")
-                                    .foregroundColor(.redTint)
-                                    .fontWeight(.semibold)
-                                    .font(.caption2)  .padding(.top,10)
-                                        .padding(.leading,-8)
-                                    
-                                
-                            }
-                            
-                            VStack{
-                                Image(systemName: "arrow.right")
-                            }
+                            .padding(.top, index == 0 ? 0 : 16) // Kurangi padding atas untuk item pertama
                         }
+                        
+                        // Tampilkan card aktivitas
+                        Button(action: {
+                            router.navigate(to: .secondProfile(activity))
+                        }) {
+                            VStack {
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(activity.name)
+                                            .font(.headline)
+                                        Text("\(formatDuration(activity.duration))")
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                    }
+                                    Spacer()
+                                    HStack {
+                                        Text("\(Int(activity.averageHeartRate))")
+                                            .fontWeight(.bold)
+                                            .font(.title)
+                                        Text("Bpm")
+                                            .foregroundColor(.redTint)
+                                            .fontWeight(.semibold)
+                                            .font(.caption2)
+                                            .padding(.top, 10)
+                                            .padding(.leading, -8)
+                                    }
+                                    VStack {
+                                        Image(systemName: "arrow.right")
+                                    }
+                                }
+                            }
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(20)
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                        }
+                        .padding(.top, 5)
+                        .padding(.horizontal)
                     }
-                    .foregroundColor(.black)
-                    .frame(maxWidth:.infinity,alignment: .leading)
-                    .padding(20)
-                    .background(Color.white)
-                    .cornerRadius(10)
-                    .shadow(radius:5)
+                    
+                    Spacer()
                 }
-                .padding(.top,10)
-                .padding(.horizontal)
+                .padding(.top,70)
+                .navigationBarTitleDisplayMode(.large)
+//                .navigationBarTitleDisplayMode(.inline)
             }
-            
-            Spacer()
         }
-//        .padding()
-        .navigationTitle("7-Day Run Activity")
-        .navigationBarTitleDisplayMode(.large)
     }
+    private var headerView: some View {
+           ZStack(alignment: .bottomLeading) {
+               Image("Image")
+                   .scaledToFill()
+                   .frame(width: UIScreen.main.bounds.width, height: 300)
+                   .clipped()
+                   .ignoresSafeArea(edges: .top)
+                   .offset(y: 10)
+               
+               VStack {
+                   Text("Your Run Activity")
+                       .font(.largeTitle)
+                       .fontWeight(.bold)
+                       .foregroundColor(.orange)
+                   
+                   Text("Last 7 Days")
+                       .font(.title3)
+                       .fontWeight(.bold)
+                       .foregroundColor(.orange)
+               }
+               .frame(maxWidth: .infinity, alignment: .center)
+               .padding(.horizontal)
+               .padding(.bottom, 50)
+           }
+           .frame(height: 50)
+       }
 }
 
 func formatDuration(_ seconds: TimeInterval) -> String {
@@ -98,6 +144,8 @@ func formatDuration(_ seconds: TimeInterval) -> String {
     
     return formatter.string(from: seconds) ?? "00:00"
 }
+
+
 
 #Preview {
     ActivityView()
