@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23721"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="aikon" translatesAutoresizingMaskIntoConstraints="NO" id="pCa-2e-zTf">
+                                <rect key="frame" x="10" y="421" width="372" height="35"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="Buo-2v-Vu7"/>
+                        <color key="backgroundColor" red="0.20784313725490194" green="0.20392156862745098" blue="0.48627450980392156" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="Buo-2v-Vu7" firstAttribute="bottom" secondItem="pCa-2e-zTf" secondAttribute="bottom" constant="328" id="BVg-Lm-D4X"/>
+                            <constraint firstItem="pCa-2e-zTf" firstAttribute="top" secondItem="Buo-2v-Vu7" secondAttribute="top" constant="303" id="Cce-FZ-UHW"/>
+                            <constraint firstItem="pCa-2e-zTf" firstAttribute="leading" secondItem="Buo-2v-Vu7" secondAttribute="leading" constant="10" id="aYI-R8-OFs"/>
+                            <constraint firstItem="Buo-2v-Vu7" firstAttribute="trailing" secondItem="pCa-2e-zTf" secondAttribute="trailing" constant="11" id="kvf-4T-tKY"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52.671755725190835" y="374.64788732394368"/>
+        </scene>
+    </scenes>
+    <color key="tintColor" name="primeColor"/>
+    <resources>
+        <image name="aikon" width="1024" height="1024"/>
+        <namedColor name="primeColor">
+            <color red="0.3449999988079071" green="0.33700001239776611" blue="0.83899998664855957" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>
