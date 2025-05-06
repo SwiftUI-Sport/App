@@ -138,7 +138,7 @@ struct SimpleCard: View {
 
 //Ini CHART
 
-struct AverageHeartRate: Identifiable {
+struct AverageHeartRate: Identifiable, Equatable {
     var day: String
     var averageHeartRate: Double
     var id = UUID()
@@ -148,10 +148,10 @@ struct AverageHeartRate: Identifiable {
 
 struct MyChart: View {
     
-    var data: [AverageHeartRate] = [
-        .init(day: "Monday", averageHeartRate: 92),
+    @State var data: [AverageHeartRate] = [
+        .init(day: "Monday", averageHeartRate: 102),
         .init(day: "Tuesday", averageHeartRate: 105),
-        .init(day: "Wednesday", averageHeartRate: 107),
+        .init(day: "Wednesday", averageHeartRate: 150),
         .init(day: "Thursday", averageHeartRate: 140),
         .init(day: "Friday", averageHeartRate: 88),
         .init(day: "Saturday", averageHeartRate: 120),
@@ -179,6 +179,16 @@ struct MyChart: View {
         }
     }
     
+    func calculateAverageHeartRate(from data: [AverageHeartRate]) -> Double {
+        // Calculate the sum of all the averageHeartRate values
+        let totalHeartRate = data.reduce(0) { $0 + $1.averageHeartRate }
+        
+        // Calculate the average by dividing the sum by the count of data
+        let averageHeartRate = totalHeartRate / Double(data.count)
+        
+        return averageHeartRate
+    }
+    
     
     var body: some View {
         Chart {
@@ -187,19 +197,26 @@ struct MyChart: View {
                 x: .value("Day", item.day),
                 y: .value("Average Heart Rate", item.averageHeartRate)
             )
+            
             .foregroundStyle(index == data.count - 1 ? Color("OrangeTwox") : Color("Barx"))
             .cornerRadius(5)
+            
+         
                 
-                RuleMark(y: .value("Average Heart Rate", 80))
-                    .foregroundStyle(Color("OrangeOnex"))
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                
+            RuleMark(y: .value("Average Heart Rate", calculateAverageHeartRate(from: data)))
+                .foregroundStyle(Color("OrangeOnex"))
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                 
             }
 
         }
         .frame(height: 200)
         .padding()
- 
+        .animation(.bouncy, value: data)
+        
+        
+        
         .chartXAxis {
             
 
