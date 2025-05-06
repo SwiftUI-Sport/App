@@ -31,6 +31,12 @@ extension Date {
         return (start, end)
     }
     
+    static var last24HoursRange: (start: Date, end: Date) {
+            let end = Date()
+            let start = Calendar.current.date(byAdding: .hour, value: -24, to: end)!
+            return (start, end)
+        }
+    
     static var last7DaysRange: (start: Date, end: Date) {
         lastDaysRange(7)
     }

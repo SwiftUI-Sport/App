@@ -64,6 +64,24 @@ protocol HealthKitStoreProtocol {
         completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
     )
     
+    func fetchHeartRateVariability(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    )
+    
+    func fetchHeartRate(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    )
+    
+    func fetchSleepData(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
+    )
+    
 }
 
 
@@ -476,6 +494,121 @@ final class HealthKitStore: HealthKitStoreProtocol {
         store.execute(query)
     }
     
+    func fetchHeartRateVariability(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    ) {
+        guard isAvailable,
+              let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN)
+        else {
+            return DispatchQueue.main.async {
+                completion(.failure(.notAvailableOnDevice))
+            }
+        }
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: start, end: end, options: .strictStartDate
+        )
+        
+        let sort = NSSortDescriptor(
+            key: HKSampleSortIdentifierStartDate, ascending: true
+        )
+        
+        let query = HKSampleQuery(
+            sampleType: hrvType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sort]
+        ) { _, samples, error in
+            DispatchQueue.main.async {
+                if let err = error {
+                    completion(.failure(.underlying(err)))
+                } else {
+                    let hrvSamples = (samples as? [HKQuantitySample]) ?? []
+                    completion(.success(hrvSamples))
+                }
+            }
+        }
+        store.execute(query)
+    }
     
+    func fetchHeartRate(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    ) {
+        guard isAvailable,
+              let hrType = HKQuantityType.quantityType(forIdentifier: .heartRate)
+        else {
+            return DispatchQueue.main.async {
+                completion(.failure(.notAvailableOnDevice))
+            }
+        }
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: start, end: end, options: .strictStartDate
+        )
+        
+        let sort = NSSortDescriptor(
+            key: HKSampleSortIdentifierStartDate, ascending: true
+        )
+        
+        let query = HKSampleQuery(
+            sampleType: hrType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sort]
+        ) { _, samples, error in
+            DispatchQueue.main.async {
+                if let err = error {
+                    completion(.failure(.underlying(err)))
+                } else {
+                    let hrSamples = (samples as? [HKQuantitySample]) ?? []
+                    completion(.success(hrSamples))
+                }
+            }
+        }
+        store.execute(query)
+    }
+    
+    func fetchSleepData(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
+    ) {
+        guard isAvailable,
+              let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis)
+        else {
+            return DispatchQueue.main.async {
+                completion(.failure(.notAvailableOnDevice))
+            }
+        }
+        
+        let predicate = HKQuery.predicateForSamples(
+            withStart: start, end: end, options: .strictStartDate
+        )
+        
+        let sort = NSSortDescriptor(
+            key: HKSampleSortIdentifierStartDate, ascending: true
+        )
+        
+        let query = HKSampleQuery(
+            sampleType: sleepType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sort]
+        ) { _, samples, error in
+            DispatchQueue.main.async {
+                if let err = error {
+                    completion(.failure(.underlying(err)))
+                } else {
+                    let sleepSamples = (samples as? [HKCategorySample]) ?? []
+                    completion(.success(sleepSamples))
+                }
+            }
+        }
+        store.execute(query)
+    }
     
 }

@@ -76,6 +76,25 @@ protocol HealthKitRepositoryProtocol {
        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
      )
     
+    func fetchHeartRateVariability(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    )
+    
+    func fetchHeartRate(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    )
+    
+    func fetchSleepData(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
+    )
+
+    
 }
 
 final class HealthKitRepository: HealthKitRepositoryProtocol {
@@ -234,6 +253,36 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
     ) {
         store.fetchHeartRateSamplesForWorkout(for: workout) { result in
+            completion(result)
+        }
+    }
+    
+    func fetchHeartRateVariability(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    ) {
+        store.fetchHeartRateVariability(from: start, to: end) { result in
+            completion(result)
+        }
+    }
+    
+    func fetchHeartRate(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    ) {
+        store.fetchHeartRate(from: start, to: end) { result in
+            completion(result)
+        }
+    }
+    
+    func fetchSleepData(
+        from start: Date,
+        to end: Date,
+        completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
+    ) {
+        store.fetchSleepData(from: start, to: end) { result in
             completion(result)
         }
     }

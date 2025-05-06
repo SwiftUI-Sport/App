@@ -21,6 +21,8 @@ final class HealthKitViewModel: ObservableObject {
     @Published var stressHistory42Days: [TrainingStressOfTheDay] = []
     @Published var stressHistory7Days:  [TrainingStressOfTheDay] = []
     
+    @Published var past7DaysWorkouts: [DailyWorkoutSummary] = []
+    
     private let repository: HealthKitRepositoryProtocol
     
     init(repository: HealthKitRepositoryProtocol) {
@@ -358,7 +360,7 @@ final class HealthKitViewModel: ObservableObject {
                     let rev        = sample.sourceRevision
                     let sourceName = rev.source.name
                     let os         = rev.operatingSystemVersion
-                    print("  • Source   : \(sourceName) [\(rev.productType) iOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)]")
+                    print("  • Source   : \(sourceName) [\(String(describing: rev.productType)) iOS \(os.majorVersion).\(os.minorVersion).\(os.patchVersion)]")
                     
                     if let dev = sample.device {
                         print("  • Device   :")
@@ -546,6 +548,230 @@ final class HealthKitViewModel: ObservableObject {
         group.notify(queue: .main) { [weak self] in
             self?.activities = built.sorted(by: { $0.startDate > $1.startDate })
             self?.stressHistory42Days = self?.buildStressHistory(forLast: 42) ?? []
+        }
+    }
+    
+    func loadHeartRateVariability() {
+        let (start7, end7) = Date.last7DaysRange
+        repository.fetchHeartRateVariability(from: start7, to: end7) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let samples):
+                // Process HRV samples
+                if !samples.isEmpty {
+                    let unit = HKUnit.secondUnit(with: .milli)
+                    let df = DateFormatter()
+                    df.dateFormat = "yyyy-MM-dd HH:mm"
+                    
+                    print("📊 HRV Samples: \(samples.count) entries")
+                    for sample in samples {
+                        let timestamp = df.string(from: sample.startDate)
+                        let hrvValue = sample.quantity.doubleValue(for: unit)
+                        print("• \(timestamp): \(hrvValue) ms")
+                    }
+                    
+                    // MARK: You can store these values in a published property
+                    // self.hrvSamples = samples.map { ... }
+                } else {
+                    print("No HRV data available")
+                }
+                
+            case .failure(let error):
+                self.errorMessage = "Failed to load HRV data: \(error)"
+            }
+        }
+    }
+    
+    func loadHeartRate() {
+        let (start7, end7) = Date.last7DaysRange
+        repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let samples):
+                if !samples.isEmpty {
+                    let unit = HKUnit.count().unitDivided(by: .minute())
+                    let df = DateFormatter()
+                    df.dateFormat = "yyyy-MM-dd HH:mm"
+                    
+                    print("❤️ Heart Rate Samples: \(samples.count) entries")
+                    for sample in samples {
+                        let timestamp = df.string(from: sample.startDate)
+                        let hrValue = sample.quantity.doubleValue(for: unit)
+                        print("• \(timestamp): \(Int(hrValue)) bpm")
+                    }
+                    
+                    // MARK: You can store these values in a published property
+                    // self.heartRateSamples = samples.map { ... }
+                } else {
+                    print("No heart rate data available")
+                }
+                
+            case .failure(let error):
+                self.errorMessage = "Failed to load heart rate data: \(error)"
+            }
+        }
+    }
+    
+    func loadSleepData() {
+        let (start24h, end24h) = Date.last24HoursRange
+        repository.fetchSleepData(from: start24h, to: end24h) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let samples):
+                if !samples.isEmpty {
+                    let df = DateFormatter()
+                    df.dateFormat = "yyyy-MM-dd HH:mm"
+                    
+                    print("😴 Sleep Data: \(samples.count) entries")
+                    
+                    // Group sleep samples by day
+                    let calendar = Calendar.current
+                    var sleepByDay: [Date: [HKCategorySample]] = [:]
+                    
+                    for sample in samples {
+                        // Get start date with time components zeroed out (just the day)
+                        let day = calendar.startOfDay(for: sample.startDate)
+                        
+                        if sleepByDay[day] == nil {
+                            sleepByDay[day] = []
+                        }
+                        sleepByDay[day]?.append(sample)
+                    }
+                    
+                    // Process each day's sleep data
+                    for (day, daySamples) in sleepByDay.sorted(by: { $0.key > $1.key }) {
+                        let dateString = df.string(from: day)
+                        
+                        var inBedDuration: TimeInterval = 0
+                        var asleepDuration: TimeInterval = 0
+                        var deepSleepDuration: TimeInterval = 0
+                        var remSleepDuration: TimeInterval = 0
+                        var coreSleepDuration: TimeInterval = 0
+                        
+                        for sample in daySamples {
+                            let duration = sample.endDate.timeIntervalSince(sample.startDate)
+                            let value = sample.value
+                            
+                            // Get sleep stage based on the category value
+                            switch value {
+                            case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                                inBedDuration += duration
+                            case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                                asleepDuration += duration
+                            case HKCategoryValueSleepAnalysis.awake.rawValue:
+                                // Awake time during sleep
+                                break
+                            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                                deepSleepDuration += duration
+                            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                                remSleepDuration += duration
+                            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                                coreSleepDuration += duration
+                            default:
+                                break
+                            }
+                        }
+                        
+                        // Format durations in hours and minutes
+                        func formatDuration(_ interval: TimeInterval) -> String {
+                            let hours = Int(interval / 3600)
+                            let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
+                            return "\(hours)h \(minutes)m"
+                        }
+                        
+                        print("• \(dateString):")
+                        print("  - In Bed: \(formatDuration(inBedDuration))")
+                        print("  - Asleep: \(formatDuration(asleepDuration))")
+                        
+                        // Only print detailed sleep stages if available
+                        if deepSleepDuration > 0 || remSleepDuration > 0 || coreSleepDuration > 0 {
+                            print("  - Deep Sleep: \(formatDuration(deepSleepDuration))")
+                            print("  - REM Sleep: \(formatDuration(remSleepDuration))")
+                            print("  - Core Sleep: \(formatDuration(coreSleepDuration))")
+                        }
+                    }
+                    
+                    // MARK: You can store these values in published properties
+                    // self.sleepData = ...
+                } else {
+                    print("No sleep data available")
+                }
+                
+            case .failure(let error):
+                self.errorMessage = "Failed to load sleep data: \(error)"
+            }
+        }
+    }
+
+    func loadAllPast7DaysWorkout() {
+        let (start, end) = Date.last7DaysRange
+        let calendar = Calendar.current
+        
+        // Create empty day entries for all 7 days
+        var dailySummaries: [Date: DailyWorkoutSummary] = [:]
+        
+        // Generate entries for each day in the range
+        for dayOffset in 0..<7 {
+            let day = calendar.date(byAdding: .day, value: -dayOffset, to: calendar.startOfDay(for: Date()))!
+            dailySummaries[calendar.startOfDay(for: day)] = DailyWorkoutSummary.emptyDay(date: day)
+        }
+        
+        repository.fetchAllWorkoutsWithinRange(from: start, to: end) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let workouts):
+                // Group workouts by day
+                var workoutsByDay: [Date: [WorkoutDetails]] = [:]
+                
+                for workout in workouts {
+                    let dayStart = calendar.startOfDay(for: workout.startDate)
+                    if workoutsByDay[dayStart] == nil {
+                        workoutsByDay[dayStart] = []
+                    }
+                    workoutsByDay[dayStart]?.append(WorkoutDetails(from: workout))
+                }
+                
+                // Merge with empty days
+                for (day, workouts) in workoutsByDay {
+                    dailySummaries[day] = DailyWorkoutSummary(date: day, workouts: workouts)
+                }
+                
+                // Sort by date (newest first) and update published property
+                self.past7DaysWorkouts = dailySummaries.values.sorted(by: { $0.date > $1.date })
+                
+                print("📅 Loaded workout summaries for the past 7 days:")
+                for summary in self.past7DaysWorkouts {
+                    let dateFormatter = DateFormatter()
+                    dateFormatter.dateStyle = .medium
+                    dateFormatter.timeStyle = .none
+                    
+                    let dateStr = dateFormatter.string(from: summary.date)
+                    if summary.hasWorkouts {
+                        let totalDurationMinutes = Int(summary.totalDuration / 60)
+                        let workoutCount = summary.workouts.count
+                        let totalCalories = Int(summary.totalCalories)
+                        
+                        var distanceStr = "N/A"
+                        if let distance = summary.totalDistance {
+                            distanceStr = String(format: "%.2f km", distance / 1000)
+                        }
+                        
+                        print("• \(dateStr): \(workoutCount) workout(s), \(totalDurationMinutes) minutes, \(totalCalories) kcal, \(distanceStr)")
+                    } else {
+                        print("• \(dateStr): No workouts")
+                    }
+                }
+                
+            case .failure(let error):
+                self.errorMessage = "Failed to load past 7 days workouts: \(error)"
+                
+                // Even on error, still populate with empty data
+                self.past7DaysWorkouts = dailySummaries.values.sorted(by: { $0.date > $1.date })
+            }
         }
     }
     
