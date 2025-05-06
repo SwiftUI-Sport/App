@@ -6,9 +6,10 @@
 //
 import SwiftUI
 
-enum ActivityFlow: NavigationDestination {
+enum ActivityFlow: NavigationDestination, Hashable {
+ 
     case firstProfile
-    case secondProfile
+    case secondProfile(WorkoutActivity)
     
     
     var title: String {
@@ -16,7 +17,7 @@ enum ActivityFlow: NavigationDestination {
         case .firstProfile:
             return "FirstProfile"
         case .secondProfile:
-            return "SecondProfile"
+            return "Detail Activity"
         }
     }
     
@@ -24,8 +25,8 @@ enum ActivityFlow: NavigationDestination {
         switch self {
         case .firstProfile:
             FirstActivityView()
-        case .secondProfile:
-            SecondActivityView()
+        case .secondProfile(let activity):
+            SecondActivityView(activity:activity)
         }
     }
 }
