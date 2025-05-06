@@ -13,18 +13,64 @@ struct SegmentedControl: View {
     
       @Binding var activeTab: String
       let tabs = ["HR", "RHR", "HRV"]
+    
+      @Namespace private var animation
 
       var body: some View {
           
            
 
-              Picker("Options", selection: $activeTab) {
-                  ForEach(tabs, id: \.self) { option in
-                      Text(option)
-                  }
-              }
-              .pickerStyle(.segmented)
-              .padding()
+//              Picker("Options", selection: $activeTab) {
+//                  ForEach(tabs, id: \.self) { option in
+//                      Text(option)
+//                  }
+//              }
+//              .pickerStyle(.segmented)
+//              .padding()
+              
+
+          
+          
+          HStack(spacing: 0) {
+              ForEach(tabs.indices, id: \.self) { index in
+                        let tab = tabs[index]
+                  
+                         Button(action: {
+                             withAnimation(.easeOut(duration: 0.2)) {
+                                 activeTab = tab
+                             }
+                         }) {
+                             Text(tab)
+                                 .font(.system(size: 14, weight: .medium))
+                                 .foregroundColor(activeTab == tab ? .white : .gray)
+                                 .frame(maxWidth: .infinity, maxHeight: 30)
+                                 .padding(.vertical, 8)
+                                 .background(
+                                     ZStack {
+                                         if activeTab == tab {
+                                             RoundedRectangle(cornerRadius: 8)
+                                                 .fill(Color("OrangeOnex"))
+                                                 .matchedGeometryEffect(id: "tab", in: animation)
+                                         }
+                                     }
+                                 )
+                         }
+                         .frame(maxWidth: .infinity)
+                         
+//                         // Add separator if not the last item
+//                         if index < tabs.count - 1 {
+//                             Divider()
+//                                 .frame(width: 1, height: 20)
+//                                 .background(Color.white.opacity(0.7)) // You can adjust opacity or color
+//                         }
+                     }
+                 }
+                 .background(
+                     RoundedRectangle(cornerRadius: 8)
+                         .fill(Color(.systemGray4))
+                 )
+                 .padding()
+              
           
       }
 }
@@ -38,6 +84,10 @@ struct SimpleCard: View {
     var titleColor : Color = .black
     var showIcon : Bool = false
     var backgroundColor : Color = .white
+    var showSecondaryText : Bool = false
+    var secondaryTitle : String = ""
+    var secondaryText : String = ""
+    
     
     var body: some View {
         
@@ -61,6 +111,17 @@ struct SimpleCard: View {
 
             Text(content)
                 .foregroundColor(.primary)
+            
+            if showSecondaryText {
+                Text(secondaryTitle)
+                    .font(.headline)
+                    .padding(.vertical, 8)
+                    .foregroundColor(titleColor)
+                Text(secondaryText)
+                    .foregroundColor(.primary)
+            }
+            
+            
         }
         .padding(24)
         .background(backgroundColor)
@@ -94,7 +155,7 @@ struct MyChart: View {
         .init(day: "Thursday", averageHeartRate: 140),
         .init(day: "Friday", averageHeartRate: 88),
         .init(day: "Saturday", averageHeartRate: 120),
-        .init(day: "Sunday", averageHeartRate: 115)
+        .init(day: "Sunday", averageHeartRate: 120)
     ]
     
     var body: some View {
@@ -104,8 +165,12 @@ struct MyChart: View {
                 x: .value("Day", item.day),
                 y: .value("Average Heart Rate", item.averageHeartRate)
             )
-            .foregroundStyle(index == data.count - 1 ? Color("OrangeOnex") : Color("Barx"))
+            .foregroundStyle(index == data.count - 1 ? Color("OrangeTwox") : Color("Barx"))
             .cornerRadius(5)
+                
+                RuleMark(y: .value("Average Heart Rate", 80))
+                    .foregroundStyle(Color("OrangeOnex"))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                 
             }
 
@@ -129,23 +194,36 @@ struct AverageHeartRateSection: View {
      var body: some View {
          
          ScrollView {
-             Text("Average Heart Rate Section")
-                 .padding()
+   
              
-             VStack{
-                 Text("Average Heart Rate")
+             VStack(alignment: .leading){
+                 Text("Your Average Heart Rate is Higher Than Usual ")
+                     .font(.title3.bold())
+                 
+                 Rectangle()
+                     .frame(width: 150, height: 2, alignment: .leading)
+                     .foregroundStyle(Color("OrangeThreex"))
                  
                  HStack{
-                     Image(systemName: "exclamationmark.icloud.fill")
+                     Image(systemName: "heart.circle.fill")
+                         .font(.system(size: 32, weight: .bold, design: .default))
+                         .foregroundStyle(Color("OrangeOnex"))
                      Text("123")
+                         .font(.title)
+                         .bold()
                      Text("bpm")
-                         .font(.caption)
+                         .font(.title2.bold())
+                         .foregroundStyle(Color("OrangeOnex"))
                      
                      Spacer()
                      
                      Text("12-19 April 2025")
+                         .font(.caption)
+                         .foregroundStyle(Color.gray)
                          
                  }
+                 .padding(.top, 8)
+                 
                  
                  
                      
@@ -153,6 +231,7 @@ struct AverageHeartRateSection: View {
                  MyChart()
              }
              .padding(.vertical)
+             .padding(.horizontal, 16)
              .background(Color.white)
              .cornerRadius(12)
              .frame(maxWidth: .infinity, alignment: .leading)
@@ -162,7 +241,11 @@ struct AverageHeartRateSection: View {
              
              
              SimpleCard(title: "Highlight",
-                        content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering"
+                        content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering",
+                        showSecondaryText: true,
+                        secondaryTitle: "Here’s What You Can Do To Recover Your Body",
+                        secondaryText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        
                         
              )
              
@@ -222,6 +305,7 @@ public struct HeartRateView: View {
         VStack() {
        
             SegmentedControl(activeTab: $activeTab)
+                .background(Color.blue)
                 
             
             Group {
