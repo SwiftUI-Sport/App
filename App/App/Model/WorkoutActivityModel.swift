@@ -55,19 +55,19 @@ struct TrainingStressOfTheDay: Identifiable, Codable {
     }
 }
 
-struct HeartRateSample: Codable {
+struct HeartRateSample: Hashable,Codable {
     let timestamp: Date
     let bpm: Double
 }
 
-struct WorkoutHeartRateZone: Codable {
+struct WorkoutHeartRateZone: Hashable,Codable {
     let zone: Int
     let lowerBound: Int
     let upperBound: Int
     let duration: TimeInterval
 }
 
-struct WorkoutActivity: Identifiable, Codable {
+struct WorkoutActivity: Hashable,Identifiable, Codable {
     let id: UUID
     let activityType: UInt
     let name: String
