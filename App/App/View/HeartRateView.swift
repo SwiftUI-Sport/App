@@ -14,7 +14,7 @@ struct SegmentedControl: View {
       @Binding var activeTab: String
       let tabs = ["HR", "RHR", "HRV"]
     
-      @Namespace private var animation
+    @Namespace private var animation
 
       var body: some View {
           
@@ -43,7 +43,7 @@ struct SegmentedControl: View {
                              Text(tab)
                                  .font(.system(size: 14, weight: .medium))
                                  .foregroundColor(activeTab == tab ? .white : .gray)
-                                 .frame(maxWidth: .infinity, maxHeight: 30)
+                                 .frame(maxWidth: .infinity, minHeight: 25)
                                  .padding(.vertical, 8)
                                  .background(
                                      ZStack {
@@ -126,7 +126,7 @@ struct SimpleCard: View {
         .padding(24)
         .background(backgroundColor)
         .cornerRadius(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal)
         .padding(.bottom, 16)
         
@@ -158,6 +158,28 @@ struct MyChart: View {
         .init(day: "Sunday", averageHeartRate: 120)
     ]
     
+    func getShortDay(for day: String) -> String {
+        switch day {
+        case "Monday":
+            return "M"
+        case "Tuesday":
+            return "T"
+        case "Wednesday":
+            return "W"
+        case "Thursday":
+            return "T"
+        case "Friday":
+            return "F"
+        case "Saturday":
+            return "S"
+        case "Sunday":
+            return "S"
+        default:
+            return ""
+        }
+    }
+    
+    
     var body: some View {
         Chart {
             ForEach(Array(data.enumerated()), id: \.element.day) { index, item in
@@ -177,10 +199,24 @@ struct MyChart: View {
         }
         .frame(height: 200)
         .padding()
+ 
         .chartXAxis {
-              AxisMarks(values: .stride(by: 1)) // Customize the x-axis if needed
-              
-          }
+            
+
+            AxisMarks(values: .automatic) { value in
+                if let day = value.as(String.self) {
+                    let shortDay = getShortDay(for: day)
+                    AxisValueLabel(shortDay)
+                }
+            }
+            
+            
+            
+        }
+        
+        .chartYAxis{
+            AxisMarks(position: .leading)
+        }
      
         
         
@@ -193,7 +229,7 @@ struct AverageHeartRateSection: View {
     
      var body: some View {
          
-         ScrollView {
+         
    
              
              VStack(alignment: .leading){
@@ -261,7 +297,7 @@ struct AverageHeartRateSection: View {
                         backgroundColor: Color("OrangeBGx"))
              
              
-         }
+         
 
     }
 }
@@ -272,6 +308,8 @@ struct RestingHeartRateSection: View {
          
          Text("Resting Heart Rate Section")
              .padding()
+         
+         AverageHeartRateSection()
          
          
     }
@@ -301,30 +339,34 @@ public struct HeartRateView: View {
 
     
     public var body: some View {
-        
-        VStack() {
-       
-            SegmentedControl(activeTab: $activeTab)
-                .background(Color.blue)
-                
+        ScrollView{
             
-            Group {
-                if activeTab == "HR" {
-                    AverageHeartRateSection()
-                } else if activeTab == "RHR" {
-                    RestingHeartRateSection()
-                } else if activeTab == "HRV" {
-                   HeartRateVariabilitySection()
+            VStack() {
+                
+                SegmentedControl(activeTab: $activeTab)
+                    
+                
+                
+                
+                Group {
+                    if activeTab == "HR" {
+                        AverageHeartRateSection()
+                    } else if activeTab == "RHR" {
+                        RestingHeartRateSection()
+                    } else if activeTab == "HRV" {
+                        HeartRateVariabilitySection()
+                    }
                 }
+                
+                Spacer()
             }
             
-            Spacer()
+            .frame( maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+            
+            
+            
         }
-        
-        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
         .background(Color("BackgroundColorx"))
-        
-        
     }
         
 }
