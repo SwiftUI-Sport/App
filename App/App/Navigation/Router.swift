@@ -32,4 +32,11 @@ final class Router<Destination: NavigationDestination>: ObservableObject {
         navPaths.removeLast(navPaths.count)
     }
     
+    func navigateTo(_ destination: Destination) where Destination: Equatable {
+        if let index = navPaths.firstIndex(of: destination) {
+            navPaths = Array(navPaths[0...index])
+        } else {
+            navigate(to: destination)
+        }
+    }
 }

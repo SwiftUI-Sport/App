@@ -7,58 +7,86 @@
 
 import Foundation
 import HealthKit
+import SwiftUI
 
 extension Date {
-  private static var calendar: Calendar { Calendar.current }
-
-  var startOfDay: Date {
-    Self.calendar.startOfDay(for: self)
-  }
-
-  var endOfDay: Date {
-    let start = startOfDay
-    return Self.calendar.date(byAdding: DateComponents(day: 1, second: -1), to: start)!
-  }
-
-  static func daysAgo(_ days: Int, from reference: Date = Date()) -> Date {
-    Self.calendar.date(byAdding: .day, value: -days, to: reference)!
-  }
-
-  static func lastDaysRange(_ days: Int) -> (start: Date, end: Date) {
-    let end   = Date()
-    let start = daysAgo(days, from: end)
-    return (start, end)
-  }
-
-  static var last7DaysRange: (start: Date, end: Date) {
-    lastDaysRange(7)
-  }
-
-  static var last30DaysRange: (start: Date, end: Date) {
-    lastDaysRange(30)
-  }
+    private static var calendar: Calendar { Calendar.current }
+    
+    var startOfDay: Date {
+        Self.calendar.startOfDay(for: self)
+    }
+    
+    var endOfDay: Date {
+        let start = startOfDay
+        return Self.calendar.date(byAdding: DateComponents(day: 1, second: -1), to: start)!
+    }
+    
+    static func daysAgo(_ days: Int, from reference: Date = Date()) -> Date {
+        Self.calendar.date(byAdding: .day, value: -days, to: reference)!
+    }
+    
+    static func lastDaysRange(_ days: Int) -> (start: Date, end: Date) {
+        let end   = Date()
+        let start = daysAgo(days, from: end)
+        return (start, end)
+    }
+    
+    static var last7DaysRange: (start: Date, end: Date) {
+        lastDaysRange(7)
+    }
+    
+    static var last30DaysRange: (start: Date, end: Date) {
+        lastDaysRange(30)
+    }
     
     static var last42DaysRange: (start: Date, end: Date) {
         lastDaysRange(42)
     }
     
     static func lastNDates(_ n: Int, calendar: Calendar = .current) -> [Date] {
-            let today = calendar.startOfDay(for: Date())
-            return (0..<n)
-                .compactMap { calendar.date(byAdding: .day, value: -($0), to: today) }
-                .sorted()
-        }
-
-  static var yesterdayRange: (start: Date, end: Date) {
-    let todayStart     = Date().startOfDay
-    let yesterdayStart = daysAgo(1, from: todayStart)
-    let yesterdayEnd   = yesterdayStart.endOfDay
-    return (yesterdayStart, yesterdayEnd)
-  }
-    
-    
+        let today = calendar.startOfDay(for: Date())
+        return (0..<n)
+            .compactMap { calendar.date(byAdding: .day, value: -($0), to: today) }
+            .sorted()
     }
     
+    static var yesterdayRange: (start: Date, end: Date) {
+        let todayStart     = Date().startOfDay
+        let yesterdayStart = daysAgo(1, from: todayStart)
+        let yesterdayEnd   = yesterdayStart.endOfDay
+        return (yesterdayStart, yesterdayEnd)
+    }
+    
+    
+}
+
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: .whitespacesAndNewlines)
+        let scanner = Scanner(string: hex.hasPrefix("#") ? String(hex.dropFirst()) : hex)
+        var rgb: UInt64 = 0
+        scanner.scanHexInt64(&rgb)
+        let r = Double((rgb & 0xFF0000) >> 16) / 255
+        let g = Double((rgb & 0x00FF00) >> 8)  / 255
+        let b = Double( rgb & 0x0000FF       ) / 255
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
+extension TrainingStressOfTheDay {
+    static func defaultValue() -> TrainingStressOfTheDay {
+        return TrainingStressOfTheDay(
+            date: Date(),
+            activities: [],
+            previousTSR: 0,
+            previousATL: 0,
+            previousCTL: 0,
+            tauATL: 0.0,
+            tauCTL: 0.0
+        )
+    }
+}
+
 
 extension HKWorkoutActivityType {
     var name: String {
@@ -166,4 +194,4 @@ extension HKWorkoutActivityType {
         @unknown default:                   return "Other"
         }
     }
-    }
+}

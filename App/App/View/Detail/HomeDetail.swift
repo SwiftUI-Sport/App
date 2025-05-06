@@ -42,6 +42,10 @@ struct ThirdScreenView: View {
             Button("Go to Home") {
                 router.navigateToRoot()
             }
+            
+            Button("Go to first Screen") {
+                router.navigateTo(.first)
+            }
         }
         .navigationBarTitleDisplayMode(.large)
     }
