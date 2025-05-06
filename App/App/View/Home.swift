@@ -144,7 +144,7 @@ struct HeaderSectionView: View {
                     .scaledToFit()
                     .frame(width: 80, height: 80)
             }
-            // nyoba
+            // nyoba //lagi
         }
         .padding(.horizontal)
     }
