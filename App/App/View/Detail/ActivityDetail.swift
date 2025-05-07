@@ -31,9 +31,9 @@ struct SecondActivityView: View {
                 ZStack(alignment: .topLeading){
                     Rectangle()
                         .fill(Color.white)
-                        .frame(maxWidth: .infinity, maxHeight: 170)
+                        .frame(width:.infinity, height: 150)
                         .cornerRadius(10)
-                        .shadow(radius: 5)
+                        .shadow(radius: 0.5)
                     
                     VStack() {
                         HStack (alignment:.firstTextBaseline){
@@ -61,9 +61,10 @@ struct SecondActivityView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         Spacer()
                     }
-                    .frame(maxWidth: .infinity, maxHeight: 170)
-                    .foregroundColor(.black)
                     .padding()
+                    .frame(width:.infinity, height: 150)
+                    .foregroundColor(.black)
+//                    .padding()
                     Spacer()
                 }
                 
@@ -74,7 +75,7 @@ struct SecondActivityView: View {
                             .frame(width:.infinity, height: 150)
                             .cornerRadius(10)
                             .padding(.trailing,5)
-                            .shadow(radius: 5)
+                            .shadow(radius: 0.5)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "map.circle.fill")
@@ -112,7 +113,7 @@ struct SecondActivityView: View {
                             .frame(width:.infinity, height: 150)
                             .cornerRadius(10)
                             .padding(.leading,5)
-                            .shadow(radius: 5)
+                            .shadow(radius: 0.5)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "timer.circle.fill")
@@ -145,7 +146,7 @@ struct SecondActivityView: View {
                             .fill(Color.white)
                             .frame(maxWidth: .infinity, maxHeight: 600)
                             .cornerRadius(10)
-                            .shadow(radius: 5)
+                            .shadow(radius: 0.5)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "heart.text.square.fill")
@@ -158,17 +159,17 @@ struct SecondActivityView: View {
                                     .frame(maxWidth: .infinity, alignment: .leading)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            ForEach(activity.zoneDurations, id: \.zone) { activity in
+                            ForEach(activity.zoneDurations, id: \.zone) { activity1 in
                                 VStack{
                                     VStack{
-                                        if activity.zone < 1 {
+                                        if activity1.zone < 1 {
                                             Text("Not in Zone")
                                                 .foregroundColor(.black)
                                                 .font(.caption)
                                                 .fontWeight(.bold)
                                         }
                                         else{
-                                            Text("Zone \(activity.zone)")
+                                            Text("Zone \(activity1.zone)")
                                                 .foregroundColor(.black)
                                                 .font(.caption)
                                                 .fontWeight(.bold)
@@ -178,72 +179,102 @@ struct SecondActivityView: View {
                                     
                                     
                                     HStack{
-                                        Text("< \(activity.lowerBound) - \(activity.upperBound)")
+                                        Text("< \(activity1.lowerBound) - \(activity1.upperBound)")
                                         Spacer()
                                         
-                                        Text("\(formatTimeIntervalToText(activity.duration))")
+                                        Text("\(formatTimeIntervalToText(activity1.duration))")
                                             .foregroundColor(.black)
                                         
                                     }
                                     .foregroundColor(.gray)
                                     .font(.caption)
-                                    
+//                                    Text("\(Int(activity.duration))")
+//                                    Text("\(Int(activity1.duration))")
                                     VStack() {
-                                        switch activity.zone {
-//                                            currentValue=activity.averageHeartRate
-                                        case 0:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .orange,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        case 1:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .systemPink,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        case 2:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .blue,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        case 3:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .green,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        case 4:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .orange,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        case 5:
-                                            UISliderView(value: $currentValue,
-                                                         minValue: Double(activity.lowerBound),
-                                                         maxValue: Double(activity.upperBound),
-                                                         thumbColor: .clear,
-                                                         minTrackColor: .red,
-                                                         maxTrackColor: .clear)
-                                            .frame(maxWidth: .infinity)
-                                        default:
-                                            Text("error")
-                                        }
-                                       
-                                    }
+                                       switch activity1.zone {
+                                       case 0:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemYellow,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       case 1:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemPink,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       case 2:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemBlue,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       case 3:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemGreen,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       case 4:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemOrange,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       case 5:
+                                           UISliderView(
+                                               value: Binding<Double>(
+                                                   get: { Double(activity1.duration) },
+                                                   set: { newValue in /* handle value change */ }
+                                               ),
+                                               minValue: 0.0,
+                                               maxValue: Double(activity1.duration), // Changed from activity.duration to activity1.duration
+                                               thumbColor: .clear,
+                                               minTrackColor: .systemRed,
+                                               maxTrackColor: .gray
+                                           )
+                                           .frame(maxWidth: .infinity)
+                                       default:
+                                           Text("error")
+                                       }
+                                      
+                                   }
                                     
                                 }
                                 .frame(maxWidth: .infinity, maxHeight: 600)
@@ -319,8 +350,8 @@ struct SecondActivityView: View {
     struct UISliderView: UIViewRepresentable {
         @Binding var value: Double
         
-        var minValue = 1.0
-        var maxValue = 100.0
+        var minValue = 0.0
+        var maxValue = 10000.0
         var thumbColor: UIColor = .white
         var minTrackColor: UIColor = .blue
         var maxTrackColor: UIColor = .lightGray
