@@ -13,6 +13,18 @@ struct HeartRateOfTheDay: Identifiable {
     let averageHeartRate: Int
 }
 
+struct RestingHeartRateOfTheDay: Identifiable {
+    let id = UUID()
+    let date: String
+    let restingHeartRate: Int
+}
+
+struct DailyRate: Identifiable {
+    let id = UUID()
+    let date: String // e.g., "2025-05-07"
+    let value: Int   // heart rate or resting heart rate
+}
+
 final class HeartRateViewModel: ObservableObject {
     private let repository: HealthKitRepositoryProtocol
     
