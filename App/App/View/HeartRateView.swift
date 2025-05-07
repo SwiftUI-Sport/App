@@ -15,6 +15,7 @@ struct SegmentedControl: View {
       let tabs = ["HR", "RHR", "HRV"]
     
     @Namespace private var animation
+    // ini abid
 
       var body: some View {
           
