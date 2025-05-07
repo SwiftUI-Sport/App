@@ -37,7 +37,6 @@ struct ActivityView: View {
                 .padding(.bottom,20)
                 VStack(alignment:.leading) {
                     ForEach(Array(healthKitViewModel.activities.enumerated()), id: \.element.startDate) { index, activity in
-                        // Tampilkan header tanggal hanya jika ini aktivitas pertama atau tanggal berbeda dengan sebelumnya
                         if index == 0 || !Calendar.current.isDate(healthKitViewModel.activities[index-1].startDate, inSameDayAs: activity.startDate) {
                             HStack {
                                 Text(activity.startDate.formatted(.dateTime.weekday(.wide)))
@@ -47,10 +46,11 @@ struct ActivityView: View {
                                 Spacer()
                                 Text(activity.startDate.formatted(.dateTime.day().month(.wide)))
                                     .padding(.horizontal)
-                                    .font(.headline)
+                                    .font(.subheadline)
+                                    .fontWeight(.light)
                                     .foregroundColor(.gray)
                             }
-                            .padding(.top, index == 0 ? 0 : 16) // Kurangi padding atas untuk item pertama
+                            .padding(.top, index == 0 ? 0 : 16)
                         }
                         
                         // Tampilkan card aktivitas
@@ -74,7 +74,7 @@ struct ActivityView: View {
                                         Text("Bpm")
                                             .foregroundColor(.redTint)
                                             .fontWeight(.semibold)
-                                            .font(.caption2)
+                                            .font(.caption)
                                             .padding(.top, 10)
                                             .padding(.leading, -8)
                                     }
@@ -88,7 +88,7 @@ struct ActivityView: View {
                             .padding(20)
                             .background(Color.white)
                             .cornerRadius(10)
-                            .shadow(radius: 5)
+                            .shadow(radius: 1)
                         }
                         .padding(.top, 5)
                         .padding(.horizontal)
@@ -106,27 +106,27 @@ struct ActivityView: View {
            ZStack(alignment: .bottomLeading) {
                Image("Image")
                    .scaledToFill()
-                   .frame(width: UIScreen.main.bounds.width, height: 300)
+                   .frame(width: UIScreen.main.bounds.width, height: 190)
                    .clipped()
                    .ignoresSafeArea(edges: .top)
-                   .offset(y: 10)
+                   .offset(y: -17)
                
                VStack {
                    Text("Your Run Activity")
                        .font(.largeTitle)
                        .fontWeight(.bold)
-                       .foregroundColor(.orange)
+                       .foregroundColor(.redTint)
                    
                    Text("Last 7 Days")
                        .font(.title3)
                        .fontWeight(.bold)
-                       .foregroundColor(.orange)
+                       .foregroundColor(.redTint)
                }
                .frame(maxWidth: .infinity, alignment: .center)
                .padding(.horizontal)
-               .padding(.bottom, 50)
+               .padding(.bottom, 20)
            }
-           .frame(height: 50)
+           .frame(height: 100)
        }
 }
 
