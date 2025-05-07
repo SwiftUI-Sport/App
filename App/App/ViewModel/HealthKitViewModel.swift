@@ -17,6 +17,7 @@ final class HealthKitViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     @Published var activities: [WorkoutActivity] = []
+    @Published var heartRateHistory: [HeartRateOfTheDay] = []
     
     @Published var stressHistory42Days: [TrainingStressOfTheDay] = []
     @Published var stressHistory7Days:  [TrainingStressOfTheDay] = []
@@ -583,7 +584,39 @@ final class HealthKitViewModel: ObservableObject {
         }
     }
     
-    func loadHeartRate() {
+//    func loadHeartRate() {
+//        let (start7, end7) = Date.last7DaysRange
+//        repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
+//            guard let self = self else { return }
+//            
+//            switch result {
+//            case .success(let samples):
+//                if !samples.isEmpty {
+//                    let unit = HKUnit.count().unitDivided(by: .minute())
+//                    let df = DateFormatter()
+//                    df.dateFormat = "yyyy-MM-dd HH:mm"
+//                    
+//                    print("❤️ Heart Rate Samples: \(samples.count) entries")
+//                    for sample in samples {
+//                        let timestamp = df.string(from: sample.startDate)
+//                        let hrValue = sample.quantity.doubleValue(for: unit)
+//                        print("• \(timestamp): \(Int(hrValue)) bpm")
+//                    }
+//                    
+//                    // MARK: You can store these values in a published property
+//                    // self.heartRateSamples = samples.map { ... }
+//                } else {
+//                    print("No heart rate data available")
+//                }
+//                
+//            case .failure(let error):
+//                self.errorMessage = "Failed to load heart rate data: \(error)"
+//            }
+//        }
+//    }
+    
+    // Modify the loadHeartRate function to accept a Binding
+    func loadHeartRate(target: Binding<[HeartRateOfTheDay]>) {
         let (start7, end7) = Date.last7DaysRange
         repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
             guard let self = self else { return }
@@ -593,17 +626,35 @@ final class HealthKitViewModel: ObservableObject {
                 if !samples.isEmpty {
                     let unit = HKUnit.count().unitDivided(by: .minute())
                     let df = DateFormatter()
-                    df.dateFormat = "yyyy-MM-dd HH:mm"
+                    df.dateFormat = "yyyy-MM-dd"
                     
                     print("❤️ Heart Rate Samples: \(samples.count) entries")
+                    
+                    // Group samples by day of the week
+                    var dailyHeartRates: [String: [Double]] = [:]
                     for sample in samples {
                         let timestamp = df.string(from: sample.startDate)
                         let hrValue = sample.quantity.doubleValue(for: unit)
-                        print("• \(timestamp): \(Int(hrValue)) bpm")
+                        let dayOfWeek = df.string(from: sample.startDate)
+                        
+                        // Group by day of the week
+                        if dailyHeartRates[dayOfWeek] == nil {
+                            dailyHeartRates[dayOfWeek] = []
+                        }
+                        dailyHeartRates[dayOfWeek]?.append(hrValue)
                     }
                     
-                    // MARK: You can store these values in a published property
-                    // self.heartRateSamples = samples.map { ... }
+                    // Calculate average heart rate for each day and update the @State variable
+                    var heartRateData: [HeartRateOfTheDay] = []
+                    for (day, rates) in dailyHeartRates {
+                        let averageRate = rates.reduce(0, +) / Double(rates.count)
+                        let roundedRate = Int(averageRate)
+                        heartRateData.append(HeartRateOfTheDay(day: day, averageHeartRate: roundedRate))
+                    }
+                    
+                    // Update the target (binding) with sorted heart rate data
+                    target.wrappedValue = heartRateData.sorted { $0.day < $1.day }
+                    
                 } else {
                     print("No heart rate data available")
                 }

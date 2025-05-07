@@ -140,25 +140,16 @@ struct SimpleCard: View {
 
 //Ini CHART
 
-struct AverageHeartRate: Identifiable, Equatable {
-    var day: String
-    var averageHeartRate: Double
-    var id = UUID()
-}
+
 
 
 
 struct MyChart: View {
     
-    @State var data: [AverageHeartRate] = [
-        .init(day: "Monday", averageHeartRate: 102),
-        .init(day: "Tuesday", averageHeartRate: 105),
-        .init(day: "Wednesday", averageHeartRate: 150),
-        .init(day: "Thursday", averageHeartRate: 140),
-        .init(day: "Friday", averageHeartRate: 88),
-        .init(day: "Saturday", averageHeartRate: 120),
-        .init(day: "Sunday", averageHeartRate: 120)
-    ]
+    
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    @State var HeartRateOfTheDay: [HeartRateOfTheDay] = []
+    
     
     func getShortDay(for day: String) -> String {
         switch day {
@@ -181,14 +172,14 @@ struct MyChart: View {
         }
     }
     
-    func calculateAverageHeartRate(from data: [AverageHeartRate]) -> Double {
+    func calculateAverageHeartRate(from data: [HeartRateOfTheDay]) -> Double {
         // Calculate the sum of all the averageHeartRate values
         let totalHeartRate = data.reduce(0) { $0 + $1.averageHeartRate }
         
         // Calculate the average by dividing the sum by the count of data
-        let averageHeartRate = totalHeartRate / Double(data.count)
+        let averageHeartRate = totalHeartRate / data.count
         
-        return averageHeartRate
+        return Double(averageHeartRate)
     }
     
     
@@ -196,19 +187,19 @@ struct MyChart: View {
     
     var body: some View {
         Chart {
-            ForEach(Array(data.enumerated()), id: \.element.day) { index, item in
+            ForEach(Array(HeartRateOfTheDay.enumerated()), id: \.element.day) { index, item in
             BarMark(
                 x: .value("Day", item.day),
                 y: .value("Average Heart Rate", item.averageHeartRate)
             )
             
-            .foregroundStyle(index == data.count - 1 ? Color("OrangeTwox") : Color("Barx"))
+            .foregroundStyle(index == HeartRateOfTheDay.count - 1 ? Color("OrangeTwox") : Color("Barx"))
             .cornerRadius(5)
             
          
                 
                 
-            RuleMark(y: .value("Average Heart Rate", calculateAverageHeartRate(from: data)))
+            RuleMark(y: .value("Average Heart Rate", calculateAverageHeartRate(from: HeartRateOfTheDay)))
                 .foregroundStyle(Color("OrangeOnex"))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                 
@@ -217,7 +208,7 @@ struct MyChart: View {
         }
         .frame(height: 200)
         .padding()
-        .animation(.bouncy, value: data)
+        
         
         
         
@@ -237,6 +228,11 @@ struct MyChart: View {
         
         .chartYAxis{
             AxisMarks(position: .leading)
+        }
+        .onAppear {
+            
+            HealthKitViewModel.loadHeartRate(target: $HeartRateOfTheDay)
+            
         }
       
         
@@ -359,6 +355,7 @@ public struct HeartRateView: View {
     
     @State private var activeTab = "HR"
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+//    @State var HeartRateOfTheDay: [HeartRateOfTheDay] = []
     
     public var body: some View {
         ScrollView{
@@ -389,14 +386,15 @@ public struct HeartRateView: View {
             
         }
         .background(Color("BackgroundColorx"))
-        .onAppear {
-            print("Ini sebenernya udah jalan")
-            HealthKitViewModel.loadHeartRate()
-        }
+//        .onAppear {
+//            
+//            HealthKitViewModel.loadHeartRate(target: HeartRateOfTheDay)
+//            print("Ini sebenernya udah jalan 2")
+//        }
     }
         
 }
 
-#Preview {
-    HeartRateView()
-}
+//#Preview {
+//    HeartRateView()
+//}
