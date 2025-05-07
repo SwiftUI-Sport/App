@@ -175,6 +175,7 @@ struct FatigueCard: View {
 
 struct HeresWhySection: View {
     let reasons: [Reason]
+    @EnvironmentObject var router: HomeFlowRouter
     
     var body: some View {
         ZStack {
@@ -190,12 +191,17 @@ struct HeresWhySection: View {
                         Button {
                             switch r.title {
                             case "Heart Rate":
+                                
                                 print("🚑 Show heart rate detail")
+                                router.navigate(to: .first)
+                                
                                 // misal: navigate(to: .heartRateDetail)
                             case "Workout":
                                 print("🏃‍♂️ Show workout detail")
+                                router.navigate(to: .second)
                             case "Sleep Duration":
                                 print("😴 Show sleep tips")
+                                router.navigate(to: .third)
                             default:
                                 break
                             }

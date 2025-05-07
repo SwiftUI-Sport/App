@@ -15,7 +15,7 @@ struct SegmentedControl: View {
       let tabs = ["HR", "RHR", "HRV"]
     
     @Namespace private var animation
-    // ini abid
+    
 
       var body: some View {
           
@@ -74,6 +74,7 @@ struct SegmentedControl: View {
               
           
       }
+        
 }
 
 
@@ -191,6 +192,8 @@ struct MyChart: View {
     }
     
     
+    
+    
     var body: some View {
         Chart {
             ForEach(Array(data.enumerated()), id: \.element.day) { index, item in
@@ -235,10 +238,11 @@ struct MyChart: View {
         .chartYAxis{
             AxisMarks(position: .leading)
         }
-     
+      
         
         
     }
+        
 }
 
 
@@ -354,7 +358,7 @@ struct HeartRateVariabilitySection: View {
 public struct HeartRateView: View {
     
     @State private var activeTab = "HR"
-
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     
     public var body: some View {
         ScrollView{
@@ -385,6 +389,10 @@ public struct HeartRateView: View {
             
         }
         .background(Color("BackgroundColorx"))
+        .onAppear {
+            print("Ini sebenernya udah jalan")
+            HealthKitViewModel.loadHeartRate()
+        }
     }
         
 }

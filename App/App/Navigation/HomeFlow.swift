@@ -26,7 +26,7 @@ enum HomeFlow: NavigationDestination {
         
     var destinationView: some View {
         switch self {
-        case .first: FirstScreenView()
+        case .first: HeartRateView()
         case .second: SecondScreenView()
         case .third: ThirdScreenView()
         }
