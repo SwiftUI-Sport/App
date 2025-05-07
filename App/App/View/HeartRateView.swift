@@ -24,6 +24,7 @@ struct SegmentControl: View {
                     .onTapGesture {
                         selected = option
                     }
+                //da
             }
         }
         .padding(4)
