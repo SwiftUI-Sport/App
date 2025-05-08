@@ -38,7 +38,10 @@ final class HealthKitViewModel: ObservableObject {
     
     @Published var past7DaysWorkouts: [DailyWorkoutSummary] = []
     @Published var past7DaysWorkoutDuration : [DailyRate] = []
+    @Published var past7DaysWorkoutTSR: [DailyRate] = []
+    
     @Published var overallAvgWorkoutDuration: Double = 0
+    @Published var overallAvgWorkoutTSR: Double = 0
     
     @Published var repository: HealthKitRepositoryProtocol
     
@@ -1132,4 +1135,53 @@ final class HealthKitViewModel: ObservableObject {
 
             printHistory(stressHistory7Days,  title: "Training Stress (Last 7 Days)")
         }
+    
+    func loadPast7DaysWorkoutTSR() {
+        print("🔄 Loading past 7 days TSR from 42-day history...")
+        print("stressHistory42Days count: \(stressHistory42Days.count)")
+
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: today)! // 7 days including today
+        
+        let filtered = stressHistory42Days.filter {
+            $0.date >= sevenDaysAgo && $0.date <= today
+        }
+
+        print("Filtered last 7 days count: \(filtered.count)")
+
+        let rates: [DailyRate] = filtered.map { entry in
+            DailyRate(date: df.string(from: entry.date), value: Int(entry.totalTSR.rounded()))
+        }.sorted {
+            guard let d1 = df.date(from: $0.date),
+                  let d2 = df.date(from: $1.date) else { return false }
+            return d1 < d2 // oldest to newest
+        }
+
+        // Only average non-zero days
+        let nonZeroRates = rates.filter { $0.value > 0 }
+        var avg: Double = 0
+
+        if !nonZeroRates.isEmpty {
+            avg = Double(nonZeroRates.reduce(0) { $0 + $1.value }) / Double(nonZeroRates.count)
+            if avg > 0 && avg < 1 {
+                avg = 1
+            }
+        }
+
+        DispatchQueue.main.async {
+            self.past7DaysWorkoutTSR = rates
+            self.overallAvgWorkoutTSR = avg
+
+            print("✅ Finished loading TSR from filtered 7 days.")
+            print("Average TSR: \(avg)")
+            print("Daily TSR values:")
+            for rate in rates {
+                print("• \(rate.date): \(rate.value)")
+            }
+        }
+    }
 }
