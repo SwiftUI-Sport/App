@@ -33,7 +33,7 @@ struct SecondActivityView: View {
                         .fill(Color.white)
                         .frame(width:.infinity, height: 150)
                         .cornerRadius(10)
-                        .shadow(radius: 0.5)
+                        .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
                     
                     VStack() {
                         HStack (alignment:.firstTextBaseline){
@@ -75,7 +75,7 @@ struct SecondActivityView: View {
                             .frame(width:.infinity, height: 150)
                             .cornerRadius(10)
                             .padding(.trailing,5)
-                            .shadow(radius: 0.5)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "map.circle.fill")
@@ -113,7 +113,7 @@ struct SecondActivityView: View {
                             .frame(width:.infinity, height: 150)
                             .cornerRadius(10)
                             .padding(.leading,5)
-                            .shadow(radius: 0.5)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "timer.circle.fill")
@@ -146,7 +146,7 @@ struct SecondActivityView: View {
                             .fill(Color.white)
                             .frame(maxWidth: .infinity, maxHeight: 600)
                             .cornerRadius(10)
-                            .shadow(radius: 0.5)
+                            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
                         VStack(alignment:.leading){
                             HStack{
                                 Image(systemName: "heart.text.square.fill")
@@ -179,11 +179,22 @@ struct SecondActivityView: View {
                                     
                                     
                                     HStack{
-                                        Text("< \(activity1.lowerBound) - \(activity1.upperBound)")
+                                        if activity1.zone < 1{
+                                            Text("<\(activity1.upperBound)")
+                                            Spacer()
+                                        }
+                                        else{
+                                            Text("< \(activity1.lowerBound) - \(activity1.upperBound)")
+                                        }
                                         Spacer()
                                         
-                                        Text("\(formatTimeIntervalToText(activity1.duration))")
-                                            .foregroundColor(.black)
+                                        if Int(activity1.duration) == 0 {
+                                            Text("0 min 0 sec")
+                                        }
+                                        else{
+                                            Text("\(formatTimeIntervalToText(activity1.duration))")
+//                                                .foregroundColor(.black)
+                                        }
                                         
                                     }
                                     .foregroundColor(.gray)

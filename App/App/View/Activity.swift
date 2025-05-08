@@ -83,12 +83,13 @@ struct ActivityView: View {
                                     }
                                 }
                             }
+                            .buttonStyle(.plain)
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(20)
                             .background(Color.white)
                             .cornerRadius(10)
-                            .shadow(radius: 1)
+                            .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 4, x: 3, y: 1)
                         }
                         .padding(.top, 5)
                         .padding(.horizontal)

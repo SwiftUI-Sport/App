@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct SleepDuration: View {
+    
     var body: some View {
         ScrollView{
             VStack(alignment: .leading){
@@ -43,7 +44,7 @@ struct SleepDuration: View {
             .padding(.horizontal, 16)
             .background(Color.white)
             .cornerRadius(12)
-            .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
+            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
             .padding(.bottom, 16)
@@ -119,7 +120,7 @@ struct SleepDuration: View {
             .padding(24)
             .background(backgroundColor)
             .cornerRadius(12)
-            .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
+            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
             .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)
             .padding(.bottom, 16)
