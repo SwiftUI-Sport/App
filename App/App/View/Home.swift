@@ -258,6 +258,7 @@ struct FatigueCard: View {
 
 struct HeresWhySection: View {
     let reasons: [Reason]
+    @EnvironmentObject var router: HomeFlowRouter
     
     var body: some View {
         ZStack {
