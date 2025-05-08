@@ -15,6 +15,7 @@ struct SegmentedControl: View {
       let tabs = ["HR", "RHR", "HRV"]
     
     @Namespace private var animation
+    
 
       var body: some View {
           
@@ -73,6 +74,7 @@ struct SegmentedControl: View {
               
           
       }
+        
 }
 
 
@@ -138,105 +140,84 @@ struct SimpleCard: View {
 
 //Ini CHART
 
-struct AverageHeartRate: Identifiable, Equatable {
-    var day: String
-    var averageHeartRate: Double
-    var id = UUID()
-}
+
 
 
 
 struct MyChart: View {
+    @Binding var averageValue7Days: Double
+    @Binding var data: [DailyRate]  // Generalized data
+    @State private var selectedXValue: String? = nil
+    @State private var selectedDate: String? = nil // ← This is persistent
+
+    var mainColor: Color = Color("OrangeTwox")
     
-    @State var data: [AverageHeartRate] = [
-        .init(day: "Monday", averageHeartRate: 102),
-        .init(day: "Tuesday", averageHeartRate: 105),
-        .init(day: "Wednesday", averageHeartRate: 150),
-        .init(day: "Thursday", averageHeartRate: 140),
-        .init(day: "Friday", averageHeartRate: 88),
-        .init(day: "Saturday", averageHeartRate: 120),
-        .init(day: "Sunday", averageHeartRate: 120)
-    ]
-    
-    func getShortDay(for day: String) -> String {
-        switch day {
-        case "Monday":
-            return "M"
-        case "Tuesday":
-            return "T"
-        case "Wednesday":
-            return "W"
-        case "Thursday":
-            return "T"
-        case "Friday":
-            return "F"
-        case "Saturday":
-            return "S"
-        case "Sunday":
-            return "S"
-        default:
-            return ""
+    func getShortDay(for dateString: String) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let date = formatter.date(from: dateString) else {
+            return dateString
         }
-    }
-    
-    func calculateAverageHeartRate(from data: [AverageHeartRate]) -> Double {
-        // Calculate the sum of all the averageHeartRate values
-        let totalHeartRate = data.reduce(0) { $0 + $1.averageHeartRate }
         
-        // Calculate the average by dividing the sum by the count of data
-        let averageHeartRate = totalHeartRate / Double(data.count)
-        
-        return averageHeartRate
+        formatter.dateFormat = "E" // e.g., "Tue"
+        return formatter.string(from: date)
     }
     
     
     var body: some View {
         Chart {
-            ForEach(Array(data.enumerated()), id: \.element.day) { index, item in
-            BarMark(
-                x: .value("Day", item.day),
-                y: .value("Average Heart Rate", item.averageHeartRate)
-            )
-            
-            .foregroundStyle(index == data.count - 1 ? Color("OrangeTwox") : Color("Barx"))
-            .cornerRadius(5)
-            
-         
+            ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
+                BarMark(
+                    x: .value("Day", item.date),
+                    y: .value("Value", item.value)
+                )
+                .foregroundStyle(index == data.count - 1 ? mainColor : Color("Barx"))
+//                .foregroundStyle(selectedXValue == nil ?  (index == data.count - 1 ? mainColor : Color("Barx")) : selectedXValue == item.date ? mainColor : Color("Barx"))
+//                .foregroundStyle(selectedDate == item.date ? mainColor : Color("Barx"))
                 
-                
-            RuleMark(y: .value("Average Heart Rate", calculateAverageHeartRate(from: data)))
-                .foregroundStyle(Color("OrangeOnex"))
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                .cornerRadius(5)
                 
             }
-
+            
+            
+            RuleMark(y: .value("Average", Int(averageValue7Days)))
+                .foregroundStyle(mainColor)
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                .annotation(position: .top, alignment: .leading) {
+                    Text("Avg: \(Int(averageValue7Days))")
+                        .font(.caption)
+                        .foregroundColor(mainColor)
+                        .padding(.horizontal, 4)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(4)
+                }
         }
         .frame(height: 200)
+//        .chartXSelection(value: $selectedXValue)
+//        .onChange(of: selectedXValue) { _, newValue in
+//            if let newDate = newValue {
+//                selectedDate = newDate
+//            }
+//        }
+//        
+//
+//        .onAppear {
+//            if selectedDate == nil {
+//                selectedDate = data.last?.date  // Initial highlight on last bar
+//            }
+//        }
+    
         .padding()
-        .animation(.bouncy, value: data)
-        
-        
-        
         .chartXAxis {
-            
-
             AxisMarks(values: .automatic) { value in
-                if let day = value.as(String.self) {
-                    let shortDay = getShortDay(for: day)
-                    AxisValueLabel(shortDay)
+                if let dateStr = value.as(String.self) {
+                    AxisValueLabel(getShortDay(for: dateStr))
                 }
             }
-            
-            
-            
         }
-        
-        .chartYAxis{
+        .chartYAxis {
             AxisMarks(position: .leading)
         }
-     
-        
-        
     }
 }
 
@@ -244,13 +225,55 @@ struct MyChart: View {
 //INI SECTION PERTAMA
 struct AverageHeartRateSection: View {
     
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+
+    
+    func calculateAverageHeartRate(from data: [HeartRateOfTheDay]) -> Double {
+        // Check if there is any data to prevent division by zero
+        guard data.count > 0 else {
+            print("No data available to calculate average heart rate.")
+            return 0.0 // Return 0 or any default value you prefer
+        }
+        
+        let totalHeartRate = data.reduce(0) { $0 + $1.averageHeartRate }
+        let averageHeartRate = totalHeartRate / data.count
+        print("Total Heart Rate:", totalHeartRate)
+        
+        return Double(averageHeartRate)
+    }
+    
+    func dateRangeText(from dailyRates: [DailyRate]) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let first = dailyRates.first,
+              let last = dailyRates.last,
+              let startDate = formatter.date(from: first.date),
+              let endDate = formatter.date(from: last.date) else {
+            return ""
+        }
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "dd"
+
+        let startDay = dayFormatter.string(from: startDate)
+        let endDay = dayFormatter.string(from: endDate)
+
+        let monthYearFormatter = DateFormatter()
+        monthYearFormatter.dateFormat = "MMMM yyyy"
+        let monthYear = monthYearFormatter.string(from: endDate)
+
+        return "\(startDay)-\(endDay) \(monthYear)"
+    }
+    
+    
      var body: some View {
          
          
-   
+         VStack{
              
              VStack(alignment: .leading){
-                 Text("Your Average Heart Rate is Higher Than Usual ")
+                 Text("Your Heart Rate is Higher Than Average Heart Rate")
                      .font(.title3.bold())
                  
                  Rectangle()
@@ -261,7 +284,7 @@ struct AverageHeartRateSection: View {
                      Image(systemName: "heart.circle.fill")
                          .font(.system(size: 32, weight: .bold, design: .default))
                          .foregroundStyle(Color("OrangeOnex"))
-                     Text("123")
+                     Text(String(format: "%.0f", HealthKitViewModel.overallAverageHR)) // Rounded to whole number
                          .font(.title)
                          .bold()
                      Text("bpm")
@@ -270,18 +293,16 @@ struct AverageHeartRateSection: View {
                      
                      Spacer()
                      
-                     Text("12-19 April 2025")
+                     Text(dateRangeText(from: HealthKitViewModel.HeartRateDailyv2))
                          .font(.caption)
                          .foregroundStyle(Color.gray)
-                         
+                     
                  }
                  .padding(.top, 8)
                  
-                 
-                 
-                     
-                 
-                 MyChart()
+                 MyChart( averageValue7Days: $HealthKitViewModel.overallAverageHR,
+                          data: $HealthKitViewModel.HeartRateDailyv2
+                 )
              }
              .padding(.vertical)
              .padding(.horizontal, 16)
@@ -313,7 +334,14 @@ struct AverageHeartRateSection: View {
                         showIcon: true,
                         backgroundColor: Color("OrangeBGx"))
              
+         }
+         .onAppear {
              
+             HealthKitViewModel.loadHeartRate()
+
+             
+             
+         }
          
 
     }
@@ -321,12 +349,104 @@ struct AverageHeartRateSection: View {
 
 struct RestingHeartRateSection: View {
     
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    
+    
+    func dateRangeText(from dailyRates: [DailyRate]) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let first = dailyRates.first,
+              let last = dailyRates.last,
+              let startDate = formatter.date(from: first.date),
+              let endDate = formatter.date(from: last.date) else {
+            return ""
+        }
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "dd"
+
+        let startDay = dayFormatter.string(from: startDate)
+        let endDay = dayFormatter.string(from: endDate)
+
+        let monthYearFormatter = DateFormatter()
+        monthYearFormatter.dateFormat = "MMMM yyyy"
+        let monthYear = monthYearFormatter.string(from: endDate)
+
+        return "\(startDay)-\(endDay) \(monthYear)"
+    }
+    
      var body: some View {
+        
          
-         Text("Resting Heart Rate Section")
-             .padding()
-         
-         AverageHeartRateSection()
+         VStack{
+             
+             VStack(alignment: .leading){
+                 Text("Your Average Heart Rate is Higher Than Usual ")
+                     .font(.title3.bold())
+                 
+                 Rectangle()
+                     .frame(width: 150, height: 2, alignment: .leading)
+                     .foregroundStyle(Color("OrangeThreex"))
+                 
+                 HStack{
+                     Image(systemName: "heart.circle.fill")
+                         .font(.system(size: 32, weight: .bold, design: .default))
+                         .foregroundStyle(Color("OrangeOnex"))
+                     Text(String(format: "%.0f", HealthKitViewModel.overallRestingHR)) // Rounded to whole number
+                         .font(.title)
+                         .bold()
+                     Text("bpm")
+                         .font(.title2.bold())
+                         .foregroundStyle(Color("OrangeOnex"))
+                     
+                     Spacer()
+                     
+                     Text(dateRangeText(from: HealthKitViewModel.restingHeartRateDailyv2))
+                         .font(.caption)
+                         .foregroundStyle(Color.gray)
+                     
+                 }
+                 .padding(.top, 8)
+                 
+                 MyChart( averageValue7Days: $HealthKitViewModel.overallRestingHR,
+                          data: $HealthKitViewModel.restingHeartRateDailyv2
+                 )
+             }
+             .padding(.vertical)
+             .padding(.horizontal, 16)
+             .background(Color.white)
+             .cornerRadius(12)
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .padding(.horizontal)
+             .padding(.bottom, 16)
+             
+             
+             
+             SimpleCard(title: "Highlight",
+                        content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering",
+                        showSecondaryText: true,
+                        secondaryTitle: "Here’s What You Can Do To Recover Your Body",
+                        secondaryText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        
+                        
+             )
+             
+             SimpleCard(title: "About Average Heart Rate",
+                        content: "An abnormal average heart rate too high or too low can signal cardiovascular stress or underlying health issues, potentially reducing the body’s efficiency in recovery, energy regulation, and overall physical performance."
+                        
+             )
+             
+             SimpleCard(title: "Disclaimer",
+                        content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",
+                        titleColor: Color("OrangeOnex"),
+                        showIcon: true,
+                        backgroundColor: Color("OrangeBGx"))
+             
+         }
+         .onAppear {
+             HealthKitViewModel.loadRestingHeartRateDaily()
+         }
          
          
     }
@@ -334,10 +454,104 @@ struct RestingHeartRateSection: View {
 
 struct HeartRateVariabilitySection: View {
     
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    
+    
+    func dateRangeText(from dailyRates: [DailyRate]) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        
+        guard let first = dailyRates.first,
+              let last = dailyRates.last,
+              let startDate = formatter.date(from: first.date),
+              let endDate = formatter.date(from: last.date) else {
+            return ""
+        }
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.dateFormat = "dd"
+
+        let startDay = dayFormatter.string(from: startDate)
+        let endDay = dayFormatter.string(from: endDate)
+
+        let monthYearFormatter = DateFormatter()
+        monthYearFormatter.dateFormat = "MMMM yyyy"
+        let monthYear = monthYearFormatter.string(from: endDate)
+
+        return "\(startDay)-\(endDay) \(monthYear)"
+    }
+    
      var body: some View {
+        
          
-         Text("Heart Rate Variability Section")
-             .padding()
+         VStack{
+             
+             VStack(alignment: .leading){
+                 Text("Your Average Heart Rate is Higher Than Usual ")
+                     .font(.title3.bold())
+                 
+                 Rectangle()
+                     .frame(width: 150, height: 2, alignment: .leading)
+                     .foregroundStyle(Color("OrangeThreex"))
+                 
+                 HStack{
+                     Image(systemName: "heart.circle.fill")
+                         .font(.system(size: 32, weight: .bold, design: .default))
+                         .foregroundStyle(Color("OrangeOnex"))
+                     Text(String(format: "%.0f", HealthKitViewModel.overallAvgHRV)) // Rounded to whole number
+                         .font(.title)
+                         .bold()
+                     Text("bpm")
+                         .font(.title2.bold())
+                         .foregroundStyle(Color("OrangeOnex"))
+                     
+                     Spacer()
+                     
+                     Text(dateRangeText(from: HealthKitViewModel.HeartRateVariabilityDaily))
+                         .font(.caption)
+                         .foregroundStyle(Color.gray)
+                     
+                 }
+                 .padding(.top, 8)
+                 
+                 MyChart( averageValue7Days: $HealthKitViewModel.overallAvgHRV,
+                          data: $HealthKitViewModel.HeartRateVariabilityDaily
+                 )
+             }
+             .padding(.vertical)
+             .padding(.horizontal, 16)
+             .background(Color.white)
+             .cornerRadius(12)
+             .frame(maxWidth: .infinity, alignment: .leading)
+             .padding(.horizontal)
+             .padding(.bottom, 16)
+             
+             
+             
+             SimpleCard(title: "Highlight",
+                        content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering",
+                        showSecondaryText: true,
+                        secondaryTitle: "Here’s What You Can Do To Recover Your Body",
+                        secondaryText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                        
+                        
+             )
+             
+             SimpleCard(title: "About Average Heart Rate",
+                        content: "An abnormal average heart rate too high or too low can signal cardiovascular stress or underlying health issues, potentially reducing the body’s efficiency in recovery, energy regulation, and overall physical performance."
+                        
+             )
+             
+             SimpleCard(title: "Disclaimer",
+                        content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",
+                        titleColor: Color("OrangeOnex"),
+                        showIcon: true,
+                        backgroundColor: Color("OrangeBGx"))
+             
+         }
+         .onAppear {
+             HealthKitViewModel.loadHeartRateVariabilityDaily()
+         }
          
          
     }
@@ -353,6 +567,7 @@ struct HeartRateVariabilitySection: View {
 public struct HeartRateView: View {
     
     @State private var activeTab = "HR"
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
 
     
     public var body: some View {
@@ -378,16 +593,21 @@ public struct HeartRateView: View {
                 Spacer()
             }
             
-            .frame( maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+           
             
             
             
         }
         .background(Color("BackgroundColorx"))
+//        .onAppear {
+//            
+//            HealthKitViewModel.loadHeartRate(target: HeartRateOfTheDay)
+//            print("Ini sebenernya udah jalan 2")
+//        }
     }
         
 }
 
-#Preview {
-    HeartRateView()
-}
+//#Preview {
+//    HeartRateView()
+//}
