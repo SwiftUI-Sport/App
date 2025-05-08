@@ -24,6 +24,8 @@ struct FirstActivityView: View {
 struct SecondActivityView: View {
     @EnvironmentObject var router: ActivityFlowRouter
     let activity: WorkoutActivity
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    @State private var showingSheet = false
     @State private var currentValue = 0.0
     var body: some View {
         ScrollView{
@@ -157,6 +159,41 @@ struct SecondActivityView: View {
                                     .font(.title3)
                                     .fontWeight(.bold)
                                     .frame(maxWidth: .infinity, alignment: .leading)
+                                Button(action: {
+                                    showingSheet = true
+                                }) {
+                                    Label("", systemImage: "info.circle")
+                                        .foregroundColor(.orangeTint)
+                                }
+                                .sheet(isPresented: $showingSheet) {
+                                    // Your sheet content view
+                                    VStack(alignment:.leading) {
+                                        Text("Heart Rate Zones")
+                                            .font(.title)
+                                            .fontWeight(.bold)
+                                        
+//                                        Text("Heart rate zones below are calculated based on your maximum HR \($HealthKitViewModel.overallMaximumHeartRate) bpm and resting HR \(HealthKitViewModel.overallRestingHeartRate) bpm")
+//                                            .multilineTextAlignment(.leading)
+//                                            .padding(.top)
+                                        
+                                        ForEach(activity.zoneDurations, id: \.zone) { activity1 in
+                                            let zoneInt = Int(activity1.zone) ?? 0
+
+                                            ZoneCard(
+                                                title: title(for: zoneInt),
+                                                description: description(for: zoneInt),
+                                                accentColor: color(for: zoneInt)
+                                            )
+                                        }
+
+
+                                       
+                                        
+                                        
+                                    }
+                                    .padding()
+                                    .presentationDetents([.large]) // Optional: Set sheet size
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             ForEach(activity.zoneDurations, id: \.zone) { activity1 in
@@ -313,6 +350,42 @@ struct SecondActivityView: View {
         }
         
     }
+    func color(for zone: Int) -> Color {
+        switch zone {
+        case 0: return .gray
+        case 1: return .green
+        case 2: return .blue
+        case 3: return .purple
+        case 4: return .red
+        case 5: return .orange
+        default: return .black
+        }
+    }
+
+    func title(for zone: Int) -> String {
+        return zone < 1 ? "Not in Zone" : "Zone \(zone)"
+    }
+
+    func description(for zone: Int) -> String {
+        switch zone {
+        case 0:
+            return "Very light activity or complete rest. Taking time in Zone 0 helps you come back stronger for your next workout."
+        case 1:
+            return "Light effort that improves endurance and fat burning."
+        case 2:
+            return "Moderate effort to build aerobic capacity."
+        case 3:
+            return "Hard effort that increases performance."
+        case 4:
+            return "Very hard effort to improve speed and power."
+        case 5:
+            return "Maximum effort used for high-intensity intervals."
+        default:
+            return "Unknown zone. Please check your activity data."
+        }
+    }
+
+
     
     func formatTimeIntervalToText(_ interval: TimeInterval) -> String {
         let totalSeconds = Int(interval)
@@ -357,6 +430,43 @@ struct SecondActivityView: View {
     
     //#Preview {
     //    SecondActivityView()
+    
+
+    struct ZoneCard: View {
+        let title: String
+        let description: String
+        let accentColor: Color
+
+        var body: some View {
+            ZStack(alignment: .leading) {
+                // Background accent bar
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(.systemBackground))
+                    .overlay(
+                        Rectangle()
+                            .fill(accentColor)
+                            .frame(width: 4),
+                        alignment: .leading
+                    )
+                    .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+
+                // Card content
+                VStack(alignment: .leading ) {
+                    Text(title)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(accentColor)
+                    Text(description)
+                        .font(.footnote)
+                        .foregroundColor(.primary)
+                }
+                .padding()
+            }
+            .padding(.horizontal)
+        }
+    }
+
+
     //}
     struct UISliderView: UIViewRepresentable {
         @Binding var value: Double
