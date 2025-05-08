@@ -147,6 +147,7 @@ struct SimpleCard: View {
 struct MyChart: View {
     @Binding var averageValue7Days: Double
     @Binding var data: [DailyRate]  // Generalized data
+    var mainColor: Color = Color("OrangeTwox")
     
     func getShortDay(for dateString: String) -> String {
         let formatter = DateFormatter()
@@ -180,11 +181,11 @@ struct MyChart: View {
                     x: .value("Day", item.date),
                     y: .value("Value", item.value)
                 )
-                .foregroundStyle(index == data.count - 1 ? Color("OrangeTwox") : Color("Barx"))
+                .foregroundStyle(index == data.count - 1 ? mainColor : Color("Barx"))
                 .cornerRadius(5)
                 
                 RuleMark(y: .value("Average", averageValue7Days))
-                    .foregroundStyle(Color("OrangeOnex"))
+                    .foregroundStyle(mainColor)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
             }
         }
@@ -255,7 +256,7 @@ struct AverageHeartRateSection: View {
          VStack{
              
              VStack(alignment: .leading){
-                 Text("Your Average Heart Rate is Higher Than Usual ")
+                 Text("Your Heart Rate is Higher Than Average Heart Rate")
                      .font(.title3.bold())
                  
                  Rectangle()
@@ -550,7 +551,7 @@ public struct HeartRateView: View {
     
     @State private var activeTab = "HR"
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
-//    @State var HeartRateOfTheDay: [HeartRateOfTheDay] = []
+
     
     public var body: some View {
         ScrollView{
@@ -575,7 +576,7 @@ public struct HeartRateView: View {
                 Spacer()
             }
             
-            .frame( maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+           
             
             
             

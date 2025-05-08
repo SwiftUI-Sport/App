@@ -34,6 +34,8 @@ final class HealthKitViewModel: ObservableObject {
     @Published var stressHistory7Days:  [TrainingStressOfTheDay] = []
     
     @Published var past7DaysWorkouts: [DailyWorkoutSummary] = []
+    @Published var past7DaysWorkoutDuration : [DailyRate] = []
+    @Published var overallAvgWorkoutDuration: Double = 0
     
     private let repository: HealthKitRepositoryProtocol
     
@@ -930,6 +932,7 @@ final class HealthKitViewModel: ObservableObject {
                 // Sort by date (newest first) and update published property
                 self.past7DaysWorkouts = dailySummaries.values.sorted(by: { $0.date > $1.date })
                 
+                
                 print("📅 Loaded workout summaries for the past 7 days:")
                 for summary in self.past7DaysWorkouts {
                     let dateFormatter = DateFormatter()
@@ -962,6 +965,57 @@ final class HealthKitViewModel: ObservableObject {
         }
     }
     
+    
+    func loadPast7DaysWorkoutDuration() {
+        let (start, end) = Date.last7DaysRange
+        let calendar = Calendar.current
+        let df = DateFormatter()
+        df.dateFormat = "yyyy-MM-dd"
+        
+        // Initialize an empty dictionary with all 7 days
+        var durationByDay: [Date: Int] = [:]
+        for dayOffset in 0..<7 {
+            if let day = calendar.date(byAdding: .day, value: -dayOffset, to: calendar.startOfDay(for: Date())) {
+                durationByDay[calendar.startOfDay(for: day)] = 0
+            }
+        }
+
+        repository.fetchAllWorkoutsWithinRange(from: start, to: end) { [weak self] result in
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let workouts):
+                for workout in workouts {
+                    let dayStart = calendar.startOfDay(for: workout.startDate)
+                    let durationMinutes = Int(workout.duration / 60)
+                    durationByDay[dayStart, default: 0] += durationMinutes
+                }
+
+                let dailyRates: [DailyRate] = durationByDay.map { (date, totalMinutes) in
+                    let dateStr = df.string(from: date)
+                    return DailyRate(date: dateStr, value: totalMinutes)
+                }.sorted {
+                    guard let d1 = df.date(from: $0.date),
+                          let d2 = df.date(from: $1.date) else { return false }
+                    return d1 < d2 // newest first
+                }
+
+                let total = dailyRates.reduce(0) { $0 + $1.value }
+                let workoutDays = dailyRates.filter { $0.value > 0 }
+                let avg = workoutDays.isEmpty ? 0 : Double(workoutDays.reduce(0) { $0 + $1.value }) / Double(workoutDays.count)
+
+                DispatchQueue.main.async {
+                    self.past7DaysWorkoutDuration = dailyRates
+                    self.overallAvgWorkoutDuration = avg
+                }
+
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to load workout durations: \(error)"
+                }
+            }
+        }
+    }
     
     func printActivities() {
         if activities.isEmpty {
