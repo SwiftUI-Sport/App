@@ -175,6 +175,7 @@ struct SecondActivityView: View {
                                         Text("Heart rate zones below are calculated based on your maximum HR \(Int(HealthKitViewModel.repository.userMaxHR)) bpm and resting HR \(Int(HealthKitViewModel.repository.userRestingHR)) bpm")
                                             .multilineTextAlignment(.leading)
                                             .padding(.top)
+                                            .padding(.horizontal)
                                         
                                         ForEach(activity.zoneDurations, id: \.zone) { activity1 in
                                             let zoneInt = Int(activity1.zone) ?? 0
@@ -363,23 +364,23 @@ struct SecondActivityView: View {
     }
 
     func title(for zone: Int) -> String {
-        return zone < 1 ? "Not in Zone" : "Zone \(zone)"
+        return zone < 1 ? "Zone \(zone)" : "Zone \(zone)"
     }
 
     func description(for zone: Int) -> String {
         switch zone {
         case 0:
-            return "Very light activity or complete rest. Taking time in Zone 0 helps you come back stronger for your next workout."
+            return "This is your heart rate at rest. It's generally considered to be below 50% of your maximum heart rate"
         case 1:
-            return "Light effort that improves endurance and fat burning."
+            return "50-60% of your maximum heart rate. This is a recovery zone and helps with building endurance."
         case 2:
-            return "Moderate effort to build aerobic capacity."
+            return "60-70% of your maximum heart rate. This zone is beneficial for improving overall fitness and fat burning."
         case 3:
-            return "Hard effort that increases performance."
+            return "70-80% of your maximum heart rate. This zone helps improve aerobic capacity and is optimal for cardiovascular training."
         case 4:
-            return "Very hard effort to improve speed and power."
+            return "80-90% of your maximum heart rate. This zone helps improve speed and anaerobic capacity, and is considered a high-intensity zone."
         case 5:
-            return "Maximum effort used for high-intensity intervals."
+            return "90-100% of your maximum heart rate. This zone is for short, high-intensity bursts and is often used for improving speed and power."
         default:
             return "Unknown zone. Please check your activity data."
         }
