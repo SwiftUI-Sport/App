@@ -172,9 +172,9 @@ struct SecondActivityView: View {
                                             .font(.title)
                                             .fontWeight(.bold)
                                         
-//                                        Text("Heart rate zones below are calculated based on your maximum HR \($HealthKitViewModel.overallMaximumHeartRate) bpm and resting HR \(HealthKitViewModel.overallRestingHeartRate) bpm")
-//                                            .multilineTextAlignment(.leading)
-//                                            .padding(.top)
+                                        Text("Heart rate zones below are calculated based on your maximum HR \(Int(HealthKitViewModel.repository.userMaxHR)) bpm and resting HR \(Int(HealthKitViewModel.repository.userRestingHR)) bpm")
+                                            .multilineTextAlignment(.leading)
+                                            .padding(.top)
                                         
                                         ForEach(activity.zoneDurations, id: \.zone) { activity1 in
                                             let zoneInt = Int(activity1.zone) ?? 0
