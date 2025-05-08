@@ -43,7 +43,7 @@ final class HealthKitViewModel: ObservableObject {
     @Published var overallAvgWorkoutDuration: Double = 0
     @Published var overallAvgWorkoutTSR: Double = 0
     
-    private let repository: HealthKitRepositoryProtocol
+    @Published var repository: HealthKitRepositoryProtocol
     
     init(repository: HealthKitRepositoryProtocol) {
         self.repository = repository
@@ -55,6 +55,7 @@ final class HealthKitViewModel: ObservableObject {
             return
         }
         authorizeAndLoadCalories()
+        loadSleepData()
     }
     
     private func authorizeAndLoadCalories() {
