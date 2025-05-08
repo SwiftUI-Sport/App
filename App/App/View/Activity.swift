@@ -103,31 +103,33 @@ struct ActivityView: View {
         }
     }
     private var headerView: some View {
-           ZStack(alignment: .bottomLeading) {
-               Image("Image")
-                   .scaledToFill()
-                   .frame(width: UIScreen.main.bounds.width, height: 190)
-                   .clipped()
-                   .ignoresSafeArea(edges: .top)
-                   .offset(y: -17)
-               
-               VStack {
-                   Text("Your Run Activity")
-                       .font(.largeTitle)
-                       .fontWeight(.bold)
-                       .foregroundColor(.redTint)
+               ZStack(alignment: .bottomLeading) {
+                   Image("Image")
+                       .resizable()
+                       .scaledToFit()
+                       .frame(width: UIScreen.main.bounds.width, height: 300)
+                       .clipped()
+                       .ignoresSafeArea(edges: .top)
+                       .offset(y: -10)
                    
-                   Text("Last 7 Days")
-                       .font(.title3)
-                       .fontWeight(.bold)
-                       .foregroundColor(.redTint)
+                   VStack {
+                       Text("Your Run Activity")
+                           . font(.system(.largeTitle, design: .rounded))
+                           .fontWeight(.bold)
+                           .foregroundColor(Color("primary_1"))
+                       
+                       Text("Last 7 Days")
+                           . font(.system(.largeTitle, design: .rounded))
+                           .fontWeight(.bold)
+                           .foregroundColor(Color("primary_1"))
+                   }
+                   .frame(maxWidth: .infinity, alignment: .center)
+                   .padding(.horizontal)
+                   .padding(.bottom, 60)
                }
-               .frame(maxWidth: .infinity, alignment: .center)
-               .padding(.horizontal)
-               .padding(.bottom, 20)
+               .frame(height: 100)
            }
-           .frame(height: 100)
-       }
+    
 }
 
 func formatDuration(_ seconds: TimeInterval) -> String {

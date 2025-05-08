@@ -20,7 +20,7 @@ enum HomeFlow: NavigationDestination {
         case .second:
             return "Second Screen"
         case .third:
-            return "Third"
+            return "Sleep Duration"
         }
     }
         
@@ -28,7 +28,7 @@ enum HomeFlow: NavigationDestination {
         switch self {
         case .first: FirstScreenView()
         case .second: SecondScreenView()
-        case .third: ThirdScreenView()
+        case .third: SleepDuration()
         }
     }
 }
