@@ -17,6 +17,9 @@ final class HealthKitViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     @Published var activities: [WorkoutActivity] = []
+  
+    @Published var sleepDuration: [Sleep] = []
+
     @Published var HeartRateDaily: [HeartRateOfTheDay] = []
     @Published var HeartRateDailyv2: [DailyRate] = []
     
@@ -862,8 +865,21 @@ final class HealthKitViewModel: ObservableObject {
                             default:
                                 break
                             }
+                            
+                            
                         }
                         
+                        var sleep = Sleep(
+                            date: dateString,
+                            inBedDuration: inBedDuration,
+                            asleepDuration: asleepDuration,
+                            deepSleepDuration: deepSleepDuration,
+                            remSleepDuration: remSleepDuration,
+                            coreSleepDuration: coreSleepDuration
+                            
+                        )
+                        
+                        sleepDuration.append(sleep)
                         // Format durations in hours and minutes
                         func formatDuration(_ interval: TimeInterval) -> String {
                             let hours = Int(interval / 3600)
@@ -882,6 +898,8 @@ final class HealthKitViewModel: ObservableObject {
                             print("  - Core Sleep: \(formatDuration(coreSleepDuration))")
                         }
                     }
+                    
+                    
                     
                     // MARK: You can store these values in published properties
                     // self.sleepData = ...

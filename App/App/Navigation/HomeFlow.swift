@@ -20,7 +20,7 @@ enum HomeFlow: NavigationDestination {
         case .second:
             return "Workout Duration"
         case .third:
-            return "Sleep"
+            return "Sleep Duration"
         }
     }
         
@@ -28,7 +28,7 @@ enum HomeFlow: NavigationDestination {
         switch self {
         case .first: HeartRateView()
         case .second: WorkoutDurationView()
-        case .third: ThirdScreenView()
+        case .third: SleepDuration()
         }
     }
 }
