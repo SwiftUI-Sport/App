@@ -11,9 +11,10 @@ struct SleepDuration: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @State private var calculatedTotal: TimeInterval = 0
     
-//    var duration: TimeInterval
+
     var body: some View {
-    
+
+ 
         ScrollView{
             VStack(alignment: .leading){
                 Text("You Have A Good Sleep ")
