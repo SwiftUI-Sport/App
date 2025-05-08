@@ -9,6 +9,13 @@ struct Reason: Identifiable {
     let color: Color
 }
 
+struct HeaderContent: Identifiable {
+    let id = UUID()
+    let title: String
+    let message: String
+    let iconName: String
+}
+
 struct ATLProgressView: View {
     let atl: Double
     let maxATL: Double = 200
@@ -136,3 +143,36 @@ struct BlobHeaderShape: Shape {
 //        }
 //    }
 //}
+
+struct empty_authorized_view: View {
+    var body: some View {
+        VStack (spacing: 20){
+            Image("empty_health")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+            
+            Text("Connect to Health")
+                . font(.system(.largeTitle, design: .rounded))
+                .fontWeight(.bold)
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color("primary_1"))
+            
+            Text("RunDay uses your workout history, heart rate, and sleep data from Apple Health to give you the best recomendation")
+                .font(.callout)
+                .foregroundColor(.gray.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .frame(width: 270)
+            
+        }
+    }
+}
+
+
+#Preview {
+    empty_authorized_view()
+}
+

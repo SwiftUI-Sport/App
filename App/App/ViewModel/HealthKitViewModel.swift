@@ -54,16 +54,18 @@ final class HealthKitViewModel: ObservableObject {
             errorMessage = "HealthKit tidak tersedia di perangkat ini."
             return
         }
-        authorizeAndLoadCalories()
-        loadSleepData()
+      
+        authorizeAndLoadData()
+
     }
     
-    private func authorizeAndLoadCalories() {
+    private func authorizeAndLoadData() {
         repository.requestAuthorization { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let granted):
                 self.isAuthorized = granted
+                print("HealthKit authorized: \(granted)")
                 if granted {
                     //          self.loadTodayCalories()
                     //            self.loadRunningWorkout()
@@ -71,13 +73,14 @@ final class HealthKitViewModel: ObservableObject {
 //                    //            self.loadHeartRatesForAllWorkouts()
 //                    self.loadRestingHeartRateWithinRange()
 //                    self.loadAge()
-                    self.loadAllData()
-                    
+//                    repository.checkAllAuthorizationStatuses()
+//                    self.loadAllData()
                 } else {
                     self.errorMessage = "Akses HealthKit ditolak."
                 }
             case .failure(let error):
                 self.errorMessage = "Error auth: \(error)"
+                print("\(isAuthorized) \(error)")
             }
         }
     }
@@ -406,6 +409,20 @@ final class HealthKitViewModel: ObservableObject {
         }
     }
     
+    func loadAge() -> Int {
+//        repository.fetchAge { [weak self] result in
+//            guard let self = self else { return }
+//            switch result {
+//            case .success(let age):
+//                print("Usia: \(age) tahun")
+//            case .failure(let error):
+//                self.errorMessage = "Gagal load usia: \(error)"
+//            }
+//        }
+//        print("USER EG: \(repository.userAge) dasndka")
+        return repository.userAge
+    }
+  
     func loadRestingHeartRateDaily() {
         let (start, end) = Date.last30DaysRange
 
@@ -468,20 +485,6 @@ final class HealthKitViewModel: ObservableObject {
         }
     }
     
-    
-    
-    private func loadAge() {
-        repository.fetchAge { [weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let age):
-                print("Usia: \(age) tahun")
-            case .failure(let error):
-                self.errorMessage = "Gagal load usia: \(error)"
-            }
-        }
-    }
-    
     private func buildStressHistory(forLast days: Int) -> [TrainingStressOfTheDay] {
         let cal      = Calendar.current
         let dates    = Date.lastNDates(days)
@@ -512,7 +515,7 @@ final class HealthKitViewModel: ObservableObject {
         return history
     }
     
-    private func loadAllData() {
+    func loadAllData() {
     
         let (start42, end42) = Date.last42DaysRange
         let (start7, end7) = Date.last7DaysRange
@@ -529,8 +532,8 @@ final class HealthKitViewModel: ObservableObject {
                     repository.setUserAge(age)
                     repository.setUserMaxHR(220 - age)
                 } else {
-                    repository.setUserAge(30)
-                    repository.setUserMaxHR(190)
+//                    repository.setUserAge(30)
+//                    repository.setUserMaxHR(190)
                 }
             }
         }
@@ -549,7 +552,7 @@ final class HealthKitViewModel: ObservableObject {
                     let avgRHR = Int(totalRHR / Double(rhrSamples.count))
                     repository.setUserRestingHR(avgRHR)
                 } else {
-                    repository.setUserRestingHR(60)
+//                    repository.setUserRestingHR(60)?\
                 }
             }
         }
@@ -573,6 +576,7 @@ final class HealthKitViewModel: ObservableObject {
                         self.activities = []
                     } else {
                         self.processWorkouts(workouts, maxHR: maxHR, restingHR: restingHR)
+                        print(activities.count)
                     }
                 }
             }

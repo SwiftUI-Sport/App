@@ -147,6 +147,7 @@ struct SimpleCard: View {
                     }
                     
                 }
+
             }
             
             

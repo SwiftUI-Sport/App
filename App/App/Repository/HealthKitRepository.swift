@@ -93,6 +93,8 @@ protocol HealthKitRepositoryProtocol {
         to end: Date,
         completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
     )
+    
+    func checkAllAuthorizationStatuses()
 
     
 }
@@ -109,6 +111,8 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
     
     private let readTypes: Set<HKObjectType>
     
+    private var writeTypes = Set<HKSampleType>()
+    
     init(store: HealthKitStoreProtocol, userDefaultsManager: UserDefaultsManager) {
         self.store = store
         self.userDefaultsManager = userDefaultsManager
@@ -116,18 +120,23 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
         var types = Set<HKObjectType>()
         if let hr = HKQuantityType.quantityType(forIdentifier: .heartRate) {
             types.insert(hr)
+            writeTypes.insert(hr)
         }
         if let rhr = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) {
             types.insert(rhr)
+            writeTypes.insert(rhr)
         }
         if let hrv = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN) {
             types.insert(hrv)
+            writeTypes.insert(hrv)
         }
         if let cal = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
             types.insert(cal)
+            writeTypes.insert(cal)
         }
         if let sleep = HKCategoryType.categoryType(forIdentifier: .sleepAnalysis) {
             types.insert(sleep)
+            writeTypes.insert(sleep)
         }
         
         if let dateOfBirth = HKObjectType.characteristicType(forIdentifier: .dateOfBirth){
@@ -135,6 +144,8 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
         }
         
         types.insert(HKObjectType.workoutType())
+        writeTypes.insert(HKObjectType.workoutType())
+        
         self.readTypes = types
     }
     
@@ -284,6 +295,51 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
     ) {
         store.fetchSleepData(from: start, to: end) { result in
             completion(result)
+        }
+    }
+    
+    func checkAllAuthorizationStatuses() {
+        let typesToCheck: [HKObjectType] = [
+            HKObjectType.workoutType(),
+            HKObjectType.quantityType(forIdentifier: .heartRate)!,
+            HKObjectType.quantityType(forIdentifier: .activeEnergyBurned)!,
+            HKObjectType.quantityType(forIdentifier: .restingHeartRate)!,
+            HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
+            HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN)!
+        ]
+        
+        store.checkAuthorizationStatus(for: typesToCheck) { result in
+            switch result {
+            case .success(let statusDict):
+                print("Authorization statuses:")
+                for (type, status) in statusDict {
+                    let statusString: String
+                    switch status {
+                    case .notDetermined:
+                        statusString = "Not Determined"
+                    case .sharingDenied:
+                        statusString = "Denied"
+                    case .sharingAuthorized:
+                        statusString = "Authorized"
+                    @unknown default:
+                        statusString = "Unknown"
+                    }
+                    print("\(type.identifier): \(statusString)")
+                }
+                
+                // Check if any types need authorization
+                let needsAuth = statusDict.contains { $0.value == .notDetermined }
+                if needsAuth {
+                    print("Some types need authorization - requesting now")
+                    self.requestAuthorization { _ in
+                        // Re-check after authorization
+                        self.checkAllAuthorizationStatuses()
+                    }
+                }
+                
+            case .failure(let error):
+                print("Failed to check authorization status: \(error)")
+            }
         }
     }
     

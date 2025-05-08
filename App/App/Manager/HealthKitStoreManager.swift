@@ -82,6 +82,11 @@ protocol HealthKitStoreProtocol {
         completion: @escaping (Result<[HKCategorySample], HealthKitError>) -> Void
     )
     
+    func checkAuthorizationStatus(
+        for types: [HKObjectType],
+        completion: @escaping (Result<[HKObjectType: HKAuthorizationStatus], HealthKitError>) -> Void
+    )
+    
 }
 
 
@@ -609,6 +614,28 @@ final class HealthKitStore: HealthKitStoreProtocol {
             }
         }
         store.execute(query)
+    }
+    
+    func checkAuthorizationStatus(
+        for types: [HKObjectType],
+        completion: @escaping (Result<[HKObjectType: HKAuthorizationStatus], HealthKitError>) -> Void
+    ) {
+        guard isAvailable else {
+            return DispatchQueue.main.async {
+                completion(.failure(.notAvailableOnDevice))
+            }
+        }
+        
+        var statusDictionary = [HKObjectType: HKAuthorizationStatus]()
+        
+        for type in types {
+            let status = store.authorizationStatus(for: type)
+            statusDictionary[type] = status
+        }
+        
+        DispatchQueue.main.async {
+            completion(.success(statusDictionary))
+        }
     }
     
 }

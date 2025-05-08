@@ -11,13 +11,22 @@ import SwiftUI
 struct AppApp: App {
     
     @StateObject private var di = Injection.shared
-
+    @State private var isDarkModeEnabled: Bool = false
+    
+    @AppStorage("isOnboardingCompleted") var isOnboardingCompleted: Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(di.getHealthViewModel())
-                
-                .preferredColorScheme(.light)
+            if isOnboardingCompleted {
+                ContentView()
+            }
+            else{
+                OnboardingView()
+            }
+//            ContentView()
+//                .preferredColorScheme(.light)
+
         }
+        .environmentObject(di.getHealthViewModel())
     }
 }
