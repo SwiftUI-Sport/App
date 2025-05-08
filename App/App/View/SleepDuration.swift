@@ -13,26 +13,7 @@ struct SleepDuration: View {
     
 //    var duration: TimeInterval
     var body: some View {
-        
-        
-//        let total = healthKitViewModel.sleepDuration.reduce(0) {
-//            $0 + $1.asleepDuration + $1.coreSleepDuration + $1.remSleepDuration + $1.deepSleepDuration
-//                    }
-
-        
-//        if total == 0 {
-//            
-//        }
-//        Text("Total Sleep Time: \(formatDuration( total))")
-//        Text("\(healthKitViewModel.sleepDuration.first?.date)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.deepSleepDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.second?.deepSleepDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.asleepDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.coreSleepDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.remSleepDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.inBedDuration)")
-//        Text("\(healthKitViewModel.sleepDuration.first?.remSleepDuration)")
-            
+    
         ScrollView{
             VStack(alignment: .leading){
                 Text("You Have A Good Sleep ")
@@ -58,6 +39,21 @@ struct SleepDuration: View {
                         .foregroundStyle(Color.gray)
                         
                 }
+                VStack{
+                    if calculatedTotal < 21600.0{
+                        Text("Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. ")
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                            .frame(maxWidth: .infinity)
+                    }
+                    else{
+                        Text("Your sleep duration falls within the ideal range for recovery. Quality rest helps regulate heart rate, improve recovery, and boost overall performance. Keep it up! ")
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                            .frame(maxWidth: .infinity)
+                        
+                    }
+                }
                 .padding(.top, 8)
             }
             .padding(.vertical)
@@ -73,27 +69,82 @@ struct SleepDuration: View {
                 calculatedTotal = 0
                 calculateTotal()
             }
-            .onChange(of: healthKitViewModel.sleepDuration) { _ in
-                calculatedTotal = 0
-                calculateTotal()
-            }
             
-            SimpleCard(title: "Highlight",
-                       content: "Based on your health record, your average heart rate higher than usual. This can be a sign your body still recovering",
-                       showSecondaryText: true,
-                       secondaryTitle: "Here’s What You Can Do To Recover Your Body",
-                       secondaryText: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-            )
-            SimpleCard(title: "About Average Heart Rate",
-                       content: "An abnormal average heart rate too high or too low can signal cardiovascular stress or underlying health issues, potentially reducing the body’s efficiency in recovery, energy regulation, and overall physical performance."
-                       
-            )
+            VStack(alignment:.leading){
+                Text("Here’s What You Can Do to Help You Sleep Well")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.bottom, 8)
+                    .foregroundColor(.black)
+                Text("Limit Screen Time")
+                    .fontWeight(.bold)
+                Text("Avoid phones or screens at least 30 minutes before bed to reduce blue light exposure.")
+                Text("Create a Restful Environment")
+                    .fontWeight(.bold)
+                Text("Keep your room cool, dark, and quiet to promote better sleep.")
+                Text("Avoid Caffeine Late in the Day")
+                    .fontWeight(.bold)
+                Text("Stimulants like coffee or energy drinks can disrupt your ability to fall asleep.")
+                Text("Wind Down")
+                    .fontWeight(.bold)
+                Text("Try relaxing activities before bed like reading, stretching, or deep breathing.")
+            }
+            .padding(24)
+            .background(.white)
+            .cornerRadius(12)
+            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
+            .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.bottom, 16)
+            
+            VStack(alignment:.leading){
+                Text("Here’s What You Can Do to Help You Sleep Well")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.bottom, 8)
+                    .foregroundColor(.black)
+                Text("The ideal sleep duration for most adults is 7 to 9 hours per night. Staying within this range supports physical recovery, mental clarity, hormonal balance, and heart health.")
+                
+                Text("Keypoint about Sleep Duration")
+                    .fontWeight(.bold)
+                    .font(.headline)
+                    .foregroundStyle(.orange)
+                    .padding(.top)
+                HStack(alignment: .top, spacing: 0) {
+                    Text("Too little sleep (less than 6 hours)  ")
+                        .fontWeight(.bold)
+                    +
+                    Text("can lead to increased stress, elevated resting heart rate, reduced heart rate variability (HRV), impaired recovery, and decreased performance. ")
+                }
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .top, spacing: 0) {
+                    Text("Too much sleep (more than 9–10 hours) ")
+                        .fontWeight(.bold)
+                    +
+                    Text("may be linked to low energy levels, sluggishness, or even underlying health issues. ")
+                    
+
+                }
+                .multilineTextAlignment(.leading)
+//                .frame(width:300)
+                .fixedSize(horizontal: false, vertical: true)
+
+            }
+            .padding(24)
+            .background(.white)
+            .cornerRadius(12)
+            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
+            .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.bottom, 16)
             
             SimpleCard(title: "Disclaimer",
                        content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",
                        titleColor: Color("blueTint"),
                        showIcon: true,
                        backgroundColor: Color("OrangeBGx"))
+            
         }
        
     }
@@ -117,11 +168,16 @@ struct SleepDuration: View {
         var title: String
         var content : String
         var titleColor : Color = .black
+        var titleColor2 : Color = .black
+        var titleColor3 : Color = .black
         var showIcon : Bool = false
         var backgroundColor : Color = .white
         var showSecondaryText : Bool = false
+        var showThirdText : Bool = false
         var secondaryTitle : String = ""
+        var thirdTitle : String = ""
         var secondaryText : String = ""
+        var thirdText : String = ""
         
         
         var body: some View {
@@ -139,7 +195,8 @@ struct SleepDuration: View {
                     
                     
                     Text(title)
-                        .font(.headline)
+                        .font(.title3)
+                        .fontWeight(.bold)
                         .padding(.bottom, 8)
                         .foregroundColor(titleColor)
                 }
@@ -151,8 +208,16 @@ struct SleepDuration: View {
                     Text(secondaryTitle)
                         .font(.headline)
                         .padding(.vertical, 8)
-                        .foregroundColor(titleColor)
+                        .foregroundColor(titleColor2)
                     Text(secondaryText)
+                        .foregroundColor(.primary)
+                }
+                if showThirdText {
+                    Text(thirdTitle)
+                        .font(.headline)
+                        .padding(.vertical, 8)
+                        .foregroundColor(titleColor3)
+                    Text(thirdText)
                         .foregroundColor(.primary)
                 }
                 
