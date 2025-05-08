@@ -38,22 +38,23 @@ struct WorkoutDurationView: View {
     struct WorkoutStressMessage {
         let title: String
         let detail: String
+        
         let tipsTitle: [String]
         let tipsDetail: [String]
     }
     
     @State private var selectedMessage: WorkoutStressMessage = WorkoutStressMessage(
-           title: "Your Recent Workouts Level Is Higher Than Usual",
-           detail: "You've been pushing harder than normal this can be great for progress, but make sure your body has enough time to recover to avoid injury.",
-           tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
-           tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
+        title: "Your Recent Workouts Level Is Within Normal Range",
+        detail: "You are good though, make sure to keep listen to your bodddyee.",
+        tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
+        tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
        )
     
     let normalMessage: WorkoutStressMessage = WorkoutStressMessage(
         title: "Your Recent Workouts Level Is Within Normal Range",
         detail: "You are good though, make sure to keep listen to your bodddyee.",
-        tipsTitle: ["asdasdasd Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
-        tipsDetail: ["NORMALAMLDSMA for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
+        tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
+        tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
     )
     
     let highMessage: WorkoutStressMessage = WorkoutStressMessage(
