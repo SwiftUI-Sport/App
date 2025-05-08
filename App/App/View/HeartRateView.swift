@@ -147,6 +147,9 @@ struct SimpleCard: View {
 struct MyChart: View {
     @Binding var averageValue7Days: Double
     @Binding var data: [DailyRate]  // Generalized data
+    @State private var selectedXValue: String? = nil
+    @State private var selectedDate: String? = nil // ← This is persistent
+
     var mainColor: Color = Color("OrangeTwox")
     
     func getShortDay(for dateString: String) -> String {
@@ -160,19 +163,6 @@ struct MyChart: View {
         return formatter.string(from: date)
     }
     
-    //    func getShortDay(for dateString: String) -> String {
-    //        let formatter = DateFormatter()
-    //        formatter.dateFormat = "yyyy-MM-dd"
-    //        guard let date = formatter.date(from: dateString) else {
-    //            return dateString
-    //        }
-    //
-    //        let weekdaySymbols = ["S", "M", "T", "W", "T", "F", "S"] // Sunday = 1
-    //        let calendar = Calendar.current
-    //        let weekdayIndex = calendar.component(.weekday, from: date) - 1
-    //
-    //        return weekdaySymbols[weekdayIndex]
-    //    }
     
     var body: some View {
         Chart {
@@ -182,14 +172,41 @@ struct MyChart: View {
                     y: .value("Value", item.value)
                 )
                 .foregroundStyle(index == data.count - 1 ? mainColor : Color("Barx"))
+//                .foregroundStyle(selectedXValue == nil ?  (index == data.count - 1 ? mainColor : Color("Barx")) : selectedXValue == item.date ? mainColor : Color("Barx"))
+//                .foregroundStyle(selectedDate == item.date ? mainColor : Color("Barx"))
+                
                 .cornerRadius(5)
                 
-                RuleMark(y: .value("Average", averageValue7Days))
-                    .foregroundStyle(mainColor)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
             }
+            
+            
+            RuleMark(y: .value("Average", Int(averageValue7Days)))
+                .foregroundStyle(mainColor)
+                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                .annotation(position: .top, alignment: .leading) {
+                    Text("Avg: \(Int(averageValue7Days))")
+                        .font(.caption)
+                        .foregroundColor(mainColor)
+                        .padding(.horizontal, 4)
+                        .background(Color.white.opacity(0.8))
+                        .cornerRadius(4)
+                }
         }
         .frame(height: 200)
+//        .chartXSelection(value: $selectedXValue)
+//        .onChange(of: selectedXValue) { _, newValue in
+//            if let newDate = newValue {
+//                selectedDate = newDate
+//            }
+//        }
+//        
+//
+//        .onAppear {
+//            if selectedDate == nil {
+//                selectedDate = data.last?.date  // Initial highlight on last bar
+//            }
+//        }
+    
         .padding()
         .chartXAxis {
             AxisMarks(values: .automatic) { value in
