@@ -16,6 +16,7 @@ struct AppApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(di.getHealthViewModel())
+                
                 .preferredColorScheme(.light)
         }
     }

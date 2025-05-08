@@ -16,18 +16,18 @@ enum HomeFlow: NavigationDestination {
     var title: String {
         switch self {
         case .first:
-            return "First Screen"
+            return "Heart Rate"
         case .second:
-            return "Second Screen"
+            return "Workout Duration"
         case .third:
-            return "Third"
+            return "Sleep"
         }
     }
         
     var destinationView: some View {
         switch self {
-        case .first: FirstScreenView()
-        case .second: SecondScreenView()
+        case .first: HeartRateView()
+        case .second: WorkoutDurationView()
         case .third: ThirdScreenView()
         }
     }
