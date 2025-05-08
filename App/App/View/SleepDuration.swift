@@ -11,15 +11,66 @@ struct SleepDuration: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @State private var calculatedTotal: TimeInterval = 0
     
-//    var duration: TimeInterval
+
     var body: some View {
-    
-        
-                    ScrollView{
-                        VStack(alignment: .leading){
-                            Text("You Have A Good Sleep ")
-                                .font(.title3.bold())
-            
+
+
+ 
+        ScrollView{
+            VStack(alignment: .leading){
+                Text("You Have A Good Sleep ")
+                    .font(.title3.bold())
+                
+                Rectangle()
+                    .frame(width: 150, height: 2, alignment: .leading)
+                    .foregroundStyle(Color("blueTint"))
+                
+                HStack{
+                    Image(systemName: "powersleep")
+                        .font(.system(size: 32, weight: .bold, design: .default))
+                        .foregroundStyle(Color("blueTint"))
+                    Text("\(formatDuration(calculatedTotal))")
+                        .font(.title)
+                        .bold()
+//                        .foregroundStyle(Color("OrangeOnex"))
+                    
+                    Spacer()
+                    
+                    Text("\(healthKitViewModel.sleepDuration.first?.date ?? "No Data")")
+                        .font(.caption)
+                        .foregroundStyle(Color.gray)
+                        
+                }
+                VStack{
+                    if calculatedTotal < 21600.0{
+                        Text("Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. ")
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                            .frame(maxWidth: .infinity)
+                    }
+                    else{
+                        Text("Your sleep duration falls within the ideal range for recovery. Quality rest helps regulate heart rate, improve recovery, and boost overall performance. Keep it up! ")
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                            .frame(maxWidth: .infinity)
+                        
+                    }
+                }
+                .padding(.top, 8)
+            }
+            .padding(.vertical)
+            .padding(.horizontal, 16)
+            .background(Color.white)
+            .cornerRadius(12)
+            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.bottom, 16)
+            .padding(.top,30)
+            .onAppear {
+                calculatedTotal = 0
+                calculateTotal()
+            }
                             Rectangle()
                                 .frame(width: 150, height: 2, alignment: .leading)
                                 .foregroundStyle(Color("blueTint"))
