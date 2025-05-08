@@ -8,8 +8,16 @@
 import SwiftUI
 
 struct SleepDuration: View {
-    
+    @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     var body: some View {
+        Text("\(healthKitViewModel.sleepDuration.first?.date)")
+        Text("\(healthKitViewModel.sleepDuration.first?.deepSleepDuration)")
+        Text("\(healthKitViewModel.sleepDuration.first?.asleepDuration)")
+        Text("\(healthKitViewModel.sleepDuration.first?.coreSleepDuration)")
+        Text("\(healthKitViewModel.sleepDuration.first?.remSleepDuration)")
+        Text("\(healthKitViewModel.sleepDuration.first?.inBedDuration)")
+        Text("\(healthKitViewModel.sleepDuration.first?.remSleepDuration)")
+            
         ScrollView{
             VStack(alignment: .leading){
                 Text("You Have A Good Sleep ")

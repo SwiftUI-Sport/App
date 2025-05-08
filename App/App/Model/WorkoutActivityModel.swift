@@ -60,6 +60,15 @@ struct HeartRateSample: Hashable,Codable {
     let bpm: Double
 }
 
+struct Sleep: Hashable,Codable {
+    let date : String
+    let inBedDuration: TimeInterval
+    let asleepDuration: TimeInterval
+    let deepSleepDuration: TimeInterval
+    let remSleepDuration: TimeInterval
+    let coreSleepDuration: TimeInterval
+}
+
 struct WorkoutHeartRateZone: Hashable,Codable {
     let zone: Int
     let lowerBound: Int
