@@ -17,7 +17,7 @@ final class UserDefaultsManager: ObservableObject {
         static let maxHR     = "maxHR"
         static let restingHR = "restingHR"
     }
-//adada
+
     @Published var age: Int {
         didSet {
             defaults.set(age, forKey: Keys.age)

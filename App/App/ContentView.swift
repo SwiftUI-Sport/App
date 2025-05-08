@@ -19,7 +19,7 @@ struct ContentView: View {
                     .environmentObject(HealthKitViewModel)
             }
             
-            Tab("Profile", systemImage: "figure.run.circle.fill") {
+            Tab("Activity", systemImage: "figure.run.circle.fill") {
                 ActivityView()
             }
             

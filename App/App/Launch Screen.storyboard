@@ -15,13 +15,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lsicon" translatesAutoresizingMaskIntoConstraints="NO" id="pCa-2e-zTf">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="riyalicon" translatesAutoresizingMaskIntoConstraints="NO" id="pCa-2e-zTf">
                                 <rect key="frame" x="10" y="421" width="372" height="35"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Buo-2v-Vu7"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Buo-2v-Vu7" firstAttribute="bottom" secondItem="pCa-2e-zTf" secondAttribute="bottom" constant="328" id="BVg-Lm-D4X"/>
                             <constraint firstItem="pCa-2e-zTf" firstAttribute="top" secondItem="Buo-2v-Vu7" secondAttribute="top" constant="303" id="Cce-FZ-UHW"/>
@@ -37,7 +38,7 @@
     </scenes>
     <color key="tintColor" name="primeColor"/>
     <resources>
-        <image name="lsicon" width="5140" height="5140"/>
+        <image name="riyalicon" width="1024" height="1024"/>
         <namedColor name="primeColor">
             <color red="0.3449999988079071" green="0.33700001239776611" blue="0.83899998664855957" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

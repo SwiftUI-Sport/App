@@ -38,7 +38,8 @@ struct TrainingStressOfTheDay: Identifiable, Codable {
         previousATL: Double,
         previousCTL: Double,
         tauATL: Double = 7.0,
-        tauCTL: Double = 42.0
+        tauCTL: Double = 42.0,
+        todayATL: Double = 0.0
     ) {
         self.date = Calendar.current.startOfDay(for: date)
         self.activities = activities
