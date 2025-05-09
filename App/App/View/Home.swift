@@ -19,18 +19,64 @@ struct HomeView: View {
     
     var sampleReasons = [
         Reason(
-            title:     "Training Load",
-            headline:  "You had 10 Minutes Longer Than Usual",
-            message:   "You pushed harder than usual in your last session, which can be great for progress, but your body might need extra recovery. Pay attention to how you feel before deciding to run today.",
+            title:     "Training Load hard",
+            headline:  "Your Training Load Was High",
+            message:   "Based on your TRIMP score, your last session was intense. Your body likely needs more recovery time.",
             iconName:  "figure.run",
             color:     Color("primary_2")
         ),
         Reason(
+            title:     "Training Load normal",
+            headline:  "Your Training Load Was Slightly High",
+            message:   "Your last session was a bit intense based on your TRIMP score. Consider how your body feels before deciding to run again.",
+            iconName:  "figure.run",
+            color:     Color("primary_2")
+        ),
+        Reason(
+            title:     "Training Load",
+            headline:  "You Trained Just Enough Last Session",
+            message:   "Based on your TRIMP score, your last session wasn’t too intense. Your body has a time to recover properly.",
+            iconName:  "figure.run",
+            color:     Color("primary_2")
+        ),
+        
+        
+        Reason(
             title:     "Resting Heart Rate",
+            headline:  "Your Resting Heart Rate Is Within Normal Range",
+            message:   "Your resting heart rate looks great, indicating your body is well-recovered. You're all set for today's run.",
+            iconName:  "heart.fill",
+            color: Color("primary_1")
+        ),
+        Reason(
+            title:     "Resting Heart Rate 2",
             headline:  "Your Average Heart Rate is Higher",
             message:   "Your resting heart rate is elevated, which may indicate fatigue or stress. Consider taking it easy today to let your body recover fully.",
             iconName:  "heart.fill",
             color: Color("primary_1")
+        ),
+        Reason(
+            title:     "Resting Heart Rate 3",
+            headline:  "Your Average Heart Rate is Higher",
+            message:   "Your resting heart rate is elevated, which may indicate fatigue or stress. Consider taking it easy today to let your body recover fully.",
+            iconName:  "heart.fill",
+            color: Color("primary_1")
+        ),
+        
+        
+        Reason(
+            title:     "Sleep Duration Enaugh",
+            headline:  "You Don’t Have Enough Sleep",
+            message:   "Your sleep duration was below your normal average, which could impact your energy and recovery. It might be best to rest or do a light workout today.",
+            iconName:  "moon.fill",
+            color:     Color("primary_3")
+        ),
+        Reason(
+            title:     "Sleep Duration Not Enaught",
+            headline:  "You Don’t Have Enough Sleep",
+            message:   "Your sleep duration was below your normal average, which could impact your energy and recovery. It might be best to rest or do a light workout today.",
+            iconName:  "moon.fill",
+            color:     Color("primary_3")
         ),
         Reason(
             title:     "Sleep Duration",
@@ -39,6 +85,7 @@ struct HomeView: View {
             iconName:  "moon.fill",
             color:     Color("primary_3")
         )
+
     ]
     
     var sampleHeader = [
@@ -74,27 +121,7 @@ struct HomeView: View {
                 }
         }
         .environmentObject(router)
-        .onAppear {
-            healthKitViewModel.loadAllData()
-            
-            if let atl = healthKitViewModel.stressHistory42Days.last?.todayATL {
-                switch atl {
-                case let x where x >= 150:
-                    selectedHeader = sampleHeader[2]
-                case let x where x >= 50 && x < 150:
-                    selectedHeader = sampleHeader[1]
-                case let x where x < 50:
-                    selectedHeader = sampleHeader[0]
-                default:
-                    if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
-                        
-                        selectedHeader = sampleHeader[3]
-                    }
-                }
-            } else if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
-                selectedHeader = sampleHeader[3] // fallback when no ATL data
-            }
-        }
+       
     }
     
     private var mainView: some View {
@@ -154,6 +181,32 @@ struct HomeView: View {
                 .background(Color("backgroundApp"))
                 
             }
+        }
+        .onAppear {
+            healthKitViewModel.loadAllData()
+            print("\($healthKitViewModel.stressHistory42Days)")
+            print("\(healthKitViewModel.stressHistory42Days)")
+            if let atl = healthKitViewModel.stressHistory42Days.last?.todayATL {
+                switch atl {
+                case let x where x >= 150:
+                    selectedHeader = sampleHeader[2]
+                case let x where x >= 50 && x < 150:
+                    selectedHeader = sampleHeader[1]
+                case let x where x < 50:
+                    selectedHeader = sampleHeader[0]
+                default:
+                    if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
+                        
+                        selectedHeader = sampleHeader[3]
+                    }
+                }
+            } else if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
+                selectedHeader = sampleHeader[3] // fallback when no ATL data
+            }
+            
+            healthKitViewModel.loadHeartRateVariability()
+            healthKitViewModel.loadRestingHeartRateDaily()
+            healthKitViewModel.loadHeartRate()
         }
         
         
@@ -282,24 +335,49 @@ struct FatigueCard: View {
 struct HeresWhySection: View {
     let reasons: [Reason]
     @EnvironmentObject var router: HomeFlowRouter
+    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     
-//    func heartRateStatus(currentHR: Int?, avgHR: Double?) -> ReasonCard {
-//        guard let current = currentHR, let avgHR = avgHR else {
-//            return normalMessage // or a custom "no data" message
-//        }
-//
-//        let avg = Int(avgHR)
-//
-//        if current >= avg - 10 && current <= avg + 10 {
-//            return normalMessage
-//        } else if current > avg + 10 && current <= avg + 20 {
-//            return slightlyHighMessage
-//        } else if current > avg + 20 {
-//            return highMessage
-//        } else {
-//            return lowMessage
-//        }
-//    }
+    func heartRateStatus(currentHR: Int?, avgHR: Double?) -> Int {
+        guard let current = currentHR, let avgHR = avgHR else {
+            return 3 // or a custom "no data" message
+        }
+
+        let avg = Int(avgHR)
+
+        if current >= avg - 10 && current <= avg + 10 {
+            return 3
+        } else if current > avg + 10 && current <= avg + 20 {
+            return 4
+        } else if current > avg + 20 {
+            return 5
+        } else {
+            return 3
+        }
+    }
+    
+    func trainingLoadStatus(lastTrainingLoad: Int?) -> Int {
+        guard let load = lastTrainingLoad else {
+            return 1 // fallback for missing data
+        }
+
+        if load > 100 {
+            return 0
+        } else {
+            return 1
+        }
+    }
+    
+    func SleepStatus(SleepAmount: Double?) -> Int {
+        guard let sleepamount = SleepAmount else {
+            return 1 // fallback for missing data
+        }
+ // 6 not enaught
+        if sleepamount < 21600.0 {
+            return 6 // not enaught sleep
+        } else {
+            return 7 // sleep
+        }
+    }
     
     var body: some View {
         ZStack {
@@ -314,7 +392,7 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .second )
                 } label : {
-                    ReasonCard(reason: reasons[0])
+                    ReasonCard(reason: reasons[trainingLoadStatus(lastTrainingLoad: HealthKitViewModel.past7DaysWorkoutTSR.last?.value)])
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
@@ -328,7 +406,7 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .first )
                 } label : {
-                    ReasonCard(reason: reasons[1])
+                    ReasonCard(reason: reasons[heartRateStatus(currentHR: HealthKitViewModel.HeartRateDailyv2.last?.value, avgHR: HealthKitViewModel.overallAverageHR)])
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
@@ -337,7 +415,7 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .third )
                 } label : {
-                    ReasonCard(reason: reasons[2])
+                    ReasonCard(reason: reasons[SleepStatus(SleepAmount:0 )])
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
