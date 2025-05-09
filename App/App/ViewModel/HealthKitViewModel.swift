@@ -33,6 +33,7 @@ final class HealthKitViewModel: ObservableObject {
     @Published var overallAvgHRV: Double = 0
     
     
+    
     @Published var stressHistory42Days: [TrainingStressOfTheDay] = []
     @Published var stressHistory7Days:  [TrainingStressOfTheDay] = []
     
