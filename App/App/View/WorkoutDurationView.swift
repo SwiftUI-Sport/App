@@ -11,6 +11,7 @@ struct WorkoutDurationView: View {
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     
     
+    
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -87,15 +88,18 @@ struct WorkoutDurationView: View {
                              .foregroundStyle(Color("Pink"))
                          
                          
-                         if let lastValue = HealthKitViewModel.past7DaysWorkoutTSR.last?.value {
+                    
+                             
+                         if let lastValue = HealthKitViewModel.HeartRateDailyv2.last?.value {
                              Text(String(format: "%.0f", Double(lastValue)))
                                  .font(.title)
                                  .bold()
                          } else {
-                             Text("–") // fallback for empty array
+                             Text("0") // fallback for empty array
                                  .font(.title)
                                  .bold()
                          }
+                      
                          
                          Text(HealthKitViewModel.overallAvgWorkoutTSR <= 1 ? "trimp" : "trimp")
                              .font(.title2.bold())
@@ -112,7 +116,9 @@ struct WorkoutDurationView: View {
                      
                      MyChart( averageValue7Days: $HealthKitViewModel.overallAvgWorkoutTSR,
                               data: $HealthKitViewModel.past7DaysWorkoutTSR,
+                              showAverage: false,
                               mainColor: Color("Pink")
+                              
                      )
                  }
                  .padding(.top, 16)

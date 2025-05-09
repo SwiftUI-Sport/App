@@ -239,6 +239,7 @@ struct MyChart: View {
     @Binding var data: [DailyRate]  // Generalized data
     @State private var selectedXValue: String? = nil
     @State private var selectedDate: String? = nil // ← This is persistent
+    var showAverage: Bool = true
 
     var mainColor: Color = Color("OrangeTwox")
     
@@ -269,18 +270,22 @@ struct MyChart: View {
                 
             }
             
+            if showAverage {
+                RuleMark(y: .value("Average", Int(averageValue7Days)))
+                    .foregroundStyle(mainColor)
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                    .annotation(position: .top, alignment: .leading) {
+                        Text("Avg: \(Int(averageValue7Days))")
+                            .font(.caption)
+                            .foregroundColor(mainColor)
+                            .padding(.horizontal, 4)
+                            .background(Color.white.opacity(0.8))
+                            .cornerRadius(4)
+                    }
+            }
             
-            RuleMark(y: .value("Average", Int(averageValue7Days)))
-                .foregroundStyle(mainColor)
-                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                .annotation(position: .top, alignment: .leading) {
-                    Text("Avg: \(Int(averageValue7Days))")
-                        .font(.caption)
-                        .foregroundColor(mainColor)
-                        .padding(.horizontal, 4)
-                        .background(Color.white.opacity(0.8))
-                        .cornerRadius(4)
-                }
+            
+           
         }
         .frame(height: 200)
 //        .chartXSelection(value: $selectedXValue)
