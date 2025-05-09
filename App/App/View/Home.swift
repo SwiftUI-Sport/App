@@ -11,6 +11,11 @@ struct HomeView: View {
     
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @StateObject private var router = HomeFlowRouter()
+    @State private var selectedHeader : HeaderContent =         HeaderContent(
+        title : "You Can Run Today",
+        message: "Your body is well-rested and your recovery metrics look great. It’s a perfect day to hit the road and crush your run.",
+        iconName:  "chacha"
+    )
     
     var sampleReasons = [
         Reason(
@@ -71,6 +76,24 @@ struct HomeView: View {
         .environmentObject(router)
         .onAppear {
             healthKitViewModel.loadAllData()
+            
+            if let atl = healthKitViewModel.stressHistory42Days.last?.todayATL {
+                switch atl {
+                case let x where x >= 150:
+                    selectedHeader = sampleHeader[2]
+                case let x where x >= 50 && x < 150:
+                    selectedHeader = sampleHeader[1]
+                case let x where x < 50:
+                    selectedHeader = sampleHeader[0]
+                default:
+                    if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
+                        
+                        selectedHeader = sampleHeader[3]
+                    }
+                }
+            } else if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
+                selectedHeader = sampleHeader[3] // fallback when no ATL data
+            }
         }
     }
     
@@ -96,9 +119,9 @@ struct HomeView: View {
                         VStack(spacing: 10){
                             HStack(alignment: .top) {
                                 HeaderSectionView(
-                                    title:    sampleHeader[3].title,
-                                    message:  sampleHeader[3].message,
-                                    iconName:  sampleHeader[3].iconName
+                                    title:    selectedHeader.title,
+                                    message:  selectedHeader.message,
+                                    iconName:  selectedHeader.iconName
                                 )
                                 .padding(.top, 10)
                                 
@@ -125,7 +148,7 @@ struct HomeView: View {
                             .padding(.top,15)
                     }
                     
-
+                    
                     
                 }
                 .background(Color("backgroundApp"))
@@ -260,6 +283,24 @@ struct HeresWhySection: View {
     let reasons: [Reason]
     @EnvironmentObject var router: HomeFlowRouter
     
+//    func heartRateStatus(currentHR: Int?, avgHR: Double?) -> ReasonCard {
+//        guard let current = currentHR, let avgHR = avgHR else {
+//            return normalMessage // or a custom "no data" message
+//        }
+//
+//        let avg = Int(avgHR)
+//
+//        if current >= avg - 10 && current <= avg + 10 {
+//            return normalMessage
+//        } else if current > avg + 10 && current <= avg + 20 {
+//            return slightlyHighMessage
+//        } else if current > avg + 20 {
+//            return highMessage
+//        } else {
+//            return lowMessage
+//        }
+//    }
+    
     var body: some View {
         ZStack {
             
@@ -271,6 +312,7 @@ struct HeresWhySection: View {
                 
                 Button {
                     // navigate here
+                    router.navigate(to: .second )
                 } label : {
                     ReasonCard(reason: reasons[0])
                 }
@@ -284,6 +326,7 @@ struct HeresWhySection: View {
                 
                 Button {
                     // navigate here
+                    router.navigate(to: .first )
                 } label : {
                     ReasonCard(reason: reasons[1])
                 }
@@ -292,6 +335,7 @@ struct HeresWhySection: View {
                 
                 Button {
                     // navigate here
+                    router.navigate(to: .third )
                 } label : {
                     ReasonCard(reason: reasons[2])
                 }
