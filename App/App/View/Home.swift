@@ -185,15 +185,22 @@ struct HomeView: View {
                                   headline: "Your Resting Heart Rate is Within Normal Range",
                                   data: healthKitViewModel.restingHeartRateDailyv2,
                                   mainColor: Color("primary_1")
-                                  
+                )
+                
+                HomeCardComponent(title: "Training Load",
+                                  headline: "Your Recent Training Load is Good",
+                                  data: healthKitViewModel.past7DaysWorkoutTSR,
+                                  mainColor: Color("primary_2"),
+                                  unit: "TRIMP",
+                                  icon: "figure.run"
                 )
                 
             }
         }
         .onAppear {
             healthKitViewModel.loadAllData()
-            print("\($healthKitViewModel.stressHistory42Days)")
-            print("\(healthKitViewModel.stressHistory42Days)")
+//            print("\($healthKitViewModel.stressHistory42Days)")
+//            print("\(healthKitViewModel.stressHistory42Days)")
             if let atl = healthKitViewModel.stressHistory42Days.last?.todayATL {
                 switch atl {
                 case let x where x >= 150:
@@ -215,6 +222,8 @@ struct HomeView: View {
             healthKitViewModel.loadHeartRateVariability()
             healthKitViewModel.loadRestingHeartRateDaily()
             healthKitViewModel.loadHeartRate()
+            healthKitViewModel.loadPast7DaysWorkoutTSR()
+            
         }
         
         

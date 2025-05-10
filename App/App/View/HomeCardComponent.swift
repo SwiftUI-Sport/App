@@ -16,13 +16,24 @@ struct HomeChart: View {
     var mainColor: Color = Color("OrangeTwox")
     
     var body: some View {
+        
+        let highlightIndex: Int? = {
+            if data.indices.contains(6) {
+                return 6 // Prefer 7th (index 6) if available
+            } else if data.indices.contains(5) {
+                return 5 // Otherwise use 6th (index 5)
+            } else {
+                return 6 // If both are missing, highlight nothing
+            }
+        }()
+        
         Chart {
             ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
                 BarMark(
                     x: .value("Day", item.date),
                     y: .value("Value", item.value)
                 )
-                .foregroundStyle(index == data.count - 1 ? mainColor : Color("Barx"))
+                .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
                 
                 .cornerRadius(5)
                 
@@ -59,7 +70,9 @@ struct HomeCardComponent: View {
     var title:String
     var headline:String
     var data: [DailyRate]
-    var mainColor: Color 
+    var mainColor: Color
+    var unit: String = "bpm"
+    var icon: String = "heart.fill"
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -73,7 +86,7 @@ struct HomeCardComponent: View {
                     Circle()
                         .fill(mainColor.opacity(0.2))
                         .frame(width: 20, height: 20)
-                    Image(systemName: "heart.fill")
+                    Image(systemName: icon)
                         .foregroundColor(mainColor)
                         .font(.system(size: 10, weight: .medium))
                 }
@@ -88,18 +101,29 @@ struct HomeCardComponent: View {
             
             HStack(alignment: .center, spacing: 24) {
                 HStack(alignment:.center, spacing: 8) {
-                    if let lastValue = data.last?.value {
-                        Text(String(format: "%.0f", Double(lastValue)))
+
+
+                    if data.indices.contains(6) {
+                        
+                        let value = data[6].value
+                        Text(String(format: "%.0f", Double(value)))
                             .font(.title)
-                            .bold(true)
+                            .bold()
+                    } else if data.indices.contains(5) {
+                        
+                        let value = data[5].value
+                        Text(String(format: "%.0f", Double(value)))
+                            .font(.title)
+                            .bold()
                     } else {
-                        Text("–") // fallback for empty array
+                        
+                        Text("0")
                             .font(.title)
-                            .bold(true)
+                            .bold()
                     }
                         
                         
-                    Text("bpm")
+                    Text(unit)
                         .font(.body)
                         .bold(true)
                         .foregroundStyle(mainColor)
