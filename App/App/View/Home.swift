@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
+    
     @StateObject private var router = HomeFlowRouter()
     @State private var selectedHeader : HeaderContent =         HeaderContent(
         title : "You Can Run Today",
@@ -179,6 +180,13 @@ struct HomeView: View {
                     
                 }
                 .background(Color("backgroundApp"))
+                
+                HomeCardComponent(title: "Resting Heart Rate",
+                                  headline: "Your Resting Heart Rate is Within Normal Range",
+                                  data: healthKitViewModel.restingHeartRateDailyv2,
+                                  mainColor: Color("primary_1")
+                                  
+                )
                 
             }
         }
