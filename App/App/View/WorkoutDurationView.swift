@@ -90,12 +90,23 @@ struct WorkoutDurationView: View {
                          
                     
                              
-                         if let lastValue = HealthKitViewModel.HeartRateDailyv2.last?.value {
-                             Text(String(format: "%.0f", Double(lastValue)))
+                         let data = HealthKitViewModel.past7DaysWorkoutTSR
+
+                         if data.indices.contains(6) {
+                             // Show the 7th item (index 6) if available
+                             let value = data[6].value
+                             Text(String(format: "%.0f", Double(value)))
+                                 .font(.title)
+                                 .bold()
+                         } else if data.indices.contains(5) {
+                             // Fallback to the 6th item (index 5)
+                             let value = data[5].value
+                             Text(String(format: "%.0f", Double(value)))
                                  .font(.title)
                                  .bold()
                          } else {
-                             Text("0") // fallback for empty array
+                             // Fallback if both are missing
+                             Text("0")
                                  .font(.title)
                                  .bold()
                          }
