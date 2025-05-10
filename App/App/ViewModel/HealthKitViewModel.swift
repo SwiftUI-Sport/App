@@ -464,11 +464,7 @@ final class HealthKitViewModel: ObservableObject {
 
                 let last7Days = Array(sorted.suffix(7))
                 
-                for rate in last7Days {
-                    print("Included date: \(rate.date)")
-                    print("Include value: \(rate.value)")
-                }
-                // Calculate overall average
+
                 let overallAvg = last7Days.isEmpty
                     ? 0
                     : Double(last7Days.map(\.value).reduce(0, +)) / Double(last7Days.count)
@@ -477,6 +473,7 @@ final class HealthKitViewModel: ObservableObject {
                     self.restingHeartRateDailyv2 = last7Days
                     self.overallRestingHR = overallAvg
                 }
+                
 
             case .failure(let error):
                 DispatchQueue.main.async {
@@ -654,11 +651,11 @@ final class HealthKitViewModel: ObservableObject {
                     let df = DateFormatter()
                     df.dateFormat = "yyyy-MM-dd HH:mm"
                     
-                    print("📊 HRV Samples: \(samples.count) entries")
+//                    print("📊 HRV Samples: \(samples.count) entries")
                     for sample in samples {
                         let timestamp = df.string(from: sample.startDate)
                         let hrvValue = sample.quantity.doubleValue(for: unit)
-                        print("• \(timestamp): \(hrvValue) ms")
+//                        print("• \(timestamp): \(hrvValue) ms")
                     }
                     
                     // MARK: You can store these values in a published property
@@ -800,9 +797,11 @@ final class HealthKitViewModel: ObservableObject {
                 let averageOfAll = allRates.isEmpty ? 0 : allRates.reduce(0, +) / Double(allRates.count)
 
                 DispatchQueue.main.async {
-                    self.HeartRateDailyv2 = dailyRates
+                    self.HeartRateDailyv2 = Array(dailyRates.suffix(7))
                     self.overallAverageHR = averageOfAll
                 }
+                
+
 
             case .failure(let error):
                 DispatchQueue.main.async {
