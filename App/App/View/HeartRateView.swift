@@ -261,15 +261,25 @@ struct MyChart: View {
     var body: some View {
         Chart {
             
-            let highlightIndex: Int? = {
-                if data.indices.contains(6) {
-                    return 6 // Prefer 7th (index 6) if available
-                } else if data.indices.contains(5) {
-                    return 5 // Otherwise use 6th (index 5)
-                } else {
-                    return 6 // If both are missing, highlight nothing
+            var highlightIndex: Int? {
+                
+
+                let last3 = data.suffix(3)
+                
+                // Check if all last 3 values are zero
+                if last3.allSatisfy({ $0.value == 0 }) {
+                    return nil
                 }
-            }()
+
+                // Otherwise, find the index of the rightmost non-zero in the last 3
+                for i in (data.count - 3..<data.count).reversed() {
+                    if data[i].value > 0 {
+                        return i
+                    }
+                }
+
+                return nil  // fallback, shouldn't reach here
+            }
             
             ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
                 BarMark(
@@ -479,12 +489,19 @@ struct AverageHeartRateSection: View {
 
                      
                      
-                     if let lastValue = HealthKitViewModel.HeartRateDailyv2.last?.value {
-                         Text(String(format: "%.0f", Double(lastValue)))
+                     let last3 = HealthKitViewModel.HeartRateDailyv2.suffix(3)
+                     let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+
+                     if allLast3Zero {
+                         Text("") // show nothing
+                             .font(.title)
+                             .bold()
+                     } else if let lastNonZero = HealthKitViewModel.HeartRateDailyv2.last(where: { $0.value > 0 }) {
+                         Text(String(format: "%.0f", Double(lastNonZero.value)))
                              .font(.title)
                              .bold()
                      } else {
-                         Text("–") // fallback for empty array
+                         Text("") // fallback if no non-zero at all
                              .font(.title)
                              .bold()
                      }
@@ -685,12 +702,19 @@ struct RestingHeartRateSection: View {
                              .font(.system(size: 18, weight: .medium))
                      }
                      
-                     if let lastValue = HealthKitViewModel.restingHeartRateDailyv2.last?.value {
-                         Text(String(format: "%.0f", Double(lastValue)))
+                     let last3 = HealthKitViewModel.restingHeartRateDailyv2.suffix(3)
+                     let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+
+                     if allLast3Zero {
+                         Text("") // show nothing
+                             .font(.title)
+                             .bold()
+                     } else if let lastNonZero = HealthKitViewModel.restingHeartRateDailyv2.last(where: { $0.value > 0 }) {
+                         Text(String(format: "%.0f", Double(lastNonZero.value)))
                              .font(.title)
                              .bold()
                      } else {
-                         Text("–") // fallback for empty array
+                         Text("") // fallback if no non-zero at all
                              .font(.title)
                              .bold()
                      }
@@ -889,12 +913,19 @@ struct HeartRateVariabilitySection: View {
                              .font(.system(size: 18, weight: .medium))
                      }
                      
-                     if let lastValue = HealthKitViewModel.HeartRateVariabilityDaily.last?.value {
-                         Text(String(format: "%.0f", Double(lastValue)))
+                     let last3 = HealthKitViewModel.HeartRateVariabilityDaily.suffix(3)
+                     let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+
+                     if allLast3Zero {
+                         Text("") // show nothing
+                             .font(.title)
+                             .bold()
+                     } else if let lastNonZero = HealthKitViewModel.HeartRateVariabilityDaily.last(where: { $0.value > 0 }) {
+                         Text(String(format: "%.0f", Double(lastNonZero.value)))
                              .font(.title)
                              .bold()
                      } else {
-                         Text("–") // fallback for empty array
+                         Text("") // fallback if no non-zero at all
                              .font(.title)
                              .bold()
                      }
@@ -941,7 +972,7 @@ struct HeartRateVariabilitySection: View {
                        content: "Heart Rate Variability (HRV) is the variation in time between each heartbeat. It reflects how well your body adapts to stress, recovers from exercise, and maintains balance in your nervous system. In healthy adults, average heart rate variability is 42 milliseconds. The range is between 19 and 75 milliseconds. Athletes and other people who are very fit may have a much higher heart rate variability.",
                        secondaryTitle: "KeyPoint about HRV",
                        keypoints: ["Higher HRV", "Low HRV", "People with low HRV", "HRV is personal and fluctuates daily."],
-                       keypointdescription: ["may indicate better heart health and greater adaptability to stress.", "can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.", "are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.", "What’s considered “normal” can vary greatly from person to person."],
+                       keypointdescription: ["may indicate better heart health and greater adaptability to stress.", "can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.", "are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.", "What’s considered “normal” can vary greatly from person to person."]
                        
              )
              

@@ -17,15 +17,25 @@ struct HomeChart: View {
     
     var body: some View {
         
-        let highlightIndex: Int? = {
-            if data.indices.contains(6) {
-                return 6 // Prefer 7th (index 6) if available
-            } else if data.indices.contains(5) {
-                return 5 // Otherwise use 6th (index 5)
-            } else {
-                return 6 // If both are missing, highlight nothing
+        var highlightIndex: Int? {
+            
+
+            let last3 = data.suffix(3)
+            
+            // Check if all last 3 values are zero
+            if last3.allSatisfy({ $0.value == 0 }) {
+                return nil
             }
-        }()
+
+            // Otherwise, find the index of the rightmost non-zero in the last 3
+            for i in (data.count - 3..<data.count).reversed() {
+                if data[i].value > 0 {
+                    return i
+                }
+            }
+
+            return nil  // fallback, shouldn't reach here
+        }
         
         Chart {
             ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
@@ -105,21 +115,19 @@ struct HomeCardComponent: View {
                 HStack(alignment:.center, spacing: 8) {
 
 
-                    if data.indices.contains(6) {
-                        
-                        let value = data[6].value
-                        Text(String(format: "%.0f", Double(value)))
+                    let last3 = data.suffix(3)
+                    let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+
+                    if allLast3Zero {
+                        Text("") // show nothing if last 3 are all zero
                             .font(.title)
                             .bold()
-                    } else if data.indices.contains(5) {
-                        
-                        let value = data[5].value
-                        Text(String(format: "%.0f", Double(value)))
+                    } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
+                        Text(String(format: "%.0f", Double(lastNonZero.value)))
                             .font(.title)
                             .bold()
                     } else {
-                        
-                        Text("0")
+                        Text("0") // fallback, though realistically this won't happen unless all data are 0
                             .font(.title)
                             .bold()
                     }

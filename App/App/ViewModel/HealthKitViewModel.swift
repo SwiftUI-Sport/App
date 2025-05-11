@@ -441,7 +441,7 @@ final class HealthKitViewModel: ObservableObject {
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd"
 
-                // Group values by date string
+                // Step 1: Group values by date string
                 var dailyData: [String: [Double]] = [:]
                 for sample in samples {
                     let dateString = df.string(from: sample.startDate)
@@ -449,28 +449,31 @@ final class HealthKitViewModel: ObservableObject {
                     dailyData[dateString, default: []].append(bpm)
                 }
 
-                // Compute daily averages and convert to DailyRate
-                var dailyRates: [DailyRate] = dailyData.map { (date, values) in
-                    let avg = values.reduce(0, +) / Double(values.count)
-                    return DailyRate(date: date, value: Int(avg))
+                // Step 2: Generate last 7 date strings
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                let last7Dates: [String] = (0..<7).compactMap { offset in
+                    guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
+                    return df.string(from: date)
+                }.reversed() // Make oldest first
+
+                // Step 3: Build complete dailyRates including missing dates with value 0
+                let dailyRates: [DailyRate] = last7Dates.map { dateString in
+                    if let values = dailyData[dateString], !values.isEmpty {
+                        let avg = values.reduce(0, +) / Double(values.count)
+                        return DailyRate(date: dateString, value: Int(avg))
+                    } else {
+                        return DailyRate(date: dateString, value: 0)
+                    }
                 }
 
-                // Sort by date and take the last 7
-                let sorted = dailyRates.sorted {
-                    guard let d1 = df.date(from: $0.date),
-                          let d2 = df.date(from: $1.date) else { return false }
-                    return d1 < d2
-                }
-
-                let last7Days = Array(sorted.suffix(7))
-                
-
-                let overallAvg = last7Days.isEmpty
+                // Step 4: Calculate average over available values
+                let overallAvg = dailyRates.isEmpty
                     ? 0
-                    : Double(last7Days.map(\.value).reduce(0, +)) / Double(last7Days.count)
+                    : Double(dailyRates.map(\.value).reduce(0, +)) / Double(dailyRates.count)
 
                 DispatchQueue.main.async {
-                    self.restingHeartRateDailyv2 = last7Days
+                    self.restingHeartRateDailyv2 = dailyRates
                     self.overallRestingHR = overallAvg
                 }
                 
@@ -688,15 +691,11 @@ final class HealthKitViewModel: ObservableObject {
 
             switch result {
             case .success(let samples):
-                guard !samples.isEmpty else {
-                    print("No HRV data available")
-                    return
-                }
-
                 let unit = HKUnit.secondUnit(with: .milli)
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd"
 
+                // Group by date string
                 var dailyData: [String: [Double]] = [:]
                 for sample in samples {
                     let dateKey = df.string(from: sample.startDate)
@@ -704,23 +703,30 @@ final class HealthKitViewModel: ObservableObject {
                     dailyData[dateKey, default: []].append(hrvValue)
                 }
 
-                var dailyRates: [DailyRate] = dailyData.map { (date, values) in
-                    let avg = values.reduce(0, +) / Double(values.count)
-                    return DailyRate(date: date, value: Int(avg))
+                // Generate last 7 dates
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                let last7Dates: [String] = (0..<7).compactMap { offset in
+                    guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
+                    return df.string(from: date)
+                }.reversed() // oldest to newest
+
+                // Build complete dailyRates array with 0-filled values
+                let dailyRates: [DailyRate] = last7Dates.map { dateString in
+                    if let values = dailyData[dateString], !values.isEmpty {
+                        let avg = values.reduce(0, +) / Double(values.count)
+                        return DailyRate(date: dateString, value: Int(avg))
+                    } else {
+                        return DailyRate(date: dateString, value: 0)
+                    }
                 }
 
-                // Sort by date and keep last 7 days
-                let sorted = dailyRates.sorted {
-                    guard let d1 = df.date(from: $0.date),
-                          let d2 = df.date(from: $1.date) else { return false }
-                    return d1 < d2
-                }
-
-                let last7 = Array(sorted.suffix(7))
-                let avgHRV = last7.isEmpty ? 0 : Double(last7.map(\.value).reduce(0, +)) / Double(last7.count)
+                // Calculate average HRV
+                let avgHRV = dailyRates.isEmpty ? 0 :
+                    Double(dailyRates.map(\.value).reduce(0, +)) / Double(dailyRates.count)
 
                 DispatchQueue.main.async {
-                    self.HeartRateVariabilityDaily = last7
+                    self.HeartRateVariabilityDaily = dailyRates
                     self.overallAvgHRV = avgHRV
                 }
 
@@ -772,47 +778,44 @@ final class HealthKitViewModel: ObservableObject {
 
             switch result {
             case .success(let samples):
-                guard !samples.isEmpty else {
-                    DispatchQueue.main.async {
-                        self.errorMessage = "No heart rate data available."
-                    }
-                    return
-                }
-
                 let unit = HKUnit.count().unitDivided(by: .minute())
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd"
+                let df = DateFormatter()
+                df.dateFormat = "yyyy-MM-dd"
 
                 var groupedRates: [String: [Double]] = [:]
                 var allRates: [Double] = []
 
                 for sample in samples {
-                    let dateKey = dateFormatter.string(from: sample.startDate)
+                    let dateKey = df.string(from: sample.startDate)
                     let value = sample.quantity.doubleValue(for: unit)
                     groupedRates[dateKey, default: []].append(value)
                     allRates.append(value)
                 }
 
-                var dailyRates: [DailyRate] = groupedRates.compactMap { (date, values) in
-                    guard !values.isEmpty else { return nil }
-                    let avg = values.reduce(0, +) / Double(values.count)
-                    return DailyRate(date: date, value: Int(avg))
-                }
+                // Get the last 7 date strings (oldest to newest)
+                let calendar = Calendar.current
+                let today = calendar.startOfDay(for: Date())
+                let last7Dates: [String] = (0..<7).compactMap { offset in
+                    guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
+                    return df.string(from: date)
+                }.reversed()
 
-                dailyRates.sort {
-                    guard let d1 = dateFormatter.date(from: $0.date),
-                          let d2 = dateFormatter.date(from: $1.date) else { return false }
-                    return d1 < d2
+                // Construct dailyRates with zero-filled missing values
+                let dailyRates: [DailyRate] = last7Dates.map { dateString in
+                    if let values = groupedRates[dateString], !values.isEmpty {
+                        let avg = values.reduce(0, +) / Double(values.count)
+                        return DailyRate(date: dateString, value: Int(avg))
+                    } else {
+                        return DailyRate(date: dateString, value: 0)
+                    }
                 }
 
                 let averageOfAll = allRates.isEmpty ? 0 : allRates.reduce(0, +) / Double(allRates.count)
 
                 DispatchQueue.main.async {
-                    self.HeartRateDailyv2 = Array(dailyRates.suffix(7))
+                    self.HeartRateDailyv2 = dailyRates
                     self.overallAverageHR = averageOfAll
                 }
-                
-
 
             case .failure(let error):
                 DispatchQueue.main.async {
