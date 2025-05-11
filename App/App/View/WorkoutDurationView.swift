@@ -187,6 +187,7 @@ struct WorkoutDurationView: View {
              }
          }
          .frame( maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+         .background(EnableSwipeBack().frame(width: 0, height: 0))
          .background(Color("BackgroundColorx"))
          
          .onAppear {

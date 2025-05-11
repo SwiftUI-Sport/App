@@ -85,7 +85,7 @@ struct SegmentedControl: View {
                   .foregroundColor(Color("primary_1"))
               }
           }
-          
+          .background(EnableSwipeBack().frame(width: 0, height: 0))
           .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.systemGray4))
