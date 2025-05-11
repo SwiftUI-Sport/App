@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
     
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
+    
     @StateObject private var router = HomeFlowRouter()
     @State private var selectedHeader: HeaderContent? = nil
     
@@ -228,7 +229,7 @@ struct HomeView: View {
 //                                .padding(.top,15)
                         
                         
-                        
+                       
                         
                     }
                     .background(Color("backgroundApp"))

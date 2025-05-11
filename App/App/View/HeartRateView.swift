@@ -258,15 +258,23 @@ struct MyChart: View {
     
     var body: some View {
         Chart {
+            
+            let highlightIndex: Int? = {
+                if data.indices.contains(6) {
+                    return 6 // Prefer 7th (index 6) if available
+                } else if data.indices.contains(5) {
+                    return 5 // Otherwise use 6th (index 5)
+                } else {
+                    return 6 // If both are missing, highlight nothing
+                }
+            }()
+            
             ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
                 BarMark(
                     x: .value("Day", item.date),
                     y: .value("Value", item.value)
                 )
-                .foregroundStyle(index == data.count - 1 ? mainColor : Color("Barx"))
-//                .foregroundStyle(selectedXValue == nil ?  (index == data.count - 1 ? mainColor : Color("Barx")) : selectedXValue == item.date ? mainColor : Color("Barx"))
-//                .foregroundStyle(selectedDate == item.date ? mainColor : Color("Barx"))
-                
+                .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
                 .cornerRadius(5)
                 
             }
