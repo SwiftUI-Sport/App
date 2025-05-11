@@ -514,6 +514,8 @@ final class HealthKitViewModel: ObservableObject {
     }
     
     func loadAllData() {
+        
+        stressHistory42Days = loadStressHistoryFromUserDefaults()
     
         let (start42, end42) = Date.last42DaysRange
         let (start7, end7) = Date.last7DaysRange
@@ -567,11 +569,15 @@ final class HealthKitViewModel: ObservableObject {
                 switch result {
                 case .failure(let err):
                     self.errorMessage = "Gagal load workouts: \(err)"
-                    self.activities = []
+                    if self.activities.isEmpty {
+                                        self.activities = []
+                                    }
                     
                 case .success(let workouts):
                     if workouts.isEmpty {
-                        self.activities = []
+                        if self.activities.isEmpty {
+                            self.activities = []
+                        }
                     } else {
                         self.processWorkouts(workouts, maxHR: maxHR, restingHR: restingHR)
                         print(activities.count)
@@ -635,6 +641,7 @@ final class HealthKitViewModel: ObservableObject {
         group.notify(queue: .main) { [weak self] in
             self?.activities = built.sorted(by: { $0.startDate > $1.startDate })
             self?.stressHistory42Days = self?.buildStressHistory(forLast: 42) ?? []
+            self?.saveStressHistoryToUserDefaults()
         }
     }
     
@@ -1186,6 +1193,32 @@ final class HealthKitViewModel: ObservableObject {
             for rate in rates {
                 print("• \(rate.date): \(rate.value)")
             }
+        }
+    }
+
+    private func saveStressHistoryToUserDefaults() {
+        do {
+            let data = try JSONEncoder().encode(stressHistory42Days)
+            UserDefaults.standard.set(data, forKey: "stressHistory42Days")
+            print("Successfully saved stress history to UserDefaults")
+        } catch {
+            print("Failed to save stress history: \(error)")
+        }
+    }
+
+    private func loadStressHistoryFromUserDefaults() -> [TrainingStressOfTheDay] {
+        guard let data = UserDefaults.standard.data(forKey: "stressHistory42Days") else {
+            print("No saved stress history found in UserDefaults")
+            return []
+        }
+        
+        do {
+            let history = try JSONDecoder().decode([TrainingStressOfTheDay].self, from: data)
+            print("Successfully loaded \(history.count) stress history days from UserDefaults")
+            return history
+        } catch {
+            print("Failed to load stress history: \(error)")
+            return []
         }
     }
 }

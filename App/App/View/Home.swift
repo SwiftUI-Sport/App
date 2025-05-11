@@ -12,22 +12,18 @@ struct HomeView: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     
     @StateObject private var router = HomeFlowRouter()
-    @State private var selectedHeader : HeaderContent =         HeaderContent(
-        title : "You Can Run Today",
-        message: "Your body is well-rested and your recovery metrics look great. It’s a perfect day to hit the road and crush your run.",
-        iconName:  "chacha"
-    )
+    @State private var selectedHeader: HeaderContent? = nil
     
     var sampleReasons = [
         Reason(
-            title:     "Training Load hard",
+            title:     "Training Load",
             headline:  "Your Training Load Was High",
             message:   "Based on your TRIMP score, your last session was intense. Your body likely needs more recovery time.",
             iconName:  "figure.run",
             color:     Color("primary_2")
         ),
         Reason(
-            title:     "Training Load normal",
+            title:     "Training Load",
             headline:  "Your Training Load Was Slightly High",
             message:   "Your last session was a bit intense based on your TRIMP score. Consider how your body feels before deciding to run again.",
             iconName:  "figure.run",
@@ -86,7 +82,7 @@ struct HomeView: View {
             iconName:  "moon.fill",
             color:     Color("primary_3")
         )
-
+        
     ]
     
     var sampleHeader = [
@@ -122,8 +118,41 @@ struct HomeView: View {
                 }
         }
         .environmentObject(router)
-       
+        .onAppear {
+            // Just trigger loading data
+            healthKitViewModel.loadAllData()
+            healthKitViewModel.loadHeartRateVariability()
+            healthKitViewModel.loadHeartRate()
+            healthKitViewModel.loadRestingHeartRateDaily()
+            
+            // Set initial header based on current data
+            updateSelectedHeader()
+        }
+        .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in
+            // Update when data changes
+            updateSelectedHeader()
+        }
     }
+    
+    private func updateSelectedHeader() {
+        if let lastDay = healthKitViewModel.stressHistory42Days.last, healthKitViewModel.loadAge() > 0 {
+            let atl = lastDay.todayATL
+            
+            if atl >= 150 {
+                selectedHeader = sampleHeader[2] // Need rest
+            } else if atl >= 50 {
+                selectedHeader = sampleHeader[1] // Bit tired
+            } else {
+                selectedHeader = sampleHeader[0] // Can run
+            }
+        } else {
+            selectedHeader = sampleHeader[3] // No data
+        }
+    }
+    
+    
+    
+    
     
     private var mainView: some View {
         ZStack{
@@ -139,109 +168,75 @@ struct HomeView: View {
             )
             .ignoresSafeArea()
             ScrollView {
-                VStack() {
-                    ZStack(alignment: .top){
-                        BottomRoundedRectangle(radius: 50)
-                            .fill(Color("home_bg_color"))
-                            .frame(maxWidth: .infinity, maxHeight: 320)
-                        VStack(spacing: 10){
-                            HStack(alignment: .top) {
-                                HeaderSectionView(
-                                    title:    selectedHeader.title,
-                                    message:  selectedHeader.message,
-                                    iconName:  selectedHeader.iconName
+                
+                if healthKitViewModel.loadAge() <= 0{
+                    VStack() {
+                        ZStack(alignment: .top){
+                            BottomRoundedRectangle(radius: 50)
+                                .fill(Color("home_bg_color"))
+                                .frame(maxWidth: .infinity, maxHeight: 320)
+                            VStack(spacing: 10){
+                                HStack(alignment: .top) {
+                                    EmptyHeaderSectionView(
+                                        title:    sampleHeader[3].title,
+                                        message:  sampleHeader[3].message,
+                                        iconName:  sampleHeader[3].iconName
+                                    )
+                                    .padding(.top, 10)
+                                    
+                                }
+                                
+                                EmptyFatigueCard(
+                                    trainingStressOfTheDay:
+                                        TrainingStressOfTheDay.emptyDefaultValue()
                                 )
-                                .padding(.top, 10)
+                                .padding(.horizontal)
+                                .padding(.top, 15)
+                                //                            .offset(y: -50)
                                 
                             }
-                            
-                            FatigueCard(
-                                trainingStressOfTheDay: healthKitViewModel.stressHistory42Days.isEmpty
-                                ? TrainingStressOfTheDay.defaultValue()
-                                : healthKitViewModel.stressHistory42Days.last ?? TrainingStressOfTheDay.defaultValue()
-                            )
-                            .padding(.horizontal)
-                            .padding(.top, 15)
-                            //                            .offset(y: -50)
-                            
                         }
-                    }
-                    
-                    if healthKitViewModel.loadAge() == 0{
-                        empty_authorized_view()
-                            .padding(.top, 70)
-                    }
-                    else {
-                        HeresWhySection(reasons: sampleReasons)
-                            .padding(.top,15)
-                    }
-                    
-                    
-                    
-                }
-                .background(Color("backgroundApp"))
-                
-                HomeCardComponent(title: "Resting Heart Rate",
-                                  headline: "Your Resting Heart Rate is Within Normal Range",
-                                  data: healthKitViewModel.restingHeartRateDailyv2,
-                                  mainColor: Color("primary_1")
-                )
-                
-                HomeCardComponent(title: "Training Load",
-                                  headline: "Your Recent Training Load is Good",
-                                  data: healthKitViewModel.past7DaysWorkoutTSR,
-                                  mainColor: Color("primary_2"),
-                                  unit: "TRIMP",
-                                  icon: "figure.run"
-                )
-                
-            }
-        }
-        .onAppear {
-            healthKitViewModel.loadAllData()
-//            print("\($healthKitViewModel.stressHistory42Days)")
-//            print("\(healthKitViewModel.stressHistory42Days)")
-            if let atl = healthKitViewModel.stressHistory42Days.last?.todayATL {
-                switch atl {
-                case let x where x >= 150:
-                    selectedHeader = sampleHeader[2]
-                case let x where x >= 50 && x < 150:
-                    selectedHeader = sampleHeader[1]
-                case let x where x < 50:
-                    selectedHeader = sampleHeader[0]
-                default:
-                    if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
                         
-                        selectedHeader = sampleHeader[3]
+                            Empty_authorized_view()
+                                .padding(.top, 70)
+                        
+                        
+                        
                     }
+                    .background(Color("backgroundApp"))
                 }
-            } else if healthKitViewModel.stressHistory42Days.isEmpty && healthKitViewModel.loadAge() == 0 {
-                selectedHeader = sampleHeader[3] // fallback when no ATL data
+                else {
+                    VStack() {
+                        ZStack(alignment: .top){
+                            Image("rech")
+                                .resizable()
+                                .scaledToFit()
+                            VStack(spacing: 0){
+                            
+                                    HeaderSectionView(
+                                        trainingStressOfTheDay: healthKitViewModel.stressHistory42Days.isEmpty
+                                        ? TrainingStressOfTheDay.defaultValue()
+                                        : healthKitViewModel.stressHistory42Days.last ?? TrainingStressOfTheDay.defaultValue(),
+                                        title:  sampleHeader[1].title,
+                                        message:  sampleHeader[1].message,
+                                        iconName: sampleHeader[1].iconName,
+                                    )
+                                    .padding(.top, 30)
+                            }
+                        }
+                                                
+                            HeresWhySection(reasons: sampleReasons)
+//                                .padding(.top,15)
+                        
+                        
+                       
+                        
+                    }
+                    .background(Color("backgroundApp"))
+                }
+                
             }
-            
-            healthKitViewModel.loadHeartRateVariability()
-            healthKitViewModel.loadRestingHeartRateDaily()
-            healthKitViewModel.loadHeartRate()
-            healthKitViewModel.loadPast7DaysWorkoutTSR()
-            
         }
-        
-        
-        //        VStack {
-        //            Button("Go to first screen") {
-        //                router.navigate(to: .first)
-        //            }
-        //            // test push
-        //            //dksajdks
-        //            Button("Print WORKOUT DATA") {
-        //                healthKitViewModel.printActivities()
-        //            }
-        //            Button("Print STRESS") {
-        //                healthKitViewModel.printStressHistories()
-        //            }
-        //        }
-        //        .navigationTitle("Home")
-        //        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -277,76 +272,33 @@ struct BottomRoundedRectangle: Shape {
 
 
 struct HeaderSectionView: View {
+    var trainingStressOfTheDay: TrainingStressOfTheDay
     let title: String
     let message: String
     let iconName: String
     
     var body: some View {
         
-        VStack(alignment: .leading, spacing: 0) {
-            
-            Text("Today's Overview")
-                .padding(.top, 3)
-                .padding(.bottom, 8)
-                .font(.subheadline)
-                .foregroundColor(Color.black.opacity(0.7))
+        VStack(alignment: .center, spacing: 0) {
+            Text(title)
+                . font(.system(.largeTitle, design: .rounded))
                 .fontWeight(.bold)
-            
-            HStack(alignment: .center) {
-                Text(title)
-                    . font(.system(.largeTitle, design: .rounded))
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.leading)
-                    .lineLimit(nil)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .foregroundColor(Color("primary_1"))
-                
-                Spacer()
-                Image(iconName)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 100, height: 100)
-                
-            }
-            // nyoba //lagi
-            Text(message)
-                .font(.callout)
-                .foregroundColor(Color("headerMessage"))
-                .multilineTextAlignment(.leading)
+                .multilineTextAlignment(.center)
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.top, 15)
+                .foregroundColor(Color("primary_1"))
+                .padding(.bottom, 25)
+            
+            FatigueCard(
+                trainingStressOfTheDay: trainingStressOfTheDay,
+                message: message,
+                iconName: iconName
+            )
+            Spacer()
             
         }
         .padding(.horizontal)
     }
-}
-
-struct FatigueCard: View {
-    var trainingStressOfTheDay: TrainingStressOfTheDay
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Level of Fatigue")
-                .padding(.horizontal)
-                .padding(.top, 16)
-                .font(.system(.subheadline, design: .rounded))
-                .fontWeight(.bold   )
-                .foregroundColor(.primary)
-            
-            ATLProgressView(atl : trainingStressOfTheDay.todayATL)
-                .padding(.top, 18)
-                .padding(.bottom, 15)
-        }
-        .frame(maxHeight: 122)
-        .background(Color.white)
-        .cornerRadius(6)
-        .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
-        .onAppear {
-            print("ATL: \(trainingStressOfTheDay.todayATL)")
-        }
-    }
-    
 }
 
 struct HeresWhySection: View {
@@ -356,11 +308,11 @@ struct HeresWhySection: View {
     
     func heartRateStatus(currentHR: Int?, avgHR: Double?) -> Int {
         guard let current = currentHR, let avgHR = avgHR else {
-            return 3 // or a custom "no data" message
+            return 3
         }
-
+        
         let avg = Int(avgHR)
-
+        
         if current >= avg - 10 && current <= avg + 10 {
             return 3
         } else if current > avg + 10 && current <= avg + 20 {
@@ -376,7 +328,7 @@ struct HeresWhySection: View {
         guard let load = lastTrainingLoad else {
             return 1 // fallback for missing data
         }
-
+        
         if load > 100 {
             return 0
         } else {
@@ -388,7 +340,7 @@ struct HeresWhySection: View {
         guard let sleepamount = SleepAmount else {
             return 1 // fallback for missing data
         }
- // 6 not enaught
+        // 6 not enaught
         if sleepamount < 21600.0 {
             return 6 // not enaught sleep
         } else {
@@ -484,4 +436,74 @@ struct ReasonCard: View {
         .cornerRadius(6)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
     }
+}
+
+struct EmptyHeaderSectionView: View {
+    let title: String
+    let message: String
+    let iconName: String
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack( spacing: 0) {
+                VStack(alignment: .center) {
+                    Text("Today's Overview")
+                        .padding(.top, 3)
+                        .padding(.bottom, 8)
+                        .font(.subheadline)
+                        .foregroundColor(Color.black.opacity(0.7))
+                        .fontWeight(.bold)
+                    
+                    Text(title)
+                        . font(.system(.largeTitle, design: .rounded))
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.leading)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundColor(Color("primary_1"))
+                
+                }
+                Spacer()
+                Image(iconName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180, height: 180)
+                
+            }
+            Text(message)
+                .font(.callout)
+                .foregroundColor(Color("headerMessage"))
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal)
+    }
+}
+
+struct EmptyFatigueCard: View {
+    var trainingStressOfTheDay: TrainingStressOfTheDay
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Level of Fatigue")
+                .padding(.horizontal)
+                .padding(.top, 16)
+                .font(.system(.subheadline, design: .rounded))
+                .fontWeight(.bold   )
+                .foregroundColor(.primary)
+            
+            ATLProgressView(atl : trainingStressOfTheDay.todayATL)
+                .padding(.top, 18)
+                .padding(.bottom, 15)
+        }
+        .frame(maxHeight: 122)
+        .background(Color.white)
+        .cornerRadius(6)
+        .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
+        .onAppear {
+            print("ATL: \(trainingStressOfTheDay.todayATL)")
+        }
+    }
+    
 }

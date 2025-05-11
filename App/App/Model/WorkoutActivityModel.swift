@@ -9,7 +9,7 @@ import Foundation
 import HealthKit
 
 
-struct TrainingStressOfTheDay: Identifiable, Codable {
+struct TrainingStressOfTheDay: Identifiable, Codable, Equatable, Hashable {
     var id: Date { date }
     
     let date: Date

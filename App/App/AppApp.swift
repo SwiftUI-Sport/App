@@ -25,7 +25,6 @@ struct AppApp: App {
             }
 //            ContentView()
 //                .preferredColorScheme(.light)
-
         }
         .environmentObject(di.getHealthViewModel())
     }

@@ -23,9 +23,9 @@ final class OnboardingViewModel: ObservableObject {
     @Published var isAuthorizationInProgress: Bool = false
     
     let pages: [OnboardingPage] = [
-        .init(imageName: "ob_1", title: "Run or Rest? We'll Tell You!", description: "No more guessing, we'll help you decide when to run and when your body needs to recover."),
-        .init(imageName: "ob_2", title: "Allow Access to Health", description: "Runday need your permission to uses your Health data to give you the best recomendation."),
-        .init(imageName: "ob_3", title: "We're Almost Done, Let's Start!", description: "You're all set! Just one more steps we'll start delivering your recomendation tailored to your body's needs."),
+        .init(imageName: "lottie_1", title: "Run or Rest? We'll Tell You!", description: "No more guessing, we'll help you decide when to run and when your body needs to recover."),
+        .init(imageName: "lottie_2", title: "Allow Access to Health", description: "Runday need your permission to uses your Health data to give you the best recomendation."),
+        .init(imageName: "lottie_3", title: "We're Almost Done, Let's Start!", description: "You're all set! Just one more steps we'll start delivering your recomendation tailored to your body's needs."),
     ]
     
     var isLastPage: Bool {
@@ -120,10 +120,7 @@ struct OnboardingPageView: View {
     var body: some View {
         VStack(spacing: 8) {
             Spacer()
-            Image(page.imageName)
-            
-                .resizable()
-                .scaledToFit()
+            LottieView(name: page.imageName)
                 .frame(maxWidth: 280, maxHeight: 280)
                 .accessibility(hidden: true)
                 .padding(.bottom, 50)

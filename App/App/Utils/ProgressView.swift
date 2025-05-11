@@ -15,7 +15,6 @@ struct HeaderContent: Identifiable {
     let message: String
     let iconName: String
 }
-
 struct ATLProgressView: View {
     let atl: Double
     let maxATL: Double = 200
@@ -23,15 +22,17 @@ struct ATLProgressView: View {
     private let barHeight: CGFloat = 38
     private let handleSize: CGSize = CGSize(width: 18, height: 56)
     
+    // This will store the animated value
+    @State private var animatedATL: Double = 0
+    
     var body: some View {
         GeometryReader { geo in
             let width = geo.size.width
-            let clamped = min(max(atl, 0), maxATL)
+            let clamped = min(max(animatedATL, 0), maxATL)
             let fraction = maxATL > 0 ? clamped / maxATL : 0
             let xPos = fraction * width
             
             ZStack(alignment: .topLeading) {
-              
                 ZStack {
                     LinearGradient(
                         gradient: Gradient(colors: [Color("ATLBar/leftBar"),Color("ATLBar/secondLeftBar"),Color("ATLBar/thirdLeftBar"), Color("ATLBar/centerBar"), Color("ATLBar/thirdRightBar") ,Color("ATLBar/secondRightBar"), Color("ATLBar/rightBar")]),
@@ -64,14 +65,25 @@ struct ATLProgressView: View {
                         x: xPos - handleSize.width/2,
                         y: -(handleSize.height - barHeight)/2
                     )
+                    // Make sure the handle animates smoothly
+                    .animation(.spring(response: 0.6, dampingFraction: 0.7), value: animatedATL)
             }
             .frame(height: handleSize.height)
         }
         .frame(height: handleSize.height)
         .padding(.horizontal)
+        .onAppear {
+            // Start with the current ATL value when the view appears
+            animatedATL = atl
+        }
+        .onChange(of: atl) { _, newValue in
+            // Animate to the new value whenever atl changes
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                animatedATL = newValue
+            }
+        }
     }
 }
-
 #Preview {
     ATLProgressView(
         atl: 20
@@ -144,7 +156,7 @@ struct BlobHeaderShape: Shape {
 //    }
 //}
 
-struct empty_authorized_view: View {
+struct Empty_authorized_view: View {
     var body: some View {
         VStack (spacing: 20){
             Image("empty_health")
@@ -171,8 +183,89 @@ struct empty_authorized_view: View {
     }
 }
 
-
-#Preview {
-    empty_authorized_view()
+struct Empty_activity_view: View {
+    var body: some View {
+        VStack (spacing: 20){
+            Image("empty_activity")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+            
+            Text("No Activity Available")
+                . font(.system(.largeTitle, design: .rounded))
+                .fontWeight(.bold)
+                .multilineTextAlignment(.leading)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color("primary_1"))
+            
+            Text("Looks like we don’t have enough info yet. Keep your Health data synced, and we’ll start giving smart recommendations soon!")
+                .font(.callout)
+                .foregroundColor(.gray.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .frame(width: 270)
+            
+        }
+    }
 }
 
+#Preview {
+    Empty_activity_view()
+}
+
+
+
+#Preview {
+    Empty_authorized_view()
+}
+
+struct FatigueCard: View {
+    var trainingStressOfTheDay: TrainingStressOfTheDay
+    var message: String
+    var iconName: String
+    
+    var body: some View {
+        ZStack{
+            Image(iconName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 230, height: 230)
+                .padding(.leading, 32)
+            VStack(alignment: .center) {
+                Text("Level of Fatigue")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 18)
+                    .font(.system(.subheadline, design: .rounded))
+                    .fontWeight(.bold   )
+                    .foregroundColor(.primary)
+                    .padding(.bottom, 18)
+                
+                            ATLProgressView(atl : trainingStressOfTheDay.todayATL)
+
+                Text(message)
+                    .font(.callout)
+                    .foregroundColor(Color("headerMessage"))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+                    .padding(.bottom, 18)
+                
+            }
+            .background(Color.white)
+            .cornerRadius(6)
+            .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
+            .offset(x: 0, y: 115)
+                    .onAppear {
+                        print("ATL: \(trainingStressOfTheDay.todayATL)")
+                    }
+        }
+    }
+    
+}
+
+//#Preview {
+//    FatigueCard()
+//}
