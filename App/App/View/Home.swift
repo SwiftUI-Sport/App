@@ -317,48 +317,6 @@ struct HeresWhySection: View {
     @EnvironmentObject var router: HomeFlowRouter
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     
-    func heartRateStatus(currentHR: Int?, avgHR: Double?) -> Int {
-        guard let current = currentHR, let avgHR = avgHR else {
-            return 3
-        }
-        
-        let avg = Int(avgHR)
-        
-        if current >= avg - 10 && current <= avg + 10 {
-            return 3
-        } else if current > avg + 10 && current <= avg + 20 {
-            return 4
-        } else if current > avg + 20 {
-            return 5
-        } else {
-            return 3
-        }
-    }
-    
-    func trainingLoadStatus(lastTrainingLoad: Int?) -> Int {
-        guard let load = lastTrainingLoad else {
-            return 1 // fallback for missing data
-        }
-        
-        if load > 100 {
-            return 0
-        } else {
-            return 1
-        }
-    }
-    
-    func SleepStatus(SleepAmount: Double?) -> Int {
-        guard let sleepamount = SleepAmount else {
-            return 1 // fallback for missing data
-        }
-        // 6 not enaught
-        if sleepamount < 21600.0 {
-            return 6 // not enaught sleep
-        } else {
-            return 7 // sleep
-        }
-    }
-    
     var body: some View {
         ZStack {
             

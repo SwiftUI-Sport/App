@@ -96,22 +96,19 @@ struct WorkoutDurationView: View {
                     
                              
                          let data = healthKitViewModel.past7DaysWorkoutTSR
+                         let last3 = data.suffix(3)
+                         let allLast3Zero = last3.allSatisfy { $0.value == 0 }
 
-                         if data.indices.contains(6) {
-                             // Show the 7th item (index 6) if available
-                             let value = data[6].value
-                             Text(String(format: "%.0f", Double(value)))
+                         if allLast3Zero {
+                             Text("") // Show nothing if last 3 are all 0
                                  .font(.title)
                                  .bold()
-                         } else if data.indices.contains(5) {
-                             // Fallback to the 6th item (index 5)
-                             let value = data[5].value
-                             Text(String(format: "%.0f", Double(value)))
+                         } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
+                             Text(String(format: "%.0f", Double(lastNonZero.value)))
                                  .font(.title)
                                  .bold()
                          } else {
-                             // Fallback if both are missing
-                             Text("0")
+                             Text("0") // Fallback, in case all values are 0
                                  .font(.title)
                                  .bold()
                          }
@@ -176,10 +173,33 @@ struct WorkoutDurationView: View {
          .background(Color("BackgroundColorx"))
          
          .onAppear {
-//             HealthKitViewModel.loadPast7DaysWorkoutDuration()
-//             HealthKitViewModel.printStressHistories()
              healthKitViewModel.loadPast7DaysWorkoutTSR()
-             selectedMessage = normalMessage
+             
+             let data = healthKitViewModel.past7DaysWorkoutTSR
+             let last3 = data.suffix(3)
+             let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+
+             let status: String
+
+             if allLast3Zero {
+                 status = trainingLoadStatus(lastTrainingLoad: nil)
+             } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
+                 status = trainingLoadStatus(lastTrainingLoad: lastNonZero.value)
+             } else {
+                 status = trainingLoadStatus(lastTrainingLoad: nil)
+             }
+             
+             
+             if status == "High" {
+                 selectedMessage = highMessage
+             }
+             else if status == "Missing" {
+                 selectedMessage = normalMessage  // ini harusnya ada missing value sih, cuma belum bikin
+             }
+             else {
+                 selectedMessage = normalMessage
+             }
+             
          }
          
          
