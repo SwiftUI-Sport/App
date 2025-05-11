@@ -17,6 +17,8 @@ struct LottieView: UIViewRepresentable {
     class Coordinator: NSObject {
         var animationView: LottieAnimationView?
         var isForward = true
+        var isLoading = false
+        var animationLoaded = false
     }
     
     func makeCoordinator() -> Coordinator {
@@ -25,132 +27,188 @@ struct LottieView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
+        
+        // Create animation view during initialization
+        let animationView = LottieAnimationView()
+        let loadingIndicator = UIActivityIndicatorView(style: .medium)
+        
+        animationView.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(animationView)
+        view.addSubview(loadingIndicator)
+        
+        NSLayoutConstraint.activate([
+            animationView.widthAnchor.constraint(equalTo: view.widthAnchor),
+            animationView.heightAnchor.constraint(equalTo: view.heightAnchor),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+        
+        context.coordinator.animationView = animationView
+        loadingIndicator.startAnimating()
+        
+        // Start loading animation asynchronously
+        loadAnimationAsync(name: name, animationView: animationView, loadingIndicator: loadingIndicator, coordinator: context.coordinator)
+        
         return view
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-     
-        uiView.subviews.forEach { $0.removeFromSuperview() }
+        // Only load animation if we haven't already started loading or loaded
+        if !context.coordinator.isLoading && !context.coordinator.animationLoaded {
+            // Find existing animation view and loading indicator
+            let animationView = context.coordinator.animationView
+            let loadingIndicator = uiView.subviews.compactMap { $0 as? UIActivityIndicatorView }.first
+            
+            if let animationView = animationView, let loadingIndicator = loadingIndicator {
+                loadAnimationAsync(name: name, animationView: animationView, loadingIndicator: loadingIndicator, coordinator: context.coordinator)
+            }
+        }
+    }
+    
+    private func loadAnimationAsync(name: String, animationView: LottieAnimationView, loadingIndicator: UIActivityIndicatorView, coordinator: Coordinator) {
+        // Mark that we're starting to load
+        coordinator.isLoading = true
         
-        let animationView = LottieAnimationView()
-        context.coordinator.animationView = animationView
-        
-        animationView.translatesAutoresizingMaskIntoConstraints = false
-        uiView.addSubview(animationView)
-        
-        NSLayoutConstraint.activate([
-            animationView.widthAnchor.constraint(equalTo: uiView.widthAnchor),
-            animationView.heightAnchor.constraint(equalTo: uiView.heightAnchor)
-        ])
-        
-        // For .lottie files, we need to use DotLottieFile
-        if let url = Bundle.main.url(forResource: name, withExtension: "lottie") {
-            DotLottieFile.loadedFrom(url: url) { result in
-                switch result {
-                case .success(let dotLottieFile):
-                    animationView.loadAnimation(from: dotLottieFile)
+        // Load animation in background thread
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Try loading .lottie file format first
+            if let url = Bundle.main.url(forResource: name, withExtension: "lottie") {
+                DotLottieFile.loadedFrom(url: url) { result in
+                    DispatchQueue.main.async {
+                        loadingIndicator.stopAnimating()
+                        loadingIndicator.isHidden = true
+                        
+                        switch result {
+                        case .success(let dotLottieFile):
+                            animationView.loadAnimation(from: dotLottieFile)
+                            
+                            if pingPong {
+                                animationView.loopMode = .autoReverse
+                                self.playWithPingPong(animationView, coordinator: coordinator)
+                            } else {
+                                animationView.loopMode = loopMode
+                                animationView.animationSpeed = animationSpeed
+                                animationView.play()
+                            }
+                            
+                            coordinator.animationLoaded = true
+                            
+                        case .failure(let error):
+                            print("⚠️ Failed to load .lottie file: \(error)")
+                            self.tryLoadingJSON(name: name, animationView: animationView, coordinator: coordinator)
+                        }
+                        coordinator.isLoading = false
+                    }
+                }
+            } else {
+                // Try JSON format if .lottie file not found
+                DispatchQueue.main.async {
+                    loadingIndicator.stopAnimating()
+                    loadingIndicator.isHidden = true
+                    self.tryLoadingJSON(name: name, animationView: animationView, coordinator: coordinator)
+                    coordinator.isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func tryLoadingJSON(name: String, animationView: LottieAnimationView, coordinator: Coordinator) {
+        // Try loading as JSON in background
+        DispatchQueue.global(qos: .userInitiated).async {
+            let animation = LottieAnimation.named(name)
+            
+            DispatchQueue.main.async {
+                if let jsonAnimation = animation {
+                    animationView.animation = jsonAnimation
                     
                     if pingPong {
                         animationView.loopMode = .autoReverse
-                        
-                        // Set up ping-pong animation with completion handler
-                        self.playWithPingPong(animationView, context: context)
+                        self.playWithPingPong(animationView, coordinator: coordinator)
                     } else {
                         animationView.loopMode = loopMode
                         animationView.animationSpeed = animationSpeed
                         animationView.play()
                     }
                     
-                case .failure(let error):
-                    print("⚠️ Failed to load .lottie file: \(error)")
-                    
-                    // Try JSON as fallback
-                    if let jsonAnimation = LottieAnimation.named(name) {
-                        animationView.animation = jsonAnimation
-                        
-                        if pingPong {
-                            animationView.loopMode = .autoReverse
-                            self.playWithPingPong(animationView, context: context)
-                        } else {
-                            animationView.loopMode = loopMode
-                            animationView.animationSpeed = animationSpeed
-                            animationView.play()
-                        }
-                    } else {
-                        print("⚠️ Also failed to load as JSON: \(name)")
-                    }
-                }
-            }
-        } else {
-            // Try JSON format
-            if let jsonAnimation = LottieAnimation.named(name) {
-                animationView.animation = jsonAnimation
-                
-                if pingPong {
-                    animationView.loopMode = .autoReverse
-                    self.playWithPingPong(animationView, context: context)
+                    coordinator.animationLoaded = true
                 } else {
-                    animationView.loopMode = loopMode
-                    animationView.animationSpeed = animationSpeed
-                    animationView.play()
+                    print("⚠️ Animation file not found: \(name)")
                 }
-            } else {
-                print("⚠️ Animation file not found: \(name)")
             }
         }
     }
     
-    private func playWithPingPong(_ animationView: LottieAnimationView, context: Context) {
-        // Simply use the built-in autoReverse loop mode
+    private func playWithPingPong(_ animationView: LottieAnimationView, coordinator: Coordinator) {
         animationView.loopMode = .autoReverse
         animationView.animationSpeed = abs(animationSpeed)
         animationView.play()
     }
 }
 
-
 struct LottieLihat: UIViewRepresentable {
     let url: URL
     
     func makeUIView(context: Context) -> UIView {
-        UIView()
-    }
-    
-    func updateUIView(_ uiView: UIViewType, context: Context) {
+        let view = UIView()
         let animationView = LottieAnimationView()
+        let loadingIndicator = UIActivityIndicatorView(style: .medium)
+        
         animationView.translatesAutoresizingMaskIntoConstraints = false
-        uiView.addSubview(animationView)
+        loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(animationView)
+        view.addSubview(loadingIndicator)
         
         NSLayoutConstraint.activate([
-            animationView.widthAnchor.constraint(equalTo: uiView.widthAnchor),
-            animationView.heightAnchor.constraint(equalTo: uiView.heightAnchor)
-            ])
+            animationView.widthAnchor.constraint(equalTo: view.widthAnchor),
+            animationView.heightAnchor.constraint(equalTo: view.heightAnchor),
+            
+            loadingIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
         
-        DotLottieFile.loadedFrom(url: url) { result in
-            switch result {
-            case .success(let success):
-                animationView.loadAnimation(from: success)
-                animationView.loopMode = .autoReverse
-//                animationView.m
-                animationView.play()
-            case .failure(let error):
-                print(error)
+        loadingIndicator.startAnimating()
+        
+        // Load animation asynchronously
+        DispatchQueue.global(qos: .userInitiated).async {
+            DotLottieFile.loadedFrom(url: url) { result in
+                DispatchQueue.main.async {
+                    loadingIndicator.stopAnimating()
+                    loadingIndicator.isHidden = true
+                    
+                    switch result {
+                    case .success(let dotLottieFile):
+                        animationView.loadAnimation(from: dotLottieFile)
+                        animationView.loopMode = .autoReverse
+                        animationView.play()
+                    case .failure(let error):
+                        print("⚠️ Failed to load animation: \(error)")
+                    }
+                }
             }
         }
-                
-    }
         
+        return view
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // No updates needed as everything is handled in makeUIView
+    }
 }
 
 struct TestLottieLihat: View {
-   
-    
     var body: some View {
         VStack(spacing: 8) {
-
-            LottieLihat(url: Bundle.main.url(forResource: "logo", withExtension: "lottie")!)
-                .frame(width: 280, height: 280)
-                .padding(.bottom, 50)
+            if let url = Bundle.main.url(forResource: "logo", withExtension: "lottie") {
+                LottieLihat(url: url)
+                    .frame(width: 280, height: 280)
+                    .padding(.bottom, 50)
+            } else {
+                Text("Animation not found")
+            }
         }
     }
 }
@@ -171,12 +229,8 @@ struct TestLottieView: View {
     
     var body: some View {
         VStack(spacing: 8) {
-            
             LottieView(name: "lottie_1")
-//                .frame(width: 280, height: 280)
-//                .padding(.bottom, 50)
-            
-           
+                .frame(width: 280, height: 280)
         }
     }
 }
@@ -184,4 +238,3 @@ struct TestLottieView: View {
 #Preview {
     TestLottieView()
 }
-

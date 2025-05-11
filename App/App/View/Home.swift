@@ -124,13 +124,16 @@ struct HomeView: View {
             healthKitViewModel.loadHeartRateVariability()
             healthKitViewModel.loadHeartRate()
             healthKitViewModel.loadRestingHeartRateDaily()
-            
+            healthKitViewModel.loadPast7DaysWorkoutTSR()
+
             // Set initial header based on current data
             updateSelectedHeader()
         }
         .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in
             // Update when data changes
             updateSelectedHeader()
+            healthKitViewModel.loadPast7DaysWorkoutTSR()
+
         }
     }
     
@@ -154,6 +157,7 @@ struct HomeView: View {
     
     
     
+    
     private var mainView: some View {
         ZStack{
             LinearGradient(
@@ -170,7 +174,7 @@ struct HomeView: View {
             ScrollView {
                 
                 if healthKitViewModel.loadAge() <= 0{
-                    VStack() {
+                    VStack(spacing: 0) {
                         ZStack(alignment: .top){
                             BottomRoundedRectangle(radius: 50)
                                 .fill(Color("home_bg_color"))
@@ -197,8 +201,8 @@ struct HomeView: View {
                             }
                         }
                         
-                            Empty_authorized_view()
-                                .padding(.top, 70)
+                        Empty_authorized_view()
+                            .padding(.top, 70)
                         
                         
                         
@@ -206,39 +210,46 @@ struct HomeView: View {
                     .background(Color("backgroundApp"))
                 }
                 else {
-                    VStack() {
+                    VStack(spacing: 0) {
                         ZStack(alignment: .top){
+                            Color("backgroundApp")
                             Image("rech")
                                 .resizable()
                                 .scaledToFit()
                             VStack(spacing: 0){
-                            
+                                
+                                
                                     HeaderSectionView(
                                         trainingStressOfTheDay: healthKitViewModel.stressHistory42Days.isEmpty
                                         ? TrainingStressOfTheDay.defaultValue()
                                         : healthKitViewModel.stressHistory42Days.last ?? TrainingStressOfTheDay.defaultValue(),
-                                        title:  sampleHeader[1].title,
-                                        message:  sampleHeader[1].message,
-                                        iconName: sampleHeader[1].iconName,
+                                        title:  selectedHeader?.title ?? sampleHeader[1].title,
+                                        message:  selectedHeader?.message ?? sampleHeader[1].message,
+                                        iconName: selectedHeader?.iconName ?? sampleHeader[1].iconName
+//                                        title:  sampleHeader[1].title,
+//                                        message:  sampleHeader[1].message,
+//                                        iconName: sampleHeader[1].iconName
                                     )
-                                    .padding(.top, 30)
+                                
+                                
+                                .padding(.top, 30)
                             }
+                            
                         }
-                                                
-                            HeresWhySection(reasons: sampleReasons)
-//                                .padding(.top,15)
-                        
-                        
-                       
-                        
+//                        
+                        HeresWhySection(reasons: sampleReasons)
+//
+                            
+                            
+                        }
+                        .background(Color("backgroundApp"))
                     }
-                    .background(Color("backgroundApp"))
+                    
                 }
-                
             }
         }
     }
-}
+
 
 struct BottomRoundedRectangle: Shape {
     var radius: CGFloat = 40
@@ -294,7 +305,6 @@ struct HeaderSectionView: View {
                 message: message,
                 iconName: iconName
             )
-            Spacer()
             
         }
         .padding(.horizontal)
@@ -303,6 +313,7 @@ struct HeaderSectionView: View {
 
 struct HeresWhySection: View {
     let reasons: [Reason]
+    @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @EnvironmentObject var router: HomeFlowRouter
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     
@@ -352,7 +363,7 @@ struct HeresWhySection: View {
         ZStack {
             
             VStack(alignment: .leading, spacing: 20) {
-                Text("What Your Fatigue Level Is Based On")
+                Text("Your Level of Fatigue Is Calculated With")
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.horizontal)
@@ -361,7 +372,14 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .second )
                 } label : {
-                    ReasonCard(reason: reasons[trainingLoadStatus(lastTrainingLoad: HealthKitViewModel.past7DaysWorkoutTSR.last?.value)])
+                    HomeCardComponent(title: "Training Load",
+                                      headline: "Your Recent Training Load is Good",
+                                      data: healthKitViewModel.past7DaysWorkoutTSR,
+                                      mainColor: Color("primary_2"),
+                                      unit: "TRIMP",
+                                      icon: "figure.run"
+                    )
+
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
@@ -375,7 +393,11 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .first )
                 } label : {
-                    ReasonCard(reason: reasons[heartRateStatus(currentHR: HealthKitViewModel.HeartRateDailyv2.last?.value, avgHR: HealthKitViewModel.overallAverageHR)])
+                    HomeCardComponent(title: "Resting Heart Rate",
+                                      headline: "Your Resting Heart Rate is Within Normal Range",
+                                      data: healthKitViewModel.restingHeartRateDailyv2,
+                                      mainColor: Color("primary_1")
+                    )
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
@@ -384,10 +406,14 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .third )
                 } label : {
-                    ReasonCard(reason: reasons[SleepStatus(SleepAmount:0 )])
+                    SleepCardComponent(title: "Sleep Duration",
+                                      headline: "Your Resting Heart Rate Is Elevated",
+                                      mainColor: Color("primary_3")
+                    )
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
+
                 
                 Spacer()
             }
@@ -461,7 +487,7 @@ struct EmptyHeaderSectionView: View {
                         .lineLimit(nil)
                         .fixedSize(horizontal: false, vertical: true)
                         .foregroundColor(Color("primary_1"))
-                
+                    
                 }
                 Spacer()
                 Image(iconName)
@@ -507,3 +533,4 @@ struct EmptyFatigueCard: View {
     }
     
 }
+

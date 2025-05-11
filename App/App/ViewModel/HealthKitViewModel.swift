@@ -513,6 +513,10 @@ final class HealthKitViewModel: ObservableObject {
         return history
     }
     
+    func loadWorkData() {
+        stressHistory42Days = loadStressHistoryFromUserDefaults()
+    }
+    
     func loadAllData() {
         
         stressHistory42Days = loadStressHistoryFromUserDefaults()
@@ -1198,7 +1202,7 @@ final class HealthKitViewModel: ObservableObject {
 
     private func saveStressHistoryToUserDefaults() {
         do {
-            let data = try JSONEncoder().encode(stressHistory42Days)
+            let data = try JSONEncoder().encode(self.stressHistory42Days)
             UserDefaults.standard.set(data, forKey: "stressHistory42Days")
             print("Successfully saved stress history to UserDefaults")
         } catch {

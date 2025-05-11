@@ -26,10 +26,16 @@ struct SleepDuration: View {
                     .foregroundStyle(Color("blueTint"))
                 
                 HStack{
-                    Image(systemName: "powersleep")
-                        .font(.system(size: 32, weight: .bold, design: .default))
-                        .foregroundStyle(Color("blueTint"))
-                    Text("\(formatDuration(calculatedTotal))")
+                    
+                    ZStack {
+                        Circle()
+                            .fill(Color("primary_3").opacity(0.2))
+                            .frame(width: 32, height: 32)
+                        Image(systemName: "moon.fill")
+                            .foregroundColor(Color("primary_3"))
+                            .font(.system(size: 18, weight: .medium))
+                    }
+                    Text("\(formatDurationSleep(calculatedTotal))")
                         .font(.title)
                         .bold()
                     //                        .foregroundStyle(Color("OrangeOnex"))
@@ -61,9 +67,9 @@ struct SleepDuration: View {
             .padding(.vertical)
             .padding(.horizontal, 16)
             .background(Color.white)
-            .cornerRadius(12)
-            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .cornerRadius(6)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             .padding(.top,30)
@@ -93,9 +99,9 @@ struct SleepDuration: View {
             }
             .padding(24)
             .background(.white)
-            .cornerRadius(12)
-            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
-            .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+            .cornerRadius(6)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+            .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             
@@ -108,10 +114,10 @@ struct SleepDuration: View {
                 Text("The ideal sleep duration for most adults is 7 to 9 hours per night. Staying within this range supports physical recovery, mental clarity, hormonal balance, and heart health.")
                 
                 Text("Keypoint about Sleep Duration")
-                    .fontWeight(.bold)
-                    .font(.headline)
-                    .foregroundStyle(.orange)
-                    .padding(.top)
+    //                .font(.headline)
+                    .font(.title3.bold())
+                    .padding(.vertical, 8)
+                    .foregroundColor(Color("primary_3"))
                 HStack(alignment: .top, spacing: 0) {
                     Text("Too little sleep (less than 6 hours)  ")
                         .fontWeight(.bold)
@@ -135,9 +141,9 @@ struct SleepDuration: View {
             }
             .padding(24)
             .background(.white)
-            .cornerRadius(12)
-            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
-            .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+            .cornerRadius(6)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+            .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             
@@ -147,6 +153,7 @@ struct SleepDuration: View {
                        showIcon: true,
                        backgroundColor: Color("OrangeBGx"))
         }
+        .background(Color("backgroundApp"))
         .onAppear {
             calculatedTotal = 0
             calculateTotal()
@@ -156,10 +163,7 @@ struct SleepDuration: View {
     
     
     
-    
-    
-    // Fixed implementation
-    private func calculateTotal() {
+    func calculateTotal() {
         // Always reset before calculation to prevent accumulation
         var calculatedTotal1 = 0.0
         calculatedTotal=0.0
@@ -171,6 +175,9 @@ struct SleepDuration: View {
         
         calculatedTotal=calculatedTotal1
     }
+    
+    // Fixed implementation
+    
 }
     
     struct SimpleCardest: View {
@@ -216,9 +223,10 @@ struct SleepDuration: View {
                 
                 if showSecondaryText {
                     Text(secondaryTitle)
-                        .font(.headline)
+        //                .font(.headline)
+                        .font(.title3.bold())
                         .padding(.vertical, 8)
-                        .foregroundColor(titleColor2)
+                        .foregroundColor(Color("primary_3"))
                     Text(secondaryText)
                         .foregroundColor(.primary)
                 }
@@ -235,21 +243,23 @@ struct SleepDuration: View {
             }
             .padding(24)
             .background(backgroundColor)
-            .cornerRadius(12)
-            .shadow(color: Color(.black).opacity(0.2), radius: 4, x: 3, y: 1)
-            .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+            .cornerRadius(6)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+            .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             
             
             
         }
-    func formatDuration(_ interval: TimeInterval) -> String {
-        let hours = Int(interval / 3600)
-        let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
-        return "\(hours)h \(minutes)m"
-    }
 }
+
+func formatDurationSleep(_ interval: TimeInterval) -> String {
+    let hours = Int(interval / 3600)
+    let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
+    return "\(hours)h \(minutes)m"
+}
+
 
 
 

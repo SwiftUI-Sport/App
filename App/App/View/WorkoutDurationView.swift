@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WorkoutDurationView: View {
-    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     
     
     
@@ -83,14 +83,19 @@ struct WorkoutDurationView: View {
                          .padding(.top, 8)
                      
                      HStack{
-                         Image(systemName: "figure.run.circle.fill")
-                             .font(.system(size: 32, weight: .bold, design: .default))
-                             .foregroundStyle(Color("Pink"))
+                         ZStack {
+                             Circle()
+                                 .fill(Color("primary_2").opacity(0.2))
+                                 .frame(width: 32, height: 32)
+                             Image(systemName: "figure.run")
+                                 .foregroundColor(Color("primary_2"))
+                                 .font(.system(size: 18, weight: .medium))
+                         }
                          
                          
                     
                              
-                         let data = HealthKitViewModel.past7DaysWorkoutTSR
+                         let data = healthKitViewModel.past7DaysWorkoutTSR
 
                          if data.indices.contains(6) {
                              // Show the 7th item (index 6) if available
@@ -112,21 +117,21 @@ struct WorkoutDurationView: View {
                          }
                       
                          
-                         Text(HealthKitViewModel.overallAvgWorkoutTSR <= 1 ? "trimp" : "trimp")
+                         Text(healthKitViewModel.overallAvgWorkoutTSR <= 1 ? "trimp" : "trimp")
                              .font(.title2.bold())
                              .foregroundStyle(Color("Pink"))
                          
                          Spacer()
                          
-                         Text(dateRangeText(from: HealthKitViewModel.past7DaysWorkoutTSR))
+                         Text(dateRangeText(from: healthKitViewModel.past7DaysWorkoutTSR))
                              .font(.caption)
                              .foregroundStyle(Color.gray)
                          
                      }
                      .padding(.top, 8)
                      
-                     MyChart( averageValue7Days: $HealthKitViewModel.overallAvgWorkoutTSR,
-                              data: $HealthKitViewModel.past7DaysWorkoutTSR,
+                     MyChart( averageValue7Days: $healthKitViewModel.overallAvgWorkoutTSR,
+                              data: $healthKitViewModel.past7DaysWorkoutTSR,
                               showAverage: false,
                               mainColor: Color("Pink")
                               
@@ -154,6 +159,7 @@ struct WorkoutDurationView: View {
                  AboutCard(title: "About Trimp Score",
                            content: "Training Stress Score (TSS) is a measurement used to quantify the intensity and duration of your workout. It helps gauge how much stress your body is under during and after exercise, helping you balance effort and recovery.",
                            secondaryTitle: "Keypoint about Trimp Score",
+                           secondaryTitleColor: Color("primary_2"),
                            keypoints: ["Normal TSS (50–100)", "High TSS (>150)", "Recovery Time"],
                            keypointdescription: ["\nThis range indicates moderate intensity workouts with manageable stress on your body.", "\nWorkouts in this range are intense and may require additional recovery days to prevent overtraining.", "\nAfter high-intensity sessions, it’s crucial to monitor how your body feels and ensure proper rest, sleep, and hydration to optimize recovery and avoid burnout"])
                  
@@ -172,7 +178,7 @@ struct WorkoutDurationView: View {
          .onAppear {
 //             HealthKitViewModel.loadPast7DaysWorkoutDuration()
 //             HealthKitViewModel.printStressHistories()
-             HealthKitViewModel.loadPast7DaysWorkoutTSR()
+             healthKitViewModel.loadPast7DaysWorkoutTSR()
              selectedMessage = normalMessage
          }
          

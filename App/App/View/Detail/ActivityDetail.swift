@@ -170,9 +170,15 @@ struct SecondActivityView: View {
             VStack(alignment: .leading, spacing: 12) {
                 // Header with info button
                 HStack {
-                    Image(systemName: "heart.text.square.fill")
-                        .font(.title3)
-                        .foregroundColor(.orangeTint)
+                    ZStack {
+                        Circle()
+                            .fill(Color("primary_1").opacity(0.2))
+                            .frame(width: 30, height: 30)
+                        Image(systemName: "heart.text.square.fill")
+                            .foregroundColor(Color("primary_1"))
+                            .font(.system(size: 15, weight: .medium))
+                    }
+
                     Text("Heart Rate Training Zone")
                         .foregroundColor(.black)
                         .font(.title3)

@@ -66,7 +66,7 @@ struct HomeChart: View {
 
 struct HomeCardComponent: View {
     
-//    @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
+    @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     var title:String
     var headline:String
     var data: [DailyRate]
@@ -77,11 +77,6 @@ struct HomeCardComponent: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack() {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(mainColor)
-                
                 ZStack {
                     Circle()
                         .fill(mainColor.opacity(0.2))
@@ -90,6 +85,13 @@ struct HomeCardComponent: View {
                         .foregroundColor(mainColor)
                         .font(.system(size: 10, weight: .medium))
                 }
+                
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(mainColor)
+                
+
                 Spacer()
                 Image(systemName: "chevron.right")
                     .font(.system(size: 16, weight: .bold))
@@ -145,3 +147,82 @@ struct HomeCardComponent: View {
 //#Preview {
 //    HomeCardComponent()
 //}
+
+
+
+struct SleepCardComponent: View {
+    
+    @EnvironmentObject var healthKitViewModel: HealthKitViewModel
+    @State private var calculatedTotal: TimeInterval = 0
+    var title:String
+    var headline:String
+    var mainColor = Color("primary_3")
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack() {
+                ZStack {
+                    Circle()
+                        .fill(mainColor.opacity(0.2))
+                        .frame(width: 20, height: 20)
+                    Image(systemName: "moon.fill")
+                        .foregroundColor(mainColor)
+                        .font(.system(size: 10, weight: .medium))
+                }
+                
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(mainColor)
+                
+                
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .bold))
+            }
+            Text(headline)
+                .font(.headline)
+                .lineLimit(2)
+                .foregroundColor(.black)
+            
+            HStack(alignment: .center, spacing: 24) {
+                HStack(alignment:.center, spacing: 8) {
+                    
+                    Text("\(formatDurationSleep(calculatedTotal))")
+                        .font(.system(.largeTitle, weight: .bold))
+                        .foregroundColor(mainColor)
+                    Spacer()
+                    Image(systemName: "sleep.circle.fill")
+                        .font(.system(size: 75, weight: .bold))
+                        .foregroundColor(mainColor).opacity(0.2)
+                }
+                
+                
+            }
+           
+            
+        }
+        .onAppear {
+            calculatedTotal = 0
+            calculateTotalHome()
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(6)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+        
+    }
+        
+        func calculateTotalHome() {
+            // Always reset before calculation to prevent accumulation
+            var calculatedTotal1 = 0.0
+            calculatedTotal=0.0
+            
+            // Calculate fresh total each time
+            healthKitViewModel.sleepDuration.forEach { item in
+                calculatedTotal1 += item.asleepDuration + item.coreSleepDuration + item.remSleepDuration + item.deepSleepDuration
+            }
+            
+            calculatedTotal=calculatedTotal1
+        }
+}

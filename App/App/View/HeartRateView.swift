@@ -50,7 +50,7 @@ struct SegmentedControl: View {
                                      ZStack {
                                          if activeTab == tab {
                                              RoundedRectangle(cornerRadius: 8)
-                                                 .fill(Color("OrangeOnex"))
+                                                 .fill(Color("primary_1"))
                                                  .matchedGeometryEffect(id: "tab", in: animation)
                                          }
                                      }
@@ -154,8 +154,9 @@ struct SimpleCard: View {
         }
         .padding(24)
         .background(backgroundColor)
-        .cornerRadius(12)
-        .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+        .cornerRadius(6)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+        .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
         .padding(.horizontal)
         .padding(.bottom, 16)
         
@@ -218,8 +219,9 @@ struct AboutCard: View {
         }
         .padding(24)
         .background(.white)
-        .cornerRadius(12)
-        .frame(minWidth:200, maxWidth: .infinity, alignment: .leading)
+        .cornerRadius(6)
+        .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+        .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
         .padding(.horizontal)
         .padding(.bottom, 16)
         
@@ -466,9 +468,15 @@ struct AverageHeartRateSection: View {
                      .padding(.top, 8)
                  
                  HStack{
-                     Image(systemName: "heart.circle.fill")
-                         .font(.system(size: 32, weight: .bold, design: .default))
-                         .foregroundStyle(Color("OrangeOnex"))
+                     ZStack {
+                         Circle()
+                             .fill(Color("primary_1").opacity(0.2))
+                             .frame(width: 32, height: 32)
+                         Image(systemName: "heart.fill")
+                             .foregroundColor(Color("primary_1"))
+                             .font(.system(size: 18, weight: .medium))
+                     }
+
                      
                      
                      if let lastValue = HealthKitViewModel.HeartRateDailyv2.last?.value {
@@ -500,9 +508,10 @@ struct AverageHeartRateSection: View {
                  )
              }
              .padding(.vertical)
-             .padding(.horizontal, 16)
+             .padding(.horizontal)
              .background(Color.white)
-             .cornerRadius(12)
+             .cornerRadius(6)
+             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
              .frame(maxWidth: .infinity, alignment: .leading)
              .padding(.horizontal)
              .padding(.bottom, 16)
@@ -667,10 +676,14 @@ struct RestingHeartRateSection: View {
                      .padding(.top, 8)
                  
                  HStack{
-                     Image(systemName: "heart.circle.fill")
-                         .font(.system(size: 32, weight: .bold, design: .default))
-                         .foregroundStyle(Color("OrangeOnex"))
-                     
+                     ZStack {
+                         Circle()
+                             .fill(Color("primary_1").opacity(0.2))
+                             .frame(width: 32, height: 32)
+                         Image(systemName: "heart.fill")
+                             .foregroundColor(Color("primary_1"))
+                             .font(.system(size: 18, weight: .medium))
+                     }
                      
                      if let lastValue = HealthKitViewModel.restingHeartRateDailyv2.last?.value {
                          Text(String(format: "%.0f", Double(lastValue)))
@@ -701,9 +714,10 @@ struct RestingHeartRateSection: View {
                  )
              }
              .padding(.vertical)
-             .padding(.horizontal, 16)
+             .padding(.horizontal)
              .background(Color.white)
-             .cornerRadius(12)
+             .cornerRadius(6)
+             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
              .frame(maxWidth: .infinity, alignment: .leading)
              .padding(.horizontal)
              .padding(.bottom, 16)
@@ -866,9 +880,14 @@ struct HeartRateVariabilitySection: View {
                      .padding(.top, 8)
                  
                  HStack{
-                     Image(systemName: "heart.circle.fill")
-                         .font(.system(size: 32, weight: .bold, design: .default))
-                         .foregroundStyle(Color("OrangeOnex"))
+                     ZStack {
+                         Circle()
+                             .fill(Color("primary_1").opacity(0.2))
+                             .frame(width: 32, height: 32)
+                         Image(systemName: "heart.fill")
+                             .foregroundColor(Color("primary_1"))
+                             .font(.system(size: 18, weight: .medium))
+                     }
                      
                      if let lastValue = HealthKitViewModel.HeartRateVariabilityDaily.last?.value {
                          Text(String(format: "%.0f", Double(lastValue)))
@@ -899,9 +918,10 @@ struct HeartRateVariabilitySection: View {
                  )
              }
              .padding(.vertical)
-             .padding(.horizontal, 16)
+             .padding(.horizontal)
              .background(Color.white)
-             .cornerRadius(12)
+             .cornerRadius(6)
+             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
              .frame(maxWidth: .infinity, alignment: .leading)
              .padding(.horizontal)
              .padding(.bottom, 16)
@@ -919,9 +939,11 @@ struct HeartRateVariabilitySection: View {
              
              AboutCard(title: "About Heart Rate Variability",
                        content: "Heart Rate Variability (HRV) is the variation in time between each heartbeat. It reflects how well your body adapts to stress, recovers from exercise, and maintains balance in your nervous system. In healthy adults, average heart rate variability is 42 milliseconds. The range is between 19 and 75 milliseconds. Athletes and other people who are very fit may have a much higher heart rate variability.",
-                       secondaryTitle: "Key Point about HRV",
+                       secondaryTitle: "KeyPoint about HRV",
                        keypoints: ["Higher HRV", "Low HRV", "People with low HRV", "HRV is personal and fluctuates daily."],
-                       keypointdescription: ["may indicate better heart health and greater adaptability to stress.", "can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.", "are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.", "What’s considered “normal” can vary greatly from person to person."])
+                       keypointdescription: ["may indicate better heart health and greater adaptability to stress.", "can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.", "are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.", "What’s considered “normal” can vary greatly from person to person."],
+                       
+             )
              
              SimpleCard(title: "Disclaimer",
                         content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",

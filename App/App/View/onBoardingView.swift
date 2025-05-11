@@ -77,9 +77,14 @@ struct OnboardingView: View {
                     if viewModel.isLastPage {
                         if healthKitViewModel.isAuthorized {
                             viewModel.isAuthorizationInProgress = false
-                            healthKitViewModel.loadAge()
-                            viewModel.completeOnboarding()
+                            healthKitViewModel.loadAge()    
+//                            viewModel.completeOnboarding()
                             healthKitViewModel.loadAllData()
+                            healthKitViewModel.loadHeartRateVariability()
+                            healthKitViewModel.loadHeartRate()
+                            healthKitViewModel.loadRestingHeartRateDaily()
+                            healthKitViewModel.loadPast7DaysWorkoutTSR()
+
                         } else {
                             viewModel.isAuthorizationInProgress = true
                             healthKitViewModel.start()
@@ -96,13 +101,19 @@ struct OnboardingView: View {
         .padding(.bottom, 100)
         .background(Color(.systemBackground))
         .onChange(of: healthKitViewModel.isAuthorized) { _, isAuthorized in
-            if isAuthorized {
                 DispatchQueue.main.async {
                     viewModel.isAuthorizationInProgress = false
-                    viewModel.completeOnboarding()
                     healthKitViewModel.loadAllData()
+                    healthKitViewModel.loadHeartRateVariability()
+                    healthKitViewModel.loadHeartRate()
+                    healthKitViewModel.loadRestingHeartRateDaily()
+                    healthKitViewModel.loadPast7DaysWorkoutTSR()
                 }
-            }
+        }
+        .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in
+            // Update when data changes
+            viewModel.completeOnboarding()
+
         }
         .onChange(of: healthKitViewModel.errorMessage) { _, errorMessage in
             if errorMessage != nil {

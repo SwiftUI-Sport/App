@@ -19,10 +19,10 @@ struct RestingHeartRateOfTheDay: Identifiable {
     let restingHeartRate: Int
 }
 
-struct DailyRate: Identifiable {
+struct DailyRate: Identifiable, Equatable {
     let id = UUID()
-    let date: String // e.g., "2025-05-07"
-    let value: Int   // heart rate or resting heart rate
+    let date: String 
+    let value: Int
 }
 
 final class HeartRateViewModel: ObservableObject {
