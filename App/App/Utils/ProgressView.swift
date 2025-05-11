@@ -17,7 +17,7 @@ struct HeaderContent: Identifiable {
 }
 struct ATLProgressView: View {
     let atl: Double
-    let maxATL: Double = 200
+    let maxATL: Double = 100
     
     private let barHeight: CGFloat = 38
     private let handleSize: CGSize = CGSize(width: 18, height: 56)
@@ -242,7 +242,7 @@ struct FatigueCard: View {
                     .foregroundColor(.primary)
                     .padding(.bottom, 18)
                 
-                            ATLProgressView(atl : trainingStressOfTheDay.todayATL)
+                    ATLProgressView(atl : logScalePercentage(value: trainingStressOfTheDay.todayATL))
 
                 Text(message)
                     .font(.callout)

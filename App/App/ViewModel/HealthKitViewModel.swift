@@ -28,6 +28,8 @@ final class HealthKitViewModel: ObservableObject {
     
     @Published var HeartRateVariabilityDaily: [DailyRate] = []
     
+    @Published var totalSleepInterval: TimeInterval = 0
+    
     @Published var overallAverageHR: Double = 0
     @Published var overallRestingHR: Double = 0
     @Published var overallAvgHRV: Double = 0
@@ -829,111 +831,110 @@ final class HealthKitViewModel: ObservableObject {
     
     
     func loadSleepData() {
+        // Clear existing data first to prevent duplication
+        self.sleepDuration = []
+        self.totalSleepInterval = 0
+
         let (start24h, end24h) = Date.last24HoursRange
         repository.fetchSleepData(from: start24h, to: end24h) { [weak self] result in
             guard let self = self else { return }
-            
+
             switch result {
             case .success(let samples):
-                if !samples.isEmpty {
-                    let df = DateFormatter()
-                    df.dateFormat = "yyyy-MM-dd HH:mm"
-                    
-                    print("😴 Sleep Data: \(samples.count) entries")
-                    
-                    // Group sleep samples by day
-                    let calendar = Calendar.current
-                    var sleepByDay: [Date: [HKCategorySample]] = [:]
-                    
-                    for sample in samples {
-                        // Get start date with time components zeroed out (just the day)
-                        let day = calendar.startOfDay(for: sample.startDate)
-                        
-                        if sleepByDay[day] == nil {
-                            sleepByDay[day] = []
+                guard !samples.isEmpty else {
+                    print("No sleep data available")
+                    return
+                }
+
+                // Hitung total sleep (kecuali fase 'awake')
+                let totalSeconds = samples.reduce(0) { sum, sample in
+                    let duration = sample.endDate.timeIntervalSince(sample.startDate)
+                    return sample.value == HKCategoryValueSleepAnalysis.awake.rawValue
+                        ? sum
+                        : sum + duration
+                }
+                DispatchQueue.main.async {
+                    self.totalSleepInterval = totalSeconds
+                }
+
+                let df = DateFormatter()
+                df.dateFormat = "yyyy-MM-dd HH:mm"
+                print("😴 Sleep Data: \(samples.count) entries")
+
+                // Group sleep samples by day
+                let calendar = Calendar.current
+                var sleepByDay: [Date: [HKCategorySample]] = [:]
+                for sample in samples {
+                    let day = calendar.startOfDay(for: sample.startDate)
+                    sleepByDay[day, default: []].append(sample)
+                }
+
+                // Process each day's sleep data
+                for (day, daySamples) in sleepByDay {
+                    let sorted = daySamples.sorted { $0.startDate < $1.startDate }
+                    let earliest = sorted.first!.startDate
+                    let latest   = sorted.map(\.endDate).max()!
+                    let dateString = df.string(from: day)
+                    var inBedDuration: TimeInterval = 0
+                    var asleepDuration: TimeInterval = 0
+                    var deepSleepDuration: TimeInterval = 0
+                    var remSleepDuration: TimeInterval = 0
+                    var coreSleepDuration: TimeInterval = 0
+
+                    for sample in daySamples {
+                        let duration = sample.endDate.timeIntervalSince(sample.startDate)
+                        switch sample.value {
+                        case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                            inBedDuration += duration
+                        case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                            asleepDuration += duration
+                        case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                            deepSleepDuration += duration
+                        case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                            remSleepDuration += duration
+                        case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                            coreSleepDuration += duration
+                        default:
+                            break
                         }
-                        sleepByDay[day]?.append(sample)
                     }
-                    
-                    // Process each day's sleep data
-                    for (day, daySamples) in sleepByDay.sorted(by: { $0.key > $1.key }) {
-                        let dateString = df.string(from: day)
-                        
-                        var inBedDuration: TimeInterval = 0
-                        var asleepDuration: TimeInterval = 0
-                        var deepSleepDuration: TimeInterval = 0
-                        var remSleepDuration: TimeInterval = 0
-                        var coreSleepDuration: TimeInterval = 0
-                        
-                        for sample in daySamples {
-                            let duration = sample.endDate.timeIntervalSince(sample.startDate)
-                            let value = sample.value
-                            
-                            // Get sleep stage based on the category value
-                            switch value {
-                            case HKCategoryValueSleepAnalysis.inBed.rawValue:
-                                inBedDuration += duration
-                            case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
-                                asleepDuration += duration
-                            case HKCategoryValueSleepAnalysis.awake.rawValue:
-                                // Awake time during sleep
-                                break
-                            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
-                                deepSleepDuration += duration
-                            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
-                                remSleepDuration += duration
-                            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
-                                coreSleepDuration += duration
-                            default:
-                                break
-                            }
-                            
-                            
-                        }
-                        
-                        var sleep = Sleep(
-                            date: dateString,
+
+                    let sleep = Sleep(
+                            day: day,
+                            startTime: earliest,
+                            endTime: latest,
                             inBedDuration: inBedDuration,
                             asleepDuration: asleepDuration,
                             deepSleepDuration: deepSleepDuration,
                             remSleepDuration: remSleepDuration,
                             coreSleepDuration: coreSleepDuration
-                            
                         )
-                        
                         sleepDuration.append(sleep)
-                        // Format durations in hours and minutes
-                        func formatDuration(_ interval: TimeInterval) -> String {
-                            let hours = Int(interval / 3600)
-                            let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
-                            return "\(hours)h \(minutes)m"
-                        }
-                        
-                        print("• \(dateString):")
-                        print("  - In Bed: \(formatDuration(inBedDuration))")
-                        print("  - Asleep: \(formatDuration(asleepDuration))")
-                        
-                        // Only print detailed sleep stages if available
-                        if deepSleepDuration > 0 || remSleepDuration > 0 || coreSleepDuration > 0 {
-                            print("  - Deep Sleep: \(formatDuration(deepSleepDuration))")
-                            print("  - REM Sleep: \(formatDuration(remSleepDuration))")
-                            print("  - Core Sleep: \(formatDuration(coreSleepDuration))")
-                        }
+
+                    func formatDuration(_ interval: TimeInterval) -> String {
+                        let h = Int(interval / 3600)
+                        let m = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
+                        return "\(h)h \(m)m"
                     }
-                    
-                    
-                    
-                    // MARK: You can store these values in published properties
-                    // self.sleepData = ...
-                } else {
-                    print("No sleep data available")
+
+                    print("• \(dateString):")
+                    print("  - In Bed: \(formatDuration(inBedDuration))")
+                    print("  - Asleep: \(formatDuration(asleepDuration))")
+                    if deepSleepDuration > 0 || remSleepDuration > 0 || coreSleepDuration > 0 {
+                        print("  - Deep Sleep: \(formatDuration(deepSleepDuration))")
+                        print("  - REM Sleep: \(formatDuration(remSleepDuration))")
+                        print("  - Core Sleep: \(formatDuration(coreSleepDuration))")
+                    }
                 }
-                
+
             case .failure(let error):
-                self.errorMessage = "Failed to load sleep data: \(error)"
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to load sleep data: \(error)"
+                }
             }
         }
     }
+
 
     func loadAllPast7DaysWorkout() {
         let (start, end) = Date.last7DaysRange

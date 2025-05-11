@@ -13,17 +13,27 @@ struct ContentView: View {
     
     var body: some View {
         TabView {
-          
-            Tab("Home", systemImage: "house.fill") {
-                HomeView()
-                    .environmentObject(HealthKitViewModel)
+            Group{
+//                Tab("Home", systemImage: "house.fill") {
+                    HomeView()
+                        .environmentObject(HealthKitViewModel)
+                        .tabItem {
+                            Label("Home", systemImage: "house.fill")
+                        }
+//                }
+                
+//                Tab("Activity", systemImage: "figure.run.circle.fill") {
+                    ActivityView()
+                        .tabItem {
+                            Label("Activity", systemImage: "figure.run.circle.fill")
+                        }
+//                }
             }
-            
-            Tab("Activity", systemImage: "figure.run.circle.fill") {
-                ActivityView()
-            }
-            
+//            .toolbarBackground(.blue, for: .tabBar)
+                        .toolbarBackground(.visible, for: .tabBar)
+//                        .toolbarColorScheme(.dark, for: .tabBar)
         }
+
         .onAppear {
             UITabBar.appearance().unselectedItemTintColor = UIColor.lightGray
         }

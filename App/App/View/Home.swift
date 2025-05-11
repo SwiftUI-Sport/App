@@ -125,6 +125,7 @@ struct HomeView: View {
             healthKitViewModel.loadHeartRate()
             healthKitViewModel.loadRestingHeartRateDaily()
             healthKitViewModel.loadPast7DaysWorkoutTSR()
+            healthKitViewModel.loadSleepData()
 
             // Set initial header based on current data
             updateSelectedHeader()
@@ -139,11 +140,11 @@ struct HomeView: View {
     
     private func updateSelectedHeader() {
         if let lastDay = healthKitViewModel.stressHistory42Days.last, healthKitViewModel.loadAge() > 0 {
-            let atl = lastDay.todayATL
+            let percentage = logScalePercentage(value: lastDay.todayATL)
             
-            if atl >= 150 {
+            if percentage >= 66 {
                 selectedHeader = sampleHeader[2] // Need rest
-            } else if atl >= 50 {
+            } else if percentage >= 33 {
                 selectedHeader = sampleHeader[1] // Bit tired
             } else {
                 selectedHeader = sampleHeader[0] // Can run
@@ -152,11 +153,6 @@ struct HomeView: View {
             selectedHeader = sampleHeader[3] // No data
         }
     }
-    
-    
-    
-    
-    
     
     private var mainView: some View {
         ZStack{

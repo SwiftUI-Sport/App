@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WorkoutDurationView: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
-    
+    @Environment(\.dismiss) private var dismiss
     
     
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
@@ -157,7 +157,7 @@ struct WorkoutDurationView: View {
                            content: "Training Stress Score (TSS) is a measurement used to quantify the intensity and duration of your workout. It helps gauge how much stress your body is under during and after exercise, helping you balance effort and recovery.",
                            secondaryTitle: "Keypoint about Trimp Score",
                            secondaryTitleColor: Color("primary_2"),
-                           keypoints: ["Normal TSS (50–100)", "High TSS (>150)", "Recovery Time"],
+                           keypoints: ["Normal TSS (50–100)", "High TSS (>100)", "Recovery Time"],
                            keypointdescription: ["\nThis range indicates moderate intensity workouts with manageable stress on your body.", "\nWorkouts in this range are intense and may require additional recovery days to prevent overtraining.", "\nAfter high-intensity sessions, it’s crucial to monitor how your body feels and ensure proper rest, sleep, and hydration to optimize recovery and avoid burnout"])
                  
                  SimpleCard(title: "Disclaimer",
@@ -168,7 +168,24 @@ struct WorkoutDurationView: View {
                  
              }
          }
-         .padding(.top, 24)
+         .toolbarBackground(.visible, for: .navigationBar)
+         .navigationBarTitleDisplayMode(.inline)
+         .navigationBarBackButtonHidden(true)
+         // 2. Tambahkan tombol Leading baru
+         .toolbar {
+             ToolbarItem(placement: .navigationBarLeading) {
+                 Button {
+                     dismiss()
+                 } label: {
+                     HStack(spacing: 4) {
+                         Image(systemName: "chevron.left")
+                             .fontWeight(.semibold)
+                         Text("Back")
+                     }
+                 }
+                 .foregroundColor(Color("primary_2"))
+             }
+         }
          .frame( maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
          .background(Color("BackgroundColorx"))
          

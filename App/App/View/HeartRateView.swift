@@ -10,7 +10,7 @@ import Charts
 
 
 struct SegmentedControl: View {
-    
+    @Environment(\.dismiss) private var dismiss
       @Binding var activeTab: String
       let tabs = [ "RHR", "HR" , "HRV"]
     
@@ -63,18 +63,38 @@ struct SegmentedControl: View {
 //                             Divider()
 //                                 .frame(width: 1, height: 20)
 //                                 .background(Color.white.opacity(0.7)) // You can adjust opacity or color
-//                         }
-                     }
-                 }
-                 .background(
-                     RoundedRectangle(cornerRadius: 8)
-                         .fill(Color(.systemGray4))
-                 )
-                 .padding()
-              
+                  //                         }
+              }
+          }
+//          .navigationTitle("")                         // judul jadi kosong
+          .toolbarBackground(.visible, for: .navigationBar)
+          .navigationBarTitleDisplayMode(.inline)
+          .navigationBarBackButtonHidden(true)
+          // 2. Tambahkan tombol Leading baru
+          .toolbar {
+              ToolbarItem(placement: .navigationBarLeading) {
+                  Button {
+                      dismiss()
+                  } label: {
+                      HStack(spacing: 4) {
+                          Image(systemName: "chevron.left")
+                              .fontWeight(.semibold)
+                          Text("Back")
+                      }
+                  }
+                  .foregroundColor(Color("primary_1"))
+              }
+          }
+          
+          .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(.systemGray4))
+          )
+          .padding()
+          
           
       }
-        
+    
 }
 
 
@@ -107,8 +127,8 @@ struct SimpleCard: View {
                 
                 if showIcon {
                     Image(systemName: "exclamationmark.icloud.fill")
-                   .font(.headline)
-                   .foregroundColor(titleColor)
+                        .font(.headline)
+                        .foregroundColor(titleColor)
                 }
                 
                 
@@ -118,7 +138,7 @@ struct SimpleCard: View {
                     .foregroundColor(titleColor)
                 
                 
-                    
+                
             }
             
             if showMainText {
@@ -132,7 +152,7 @@ struct SimpleCard: View {
                     .font(.headline)
                     .padding(.vertical, 8)
                     .foregroundColor(titleColor)
-               
+                
             }
             
             if isShowTip{
@@ -141,13 +161,13 @@ struct SimpleCard: View {
                         Text(tipTitles[index])
                             .font(.headline)
                             .bold()
-                            
+                        
                         Text(tipmessages[index])
                             .padding(.bottom, 8)
                     }
                     
                 }
-
+                
             }
             
             

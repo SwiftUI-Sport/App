@@ -108,6 +108,7 @@ struct OnboardingView: View {
                     healthKitViewModel.loadHeartRate()
                     healthKitViewModel.loadRestingHeartRateDaily()
                     healthKitViewModel.loadPast7DaysWorkoutTSR()
+                    healthKitViewModel.loadSleepData()
                 }
         }
         .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in

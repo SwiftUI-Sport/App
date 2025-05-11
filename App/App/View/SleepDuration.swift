@@ -9,9 +9,7 @@ import SwiftUI
 
 struct SleepDuration: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
-    @State private var calculatedTotal: TimeInterval = 0
-    
-    
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         
         
@@ -35,20 +33,37 @@ struct SleepDuration: View {
                             .foregroundColor(Color("primary_3"))
                             .font(.system(size: 18, weight: .medium))
                     }
-                    Text("\(formatDurationSleep(calculatedTotal))")
+                    Text("\(formatDurationSleep(healthKitViewModel.totalSleepInterval))")
                         .font(.title)
                         .bold()
                     //                        .foregroundStyle(Color("OrangeOnex"))
                     
                     Spacer()
                     
-                    Text("\(healthKitViewModel.sleepDuration.first?.date ?? "No Data")")
-                        .font(.caption)
-                        .foregroundStyle(Color.gray)
+                    if let sleep = healthKitViewModel.sleepDuration.first {
+                        // Tanggal
+                        VStack(alignment: .center){
+                            Text(sleep.day, format: .dateTime.weekday(.wide).month().day())
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            // Rentang jam tidur
+                            Text("\(sleep.startTime, format: .dateTime.hour().minute()) – \(sleep.endTime, format: .dateTime.hour().minute())")
+                                .font(.subheadline)
+                        }
+                        
+                        
+                    } else {
+                        // Jika belum ada data
+                        Text("No Data")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
                     
                 }
+                .padding(.top, 6)
                 VStack{
-                    if calculatedTotal < 21600.0{
+                    if healthKitViewModel.totalSleepInterval < 21600.0{
                         Text("Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. ")
                             .font(.caption)
                             .foregroundStyle(Color.gray)
@@ -62,7 +77,7 @@ struct SleepDuration: View {
                         
                     }
                 }
-                .padding(.top, 8)
+                .padding(.top, 6)
             }
             .padding(.vertical)
             .padding(.horizontal, 16)
@@ -73,10 +88,6 @@ struct SleepDuration: View {
             .padding(.horizontal)
             .padding(.bottom, 16)
             .padding(.top,30)
-            .onAppear {
-                calculatedTotal = 0
-                calculateTotal()
-            }
             
             VStack(alignment:.leading){
                 Text("Here’s What You Can Do to Help You Sleep Well")
@@ -153,30 +164,24 @@ struct SleepDuration: View {
                        showIcon: true,
                        backgroundColor: Color("OrangeBGx"))
         }
-        .background(Color("backgroundApp"))
-        .onAppear {
-            calculatedTotal = 0
-            calculateTotal()
-        }
-        
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .fontWeight(.semibold)
+                        Text("Back")
+                    }
+                }
+                .foregroundColor(Color("primary_3"))
+            }
+        }        .background(Color("backgroundApp"))
     }
-    
-    
-    
-    func calculateTotal() {
-        // Always reset before calculation to prevent accumulation
-        var calculatedTotal1 = 0.0
-        calculatedTotal=0.0
-        
-        // Calculate fresh total each time
-        healthKitViewModel.sleepDuration.forEach { item in
-            calculatedTotal1 += item.asleepDuration + item.coreSleepDuration + item.remSleepDuration + item.deepSleepDuration
-        }
-        
-        calculatedTotal=calculatedTotal1
-    }
-    
-    // Fixed implementation
     
 }
     

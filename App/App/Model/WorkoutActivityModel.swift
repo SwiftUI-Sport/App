@@ -61,13 +61,21 @@ struct HeartRateSample: Hashable,Codable {
     let bpm: Double
 }
 
-struct Sleep: Hashable,Codable {
-    let date : String
+struct Sleep: Hashable, Codable, Identifiable {
+    var id = UUID()
+    let day: Date               // startOfDay
+    let startTime: Date         // earliest sample.startDate
+    let endTime: Date           // latest  sample.endDate
     let inBedDuration: TimeInterval
     let asleepDuration: TimeInterval
     let deepSleepDuration: TimeInterval
     let remSleepDuration: TimeInterval
     let coreSleepDuration: TimeInterval
+
+    // (optional) helper untuk total:
+    var totalDuration: TimeInterval {
+        inBedDuration + asleepDuration + deepSleepDuration + remSleepDuration + coreSleepDuration
+    }
 }
 
 struct WorkoutHeartRateZone: Hashable,Codable {
