@@ -330,8 +330,26 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .second )
                 } label : {
+                    
+                    var trainingLoadHeadline: String {
+                        let data = healthKitViewModel.past7DaysWorkoutTSR
+                        let last3 = data.suffix(3)
+                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+                        let lastNonZero = data.last(where: { $0.value > 0 })
+                        let status = trainingLoadStatus(lastTrainingLoad: allLast3Zero ? nil : Int(lastNonZero?.value ?? 0))
+
+                        switch status {
+                        case "Hard":
+                            return "Your Training Load Is Quite High"
+                        case "Normal":
+                            return "You Trained Just Enough Last Session"
+                        default:
+                            return "Training Load Data Missing"
+                        }
+                    }
+                    
                     HomeCardComponent(title: "Training Load",
-                                      headline: "Your Recent Training Load is Good",
+                                      headline: trainingLoadHeadline,
                                       data: healthKitViewModel.past7DaysWorkoutTSR,
                                       mainColor: Color("primary_2"),
                                       unit: "TRIMP",
@@ -351,8 +369,32 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .first )
                 } label : {
+                    var restingHRHeadline: String {
+                        let data = healthKitViewModel.restingHeartRateDailyv2
+                        let last3 = data.suffix(3)
+                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+                        let lastNonZero = data.last(where: { $0.value > 0 })
+                        
+                        let currentHR = allLast3Zero ? nil : Int(lastNonZero?.value ?? 0)
+                        let avgHR = healthKitViewModel.overallRestingHR
+
+                        let status = restingHeartRateStatus(currentHR: currentHR, avgHR: avgHR)
+
+                        switch status {
+                        case "Normal":
+                            return "Your Resting Heart Rate Is Within a Healthy Range"
+                        case "Slightly High":
+                            return "Your Resting Heart Rate Is Slightly Elevated"
+                        case "High":
+                            return "Your Elevated Resting Heart Rate May Signal Fatigue"
+                        default:
+                            return "Your Resting Heart Rate Is Within a Healthy Range"
+                        }
+                    }
+                    
+                    
                     HomeCardComponent(title: "Resting Heart Rate",
-                                      headline: "Your Resting Heart Rate is Within Normal Range",
+                                      headline: restingHRHeadline,
                                       data: healthKitViewModel.restingHeartRateDailyv2,
                                       mainColor: Color("primary_1")
                     )
