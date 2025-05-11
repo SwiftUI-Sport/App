@@ -84,9 +84,20 @@ extension TrainingStressOfTheDay {
         return TrainingStressOfTheDay(
             date: Date(),
             activities: [],
-            previousTSR: 0,
-            previousATL: 0,
-            previousCTL: 0,
+            previousTSR: 000,
+            previousATL: 000,
+            previousCTL: 000,
+            tauATL: 7.0,
+            tauCTL: 42.0
+        )
+    }
+    static func emptyDefaultValue() -> TrainingStressOfTheDay {
+        return TrainingStressOfTheDay(
+            date: Date(),
+            activities: [],
+            previousTSR: 000,
+            previousATL: 000,
+            previousCTL: 000,
             tauATL: 0.0,
             tauCTL: 0.0
         )
