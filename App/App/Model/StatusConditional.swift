@@ -12,10 +12,15 @@ func trainingLoadStatus(lastTrainingLoad: Int?) -> String {
         return "Missing"
     }
     
-    if load > 100 {
+    // Define TRIMP thresholds for categorizing training load
+    if load >= 100 {
         return "Hard"
-    } else {
+    } else if load >= 50 {
         return "Normal"
+    } else if load > 0 {
+        return "Light"
+    } else {
+        return "Rest"
     }
 }
 

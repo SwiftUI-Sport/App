@@ -78,7 +78,7 @@ struct OnboardingView: View {
                         if healthKitViewModel.isAuthorized {
                             viewModel.isAuthorizationInProgress = false
                             healthKitViewModel.loadAge()    
-//                            viewModel.completeOnboarding()
+                            viewModel.completeOnboarding()
                             healthKitViewModel.loadAllData()
                             healthKitViewModel.loadHeartRateVariability()
                             healthKitViewModel.loadHeartRate()

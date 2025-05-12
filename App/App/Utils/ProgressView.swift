@@ -158,11 +158,12 @@ struct BlobHeaderShape: Shape {
 
 struct Empty_authorized_view: View {
     var body: some View {
-        VStack (spacing: 20){
+        VStack (spacing: 0){
             Image("empty_health")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 120, height: 120)
+                .padding(.bottom, 20)
             
             Text("Connect to Health")
                 . font(.system(.largeTitle, design: .rounded))
@@ -171,8 +172,15 @@ struct Empty_authorized_view: View {
                 .lineLimit(nil)
                 .fixedSize(horizontal: false, vertical: true)
                 .foregroundColor(Color("primary_1"))
+                .padding(.bottom, 20)
             
-            Text("RunDay uses your workout history, heart rate, and sleep data from Apple Health to give you the best recomendation")
+            Text("Allow All Requirements !")
+                .font(.title3)
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .lineLimit(nil)
+            
+            Text("Runday uses your workout history, heart rate, and sleep data from Apple Health to give you the best recomendation")
                 .font(.callout)
                 .foregroundColor(.gray.opacity(0.8))
                 .multilineTextAlignment(.center)
@@ -224,6 +232,7 @@ struct FatigueCard: View {
     var trainingStressOfTheDay: TrainingStressOfTheDay
     var message: String
     var iconName: String
+    @State private var showingInfoPopover = false
     
     var body: some View {
         ZStack{
@@ -233,16 +242,28 @@ struct FatigueCard: View {
                 .frame(width: 230, height: 230)
                 .padding(.leading, 32)
             VStack(alignment: .center) {
-                Text("Level of Fatigue")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.top, 18)
-                    .font(.system(.subheadline, design: .rounded))
-                    .fontWeight(.bold   )
-                    .foregroundColor(.primary)
-                    .padding(.bottom, 18)
+                HStack {
+                    Text("Level of Fatigue")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Button(action: {
+                        showingInfoPopover.toggle()
+                    }) {
+                        Image(systemName: "info.circle")
+                            .foregroundColor(.gray)
+                    }
+                    .popover(isPresented: $showingInfoPopover, arrowEdge: .top) {
+                        FatigueInfoPopover()
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 18)
+                .padding(.bottom, 18)
                 
-                    ATLProgressView(atl : logScalePercentage(value: trainingStressOfTheDay.todayATL))
+                ATLProgressView(atl: logScalePercentage(value: trainingStressOfTheDay.todayATL))
 
                 Text(message)
                     .font(.callout)
@@ -258,14 +279,75 @@ struct FatigueCard: View {
             .cornerRadius(6)
             .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
             .offset(x: 0, y: 115)
-                    .onAppear {
-                        print("ATL: \(trainingStressOfTheDay.todayATL)")
-                    }
+            .onAppear {
+                print("ATL: \(trainingStressOfTheDay.todayATL)")
+            }
         }
     }
-    
 }
 
+struct FatigueInfoPopover: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("About Fatigue Level")
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            VStack(alignment: .leading, spacing: 12) {
+                FatigueInfoRow(
+                    color: Color("ATLBar/leftBar"),
+                    title: "Low Fatigue (0-33%)",
+                    description: "Your body is well-rested and ready for training. Perfect time for a challenging workout."
+                )
+                
+                FatigueInfoRow(
+                    color: Color("ATLBar/centerBar"),
+                    title: "Moderate Fatigue (34-66%)",
+                    description: "Some accumulated fatigue. Consider a moderate workout or active recovery."
+                )
+                
+                FatigueInfoRow(
+                    color: Color("ATLBar/rightBar"),
+                    title: "High Fatigue (67-100%)",
+                    description: "Your body needs recovery. Rest or very light activity recommended."
+                )
+            }
+            
+            Text("Your fatigue level is calculated using your training load, heart rate data, and sleep quality.")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .padding(.top, 8)
+        }
+        .padding()
+        .frame(width: 300)
+    }
+}
+
+struct FatigueInfoRow: View {
+    var color: Color
+    var title: String
+    var description: String
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Circle()
+                .fill(color)
+                .frame(width: 12, height: 12)
+                .padding(.top, 4)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
 //#Preview {
 //    FatigueCard()
 //}

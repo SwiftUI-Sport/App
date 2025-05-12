@@ -835,8 +835,10 @@ final class HealthKitViewModel: ObservableObject {
         self.sleepDuration = []
         self.totalSleepInterval = 0
 
-        let (start24h, end24h) = Date.last24HoursRange
-        repository.fetchSleepData(from: start24h, to: end24h) { [weak self] result in
+        // Use sleep-specific date range instead of 24h range
+        let (start, end) = Date.sleepDateRange()
+        
+        repository.fetchSleepData(from: start, to: end) { [weak self] result in
             guard let self = self else { return }
 
             switch result {
@@ -846,7 +848,7 @@ final class HealthKitViewModel: ObservableObject {
                     return
                 }
 
-                // Hitung total sleep (kecuali fase 'awake')
+                // Calculate total sleep (except 'awake' phase)
                 let totalSeconds = samples.reduce(0) { sum, sample in
                     let duration = sample.endDate.timeIntervalSince(sample.startDate)
                     return sample.value == HKCategoryValueSleepAnalysis.awake.rawValue
@@ -857,6 +859,7 @@ final class HealthKitViewModel: ObservableObject {
                     self.totalSleepInterval = totalSeconds
                 }
 
+                // Process sleep data by day
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd HH:mm"
                 print("😴 Sleep Data: \(samples.count) entries")
@@ -900,17 +903,18 @@ final class HealthKitViewModel: ObservableObject {
                     }
 
                     let sleep = Sleep(
-                            day: day,
-                            startTime: earliest,
-                            endTime: latest,
-                            inBedDuration: inBedDuration,
-                            asleepDuration: asleepDuration,
-                            deepSleepDuration: deepSleepDuration,
-                            remSleepDuration: remSleepDuration,
-                            coreSleepDuration: coreSleepDuration
-                        )
-                        sleepDuration.append(sleep)
+                        day: day,
+                        startTime: earliest,
+                        endTime: latest,
+                        inBedDuration: inBedDuration,
+                        asleepDuration: asleepDuration,
+                        deepSleepDuration: deepSleepDuration,
+                        remSleepDuration: remSleepDuration,
+                        coreSleepDuration: coreSleepDuration
+                    )
+                    sleepDuration.append(sleep)
 
+                    // Format and log sleep data
                     func formatDuration(_ interval: TimeInterval) -> String {
                         let h = Int(interval / 3600)
                         let m = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)

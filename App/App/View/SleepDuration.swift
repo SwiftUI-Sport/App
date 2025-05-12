@@ -10,21 +10,39 @@ import SwiftUI
 struct SleepDuration: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @Environment(\.dismiss) private var dismiss
+    
+    // Computed property to determine sleep quality message
+    private var sleepQualityMessage: String {
+        let duration = healthKitViewModel.totalSleepInterval
+        
+        if duration == 0 {
+            return "No Sleep Data Available"
+        } else if duration < 21600 { // Less than 6 hours
+            return "You Need More Sleep"
+        } else if duration < 25200 { // 6-7 hours
+            return "Your Sleep Is Adequate"
+        } else { // 7+ hours
+            return "You Have Good Sleep Quality"
+        }
+    }
+    
+    // Computed property for the most recent sleep record
+    private var latestSleep: Sleep? {
+        healthKitViewModel.sleepDuration.sorted { $0.day > $1.day }.first
+    }
+    
     var body: some View {
-        
-        
-        
-        ScrollView{
-            VStack(alignment: .leading){
-                Text("You Have A Good Sleep ")
+        ScrollView {
+            // Sleep summary card
+            VStack(alignment: .leading) {
+                Text(sleepQualityMessage)
                     .font(.title3.bold())
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
-                    .foregroundStyle(Color("blueTint"))
+                    .foregroundStyle(Color("primary_3"))
                 
-                HStack{
-                    
+                HStack {
                     ZStack {
                         Circle()
                             .fill(Color("primary_3").opacity(0.2))
@@ -33,141 +51,163 @@ struct SleepDuration: View {
                             .foregroundColor(Color("primary_3"))
                             .font(.system(size: 18, weight: .medium))
                     }
+                    
                     Text("\(formatDurationSleep(healthKitViewModel.totalSleepInterval))")
                         .font(.title)
                         .bold()
-                    //                        .foregroundStyle(Color("OrangeOnex"))
                     
                     Spacer()
                     
-                    if let sleep = healthKitViewModel.sleepDuration.first {
-                        // Tanggal
-                        VStack(alignment: .center){
+                    if let sleep = latestSleep {
+                        VStack(alignment: .center) {
                             Text(sleep.day, format: .dateTime.weekday(.wide).month().day())
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
-                            // Rentang jam tidur
                             Text("\(sleep.startTime, format: .dateTime.hour().minute()) – \(sleep.endTime, format: .dateTime.hour().minute())")
                                 .font(.subheadline)
                         }
-                        
-                        
                     } else {
-                        // Jika belum ada data
                         Text("No Data")
                             .font(.caption)
                             .foregroundColor(.gray)
                     }
-                    
                 }
                 .padding(.top, 6)
-                VStack{
-                    if healthKitViewModel.totalSleepInterval < 21600.0{
-                        Text("Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. ")
-                            .font(.caption)
-                            .foregroundStyle(Color.gray)
-                            .frame(maxWidth: .infinity)
-                    }
-                    else{
-                        Text("Your sleep duration falls within the ideal range for recovery. Quality rest helps regulate heart rate, improve recovery, and boost overall performance. Keep it up! ")
-                            .font(.caption)
-                            .foregroundStyle(Color.gray)
-                            .frame(maxWidth: .infinity)
+                
+                // Sleep quality analysis
+                Text(getSleepAnalysisMessage())
+                    .font(.caption)
+                    .foregroundStyle(Color.gray)
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 6)
+                
+                // Sleep phases breakdown - only show if data exists
+                if let sleep = latestSleep, hasDetailedSleepData(sleep) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Sleep Phases")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .padding(.top, 12)
                         
+                        HStack(spacing: 20) {
+                            sleepPhaseItem(
+                                label: "Deep",
+                                value: formatDurationSimple(sleep.deepSleepDuration),
+                                color: Color("primary_3")
+                            )
+                            
+                            sleepPhaseItem(
+                                label: "REM",
+                                value: formatDurationSimple(sleep.remSleepDuration),
+                                color: Color("blueTint")
+                            )
+                            
+                            sleepPhaseItem(
+                                label: "Core",
+                                value: formatDurationSimple(sleep.coreSleepDuration),
+                                color: Color("primary_2")
+                            )
+                        }
                     }
                 }
-                .padding(.top, 6)
             }
             .padding(.vertical)
-            .padding(.horizontal, 16)
+            .padding(.horizontal)
             .background(Color.white)
-            .cornerRadius(6)
+            .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
-            .padding(.top,30)
+            .padding(.top, 16)
             
-            VStack(alignment:.leading){
-                Text("Here’s What You Can Do to Help You Sleep Well")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.bottom, 8)
-                    .foregroundColor(.black)
-                Text("Limit Screen Time")
-                    .fontWeight(.bold)
-                Text("Avoid phones or screens at least 30 minutes before bed to reduce blue light exposure.")
-                Text("Create a Restful Environment")
-                    .fontWeight(.bold)
-                Text("Keep your room cool, dark, and quiet to promote better sleep.")
-                Text("Avoid Caffeine Late in the Day")
-                    .fontWeight(.bold)
-                Text("Stimulants like coffee or energy drinks can disrupt your ability to fall asleep.")
-                Text("Wind Down")
-                    .fontWeight(.bold)
-                Text("Try relaxing activities before bed like reading, stretching, or deep breathing.")
+            // Sleep tips card - dynamic based on sleep quality
+            VStack(alignment: .leading) {
+                Text(healthKitViewModel.totalSleepInterval < 21600 ?
+                     "How to Improve Your Sleep" :
+                        "How to Maintain Good Sleep Quality")
+                .font(.title3)
+                .fontWeight(.bold)
+                .padding(.bottom, 8)
+                .foregroundColor(.black)
+                
+                ForEach(getSleepTips(), id: \.0) { tip in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(tip.0)
+                            .fontWeight(.bold)
+                        Text(tip.1)
+                            .padding(.bottom, 8)
+                    }
+                }
             }
-            .padding(24)
+            .padding(.vertical)
+            .padding(.horizontal)
             .background(.white)
-            .cornerRadius(6)
+            .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-            .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             
-            VStack(alignment:.leading){
-                Text("Here’s What You Can Do to Help You Sleep Well")
+            // Sleep science info card
+            VStack(alignment: .leading) {
+                Text("About Sleep Duration")
                     .font(.title3)
                     .fontWeight(.bold)
                     .padding(.bottom, 8)
                     .foregroundColor(.black)
+                
                 Text("The ideal sleep duration for most adults is 7 to 9 hours per night. Staying within this range supports physical recovery, mental clarity, hormonal balance, and heart health.")
                 
-                Text("Keypoint about Sleep Duration")
-                //                .font(.headline)
+                Text("Key Points About Sleep Duration")
                     .font(.title3.bold())
                     .padding(.vertical, 8)
                     .foregroundColor(Color("primary_3"))
-                HStack(alignment: .top, spacing: 0) {
-                    Text("Too little sleep (less than 6 hours)  ")
-                        .fontWeight(.bold)
-                    +
-                    Text("can lead to increased stress, elevated resting heart rate, reduced heart rate variability (HRV), impaired recovery, and decreased performance. ")
-                }
-                .multilineTextAlignment(.leading)
-                .fixedSize(horizontal: false, vertical: true)
-                HStack(alignment: .top, spacing: 0) {
-                    Text("Too much sleep (more than 9–10 hours) ")
-                        .fontWeight(.bold)
-                    +
-                    Text("may be linked to low energy levels, sluggishness, or even underlying health issues. ")
-                    
-                    
-                }
-                .multilineTextAlignment(.leading)
-                //                .frame(width:300)
-                .fixedSize(horizontal: false, vertical: true)
                 
+                VStack(alignment: .leading, spacing: 8) {
+                    keyPointRow(
+                        title: "Too little sleep (less than 6 hours)",
+                        description: "can lead to increased stress, elevated resting heart rate, reduced heart rate variability (HRV), impaired recovery, and decreased performance."
+                    )
+                    
+                    keyPointRow(
+                        title: "Too much sleep (more than 9–10 hours)",
+                        description: "may be linked to low energy levels, sluggishness, or even underlying health issues."
+                    )
+                    
+                    if let sleep = latestSleep, hasDetailedSleepData(sleep) {
+                        keyPointRow(
+                            title: "Deep sleep (\(Int((sleep.deepSleepDuration/sleep.asleepDuration)*100))% of your sleep)",
+                            description: "is crucial for physical recovery, immune function, and memory consolidation."
+                        )
+                    }
+                }
             }
-            .padding(24)
+            .padding(.vertical)
+            .padding(.horizontal)
             .background(.white)
-            .cornerRadius(6)
+            .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-            .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
             .padding(.horizontal)
             .padding(.bottom, 16)
             
-            SimpleCardest(title: "Disclaimer",
-                          content: "These recomendation are based on general health and not intended to diagnose or treat any medical condition. Please consult a healthcare professional.",
-                          titleColor: Color("blueTint"),
-                          showIcon: true,
-                          backgroundColor: Color("OrangeBGx"))
+            // Disclaimer card
+            SimpleCardest(
+                title: "Disclaimer",
+                content: "These recommendations are based on general health guidelines and not intended to diagnose or treat any medical condition. Please consult a healthcare professional for personalized advice.",
+                titleColor: Color("primary_3"),
+                showIcon: true,
+                backgroundColor: Color("OrangeBGx")
+            )
         }
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Sleep Duration")
+                    .font(.headline)
+                    .foregroundColor(Color("primary_3"))
+            }
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
                     dismiss()
@@ -185,7 +225,115 @@ struct SleepDuration: View {
         .background(Color("backgroundApp"))
     }
     
+    // Helper for sleep phase display items
+    private func sleepPhaseItem(label: String, value: String, color: Color) -> some View {
+        VStack {
+            Text(value)
+                .font(.system(.title3, design: .rounded))
+                .fontWeight(.bold)
+                .foregroundColor(color)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(minWidth: 60)
+    }
+    
+    // Helper for key point rows
+    private func keyPointRow(title: String, description: String) -> some View {
+        HStack(alignment: .top, spacing: 0) {
+            Text(title + " ")
+                .fontWeight(.bold)
+            +
+            Text(description)
+        }
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+    
+    // Helper to check if we have detailed sleep phase data
+    private func hasDetailedSleepData(_ sleep: Sleep) -> Bool {
+        return sleep.deepSleepDuration > 0 || sleep.remSleepDuration > 0 || sleep.coreSleepDuration > 0
+    }
+    
+    // Generate sleep analysis message based on data
+    private func getSleepAnalysisMessage() -> String {
+        let duration = healthKitViewModel.totalSleepInterval
+        
+        if duration == 0 {
+            return "No sleep data for the last 24 hours is available. Make sure your Apple Health is properly set up and recording sleep data."
+        } else if duration < 21600 { // Less than 6 hours
+            return "Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. Aim for 7-9 hours for optimal health."
+        } else if duration < 25200 { // 6-7 hours
+            return "Your sleep duration is adequate but could be improved. Quality rest helps regulate heart rate and improve recovery. Try to get closer to 8 hours."
+        } else if duration < 32400 { // 7-9 hours
+            return "Your sleep duration falls within the ideal range for recovery. Quality rest helps regulate heart rate, improve recovery, and boost overall performance. Keep it up!"
+        } else { // More than 9 hours
+            return "Your sleep duration is longer than typical recommendations. While this may indicate good recovery, consistently sleeping more than 9 hours might be worth discussing with a healthcare provider."
+        }
+    }
+    
+    // Complete the getSleepTips function
+    private func getSleepTips() -> [(String, String)] {
+        let duration = healthKitViewModel.totalSleepInterval
+        
+        if duration < 21600 { // Poor sleep - focus on improvement
+            return [
+                ("Consistent Schedule", "Go to bed and wake up at the same time every day, even on weekends."),
+                ("Bedtime Routine", "Create a relaxing routine 30-60 minutes before bed - try reading, gentle stretching, or meditation."),
+                ("Optimize Environment", "Keep your bedroom dark, quiet, and cool (around 65-68°F or 18-20°C)."),
+                ("Limit Screen Time", "Avoid screens at least 1 hour before bed to reduce blue light exposure.")
+            ]
+        } else if duration < 25200 { // Adequate sleep - focus on optimization
+            return [
+                ("Consistent Schedule", "You're doing well, but reinforcing your sleep-wake timing can further improve quality."),
+                ("Nutrition Timing", "Avoid heavy meals, caffeine, and alcohol within 3 hours of bedtime."),
+                ("Optimize Environment", "Consider blackout curtains and white noise to create an ideal sleep setting."),
+                ("Wind Down", "Try a 10-minute relaxation exercise before bed to improve sleep quality.")
+            ]
+        } else { // Good sleep - focus on maintenance
+            return [
+                ("Maintain Consistency", "Your good sleep routine is working - keep it consistent even when life gets busy."),
+                ("Morning Light", "Continue getting natural light exposure in the morning to reinforce your circadian rhythm."),
+                ("Physical Activity", "Regular exercise supports good sleep - aim for at least 30 minutes most days."),
+                ("Stress Management", "Practice relaxation techniques to prevent stress from disrupting your good sleep pattern.")
+            ]
+        }
+    }
+    
+    // Helper to format sleep duration in hours and minutes
+ 
 }
+
+func formatDurationSleep(_ seconds: TimeInterval) -> String {
+    let hours = Int(seconds) / 3600
+    let minutes = (Int(seconds) % 3600) / 60
+    
+//    if hours == 0 {
+//        return "\(minutes)m"
+//    } else if minutes == 0 {
+//        return "\(hours)h"
+//    } else {
+//        return "\(hours)h \(minutes)m"
+//    }
+    
+    return "\(hours)h \(minutes)m"
+}
+
+// Simpler version for sleep phases
+func formatDurationSimple(_ seconds: TimeInterval) -> String {
+    let minutes = Int(round(seconds / 60))
+    
+    if minutes >= 60 {
+        let hours = minutes / 60
+        let mins = minutes % 60
+        return mins > 0 ? "\(hours)h \(mins)m" : "\(hours)h"
+    } else {
+        return "\(minutes)m"
+    }
+}
+
 
 struct SimpleCardest: View {
     
@@ -248,7 +396,8 @@ struct SimpleCardest: View {
             
             
         }
-        .padding(24)
+        .padding(.vertical)
+        .padding(.horizontal)
         .background(backgroundColor)
         .cornerRadius(6)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
@@ -261,11 +410,6 @@ struct SimpleCardest: View {
     }
 }
 
-func formatDurationSleep(_ interval: TimeInterval) -> String {
-    let hours = Int(interval / 3600)
-    let minutes = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
-    return "\(hours)h \(minutes)m"
-}
 
 
 

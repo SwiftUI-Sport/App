@@ -197,8 +197,10 @@ struct HomeView: View {
                             }
                         }
                         
-                        Empty_authorized_view()
-                            .padding(.top, 70)
+                        VStack(alignment: .center){
+                            Empty_authorized_view()
+                        }
+                        .frame(height: 500)
                         
                         
                         
@@ -326,23 +328,23 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .second )
                 } label : {
-                    
-                    var trainingLoadHeadline: String {
-                        let data = healthKitViewModel.past7DaysWorkoutTSR
-                        let last3 = data.suffix(3)
-                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
-                        let lastNonZero = data.last(where: { $0.value > 0 })
-                        let status = trainingLoadStatus(lastTrainingLoad: allLast3Zero ? nil : Int(lastNonZero?.value ?? 0))
-
-                        switch status {
-                        case "Hard":
-                            return "Your Training Load Is Quite High"
-                        case "Normal":
-                            return "You Trained Just Enough Last Session"
-                        default:
-                            return "Training Load Data Missing"
-                        }
-                    }
+//                    
+//                    var trainingLoadHeadline: String {
+//                        let data = healthKitViewModel.past7DaysWorkoutTSR
+//                        let last3 = data.suffix(3)
+//                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+//                        let lastNonZero = data.last(where: { $0.value > 0 })
+//                        let status = trainingLoadStatus(lastTrainingLoad: allLast3Zero ? nil : Int(lastNonZero?.value ?? 0))
+//
+//                        switch status {
+//                        case "Hard":
+//                            return "Your Training Load Is Quite High"
+//                        case "Normal":
+//                            return "You Trained Just Enough Last Session"
+//                        default:
+//                            return "Training Load Data Missing"
+//                        }
+//                    }
                     
                     HomeCardComponent(title: "Training Load",
                                       headline: trainingLoadHeadline,
@@ -365,32 +367,32 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .first )
                 } label : {
-                    var restingHRHeadline: String {
-                        let data = healthKitViewModel.restingHeartRateDailyv2
-                        let last3 = data.suffix(3)
-                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
-                        let lastNonZero = data.last(where: { $0.value > 0 })
-                        
-                        let currentHR = allLast3Zero ? nil : Int(lastNonZero?.value ?? 0)
-                        let avgHR = healthKitViewModel.overallRestingHR
-
-                        let status = restingHeartRateStatus(currentHR: currentHR, avgHR: avgHR)
-
-                        switch status {
-                        case "Normal":
-                            return "Your Resting Heart Rate Is Within a Healthy Range"
-                        case "Slightly High":
-                            return "Your Resting Heart Rate Is Slightly Elevated"
-                        case "High":
-                            return "Your Elevated Resting Heart Rate May Signal Fatigue"
-                        default:
-                            return "Your Resting Heart Rate Is Within a Healthy Range"
-                        }
-                    }
+//                    var restingHRHeadline: String {
+//                        let data = healthKitViewModel.restingHeartRateDailyv2
+//                        let last3 = data.suffix(3)
+//                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
+//                        let lastNonZero = data.last(where: { $0.value > 0 })
+//                        
+//                        let currentHR = allLast3Zero ? nil : Int(lastNonZero?.value ?? 0)
+//                        let avgHR = healthKitViewModel.overallRestingHR
+//
+//                        let status = restingHeartRateStatus(currentHR: currentHR, avgHR: avgHR)
+//
+//                        switch status {
+//                        case "Normal":
+//                            return "Your Resting Heart Rate Is Within a Healthy Range"
+//                        case "Slightly High":
+//                            return "Your Resting Heart Rate Is Slightly Elevated"
+//                        case "High":
+//                            return "Your Elevated Resting Heart Rate May Signal Fatigue"
+//                        default:
+//                            return "Your Resting Heart Rate Is Within a Healthy Range"
+//                        }
+//                    }
                     
                     
                     HomeCardComponent(title: "Resting Heart Rate",
-                                      headline: restingHRHeadline,
+                                      headline: restingHRHeadline(),
                                       data: healthKitViewModel.restingHeartRateDailyv2,
                                       mainColor: Color("primary_1")
                     )
@@ -402,8 +404,9 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .third )
                 } label : {
+                    
                     SleepCardComponent(title: "Sleep Duration",
-                                      headline: "Your Resting Heart Rate Is Elevated",
+                                      headline: sleepHeadlineStatus(),
                                       mainColor: Color("primary_3")
                     )
                 }
@@ -414,6 +417,135 @@ struct HeresWhySection: View {
                 Spacer()
             }
         }
+    }
+    
+    private func restingHRHeadline() -> String {
+        let data = healthKitViewModel.restingHeartRateDailyv2
+        let lastNonZero = data.last(where: { $0.value > 0 })
+        
+        let currentHR = lastNonZero?.value ?? 0
+        let avgHR = healthKitViewModel.overallRestingHR
+        
+        let status = restingHeartRateStatus(currentHR: currentHR > 0 ? currentHR : nil, avgHR: avgHR)
+        
+        switch status {
+        case "Normal":
+            return "Your Resting Heart Rate Is Within a Healthy Range"
+        case "Slightly High":
+            return "Your Resting Heart Rate Is Slightly Elevated"
+        case "High":
+            return "Your Elevated Resting Heart Rate May Signal Fatigue"
+        case "Low":
+            return "Your Resting Heart Rate Is Lower Than Average"
+        case "No Data":
+            return "No Resting Heart Rate Data Available"
+        default:
+            return "Your Resting Heart Rate Status Is Unknown"
+        }
+    }
+
+    private func restingHeartRateStatus(currentHR: Int?, avgHR: Double?) -> String {
+        guard let current = currentHR, current > 0,
+              let avgHR = avgHR, avgHR > 0 else {
+            return "No Data"
+        }
+
+        let avg = Int(avgHR)
+        
+        if current >= avg - 10 && current <= avg + 10 {
+            return "Normal"
+        } else if current > avg + 10 && current <= avg + 20 {
+            return "Slightly High"
+        } else if current > avg + 20 {
+            return "High"
+        } else {
+            return "Low"
+        }
+    }
+    
+    private var trainingLoadHeadline: String {
+        let data = healthKitViewModel.past7DaysWorkoutTSR
+        let lastNonZero = data.last(where: { $0.value > 0 })
+        let lastValue = lastNonZero?.value ?? 0
+        
+        let status = trainingLoadStatus(lastTrainingLoad: lastValue > 0 ? lastValue : nil)
+        
+        switch status {
+        case "Hard":
+            return "Your Training Load Is Quite High"
+        case "Normal":
+            return "You Trained Just Enough Last Session"
+        case "Light":
+            return "Your Training Load Is Light"
+        case "Rest":
+            return "No Recent Training Load Detected"
+        default:
+            return "No Training Load Data Available"
+        }
+    }
+    
+    func sleepHeadlineStatus() -> String {
+        // Check if we have any sleep data
+        guard !healthKitViewModel.sleepDuration.isEmpty else {
+            return "No Sleep Data Available"
+        }
+        
+        // Sort sleep data by date (newest first) and get the latest entry
+        let latestSleep = healthKitViewModel.sleepDuration.sorted { $0.day > $1.day }.first
+        
+        // Calculate the average sleep duration from all available data
+        let totalSleepHours = healthKitViewModel.sleepDuration.reduce(0) { $0 + $1.asleepDuration / 3600 }
+        let avgSleepHours = healthKitViewModel.sleepDuration.isEmpty ? 0 :
+                             totalSleepHours / Double(healthKitViewModel.sleepDuration.count)
+        
+        // Get the latest sleep duration in hours
+        guard let latestSleep = latestSleep else {
+            return "Sleep Data Incomplete"
+        }
+        let latestSleepHours = latestSleep.asleepDuration / 3600
+        
+        // Determine sleep status based on latest sleep compared to recommended guidelines
+        // Adult recommendation is generally 7-9 hours
+        let status = sleepStatus(currentSleepHours: latestSleepHours, avgSleepHours: avgSleepHours)
+        
+        switch status {
+        case "Good":
+            return "You Got Enough Sleep Last Night"
+        case "Moderate":
+            return "Your Sleep Duration Was Slightly Below Ideal"
+        case "Poor":
+            return "You Didn't Get Enough Sleep Last Night"
+        default:
+            return "Sleep Data Not Available"
+        }
+    }
+
+    func sleepStatus(currentSleepHours: Double, avgSleepHours: Double) -> String {
+        // Guidelines suggest 7-9 hours for adults
+        let recommendedMin = 7.0
+        let recommendedMax = 9.0
+        
+        if currentSleepHours >= recommendedMin {
+            return "Good"
+        } else if currentSleepHours >= recommendedMin - 1.5 {
+            return "Moderate"
+        } else {
+            return "Poor"
+        }
+        
+        // Alternative approach using personal average as baseline
+        // If you want to compare to the person's own average instead:
+        /*
+        let percentDiff = (currentSleepHours - avgSleepHours) / avgSleepHours * 100
+        
+        if percentDiff >= -5 {
+            return "Good"
+        } else if percentDiff >= -15 {
+            return "Moderate"
+        } else {
+            return "Poor"
+        }
+        */
     }
 }
 
