@@ -470,9 +470,10 @@ final class HealthKitViewModel: ObservableObject {
                 }
 
                 // Step 4: Calculate average over available values
-                let overallAvg = dailyRates.isEmpty
+                let nonZeroValues = dailyRates.map(\.value).filter { $0 > 0 }
+                let overallAvg = nonZeroValues.isEmpty
                     ? 0
-                    : Double(dailyRates.map(\.value).reduce(0, +)) / Double(dailyRates.count)
+                    : Double(nonZeroValues.reduce(0, +)) / Double(nonZeroValues.count)
 
                 DispatchQueue.main.async {
                     self.restingHeartRateDailyv2 = dailyRates
@@ -724,8 +725,9 @@ final class HealthKitViewModel: ObservableObject {
                 }
 
                 // Calculate average HRV
-                let avgHRV = dailyRates.isEmpty ? 0 :
-                    Double(dailyRates.map(\.value).reduce(0, +)) / Double(dailyRates.count)
+                let nonZeroHRV = dailyRates.map(\.value).filter { $0 > 0 }
+                let avgHRV = nonZeroHRV.isEmpty ? 0 :
+                    Double(nonZeroHRV.reduce(0, +)) / Double(nonZeroHRV.count)
 
                 DispatchQueue.main.async {
                     self.HeartRateVariabilityDaily = dailyRates
@@ -811,8 +813,9 @@ final class HealthKitViewModel: ObservableObject {
                         return DailyRate(date: dateString, value: 0)
                     }
                 }
-
-                let averageOfAll = allRates.isEmpty ? 0 : allRates.reduce(0, +) / Double(allRates.count)
+                
+                let nonZeroValues = dailyRates.map(\.value).filter { $0 > 0 }
+                let averageOfAll = nonZeroValues.isEmpty ? 0 : Double(nonZeroValues.reduce(0, +)) / Double(nonZeroValues.count)
 
                 DispatchQueue.main.async {
                     self.HeartRateDailyv2 = dailyRates
