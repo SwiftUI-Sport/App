@@ -12,7 +12,6 @@ func trainingLoadStatus(lastTrainingLoad: Int?) -> String {
         return "Missing"
     }
     
-    // Define TRIMP thresholds for categorizing training load
     if load >= 100 {
         return "Hard"
     } else if load >= 50 {
@@ -47,7 +46,7 @@ func SleepStatus(SleepAmount: Double?) -> String {
     guard let sleepamount = SleepAmount else {
         return "Missing"
     }
-  
+    
     if sleepamount < 21600.0 {
         return "Less"
     } else {

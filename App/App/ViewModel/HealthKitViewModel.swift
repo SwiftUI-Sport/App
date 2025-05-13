@@ -11,15 +11,15 @@ import Combine
 
 @MainActor
 final class HealthKitViewModel: ObservableObject {
-
+    
     @Published var isAuthorized: Bool = false
     @Published var caloriesToday: Double = 0
     @Published var errorMessage: String?
     
     @Published var activities: [WorkoutActivity] = []
-  
+    
     @Published var sleepDuration: [Sleep] = []
-
+    
     @Published var HeartRateDaily: [HeartRateOfTheDay] = []
     @Published var HeartRateDailyv2: [DailyRate] = []
     
@@ -57,9 +57,9 @@ final class HealthKitViewModel: ObservableObject {
             errorMessage = "HealthKit tidak tersedia di perangkat ini."
             return
         }
-      
+        
         authorizeAndLoadData()
-
+        
     }
     
     private func authorizeAndLoadData() {
@@ -73,11 +73,11 @@ final class HealthKitViewModel: ObservableObject {
                     //          self.loadTodayCalories()
                     //            self.loadRunningWorkout()
                     //            self.loadAllWorkouts()
-//                    //            self.loadHeartRatesForAllWorkouts()
-//                    self.loadRestingHeartRateWithinRange()
-//                    self.loadAge()
-//                    repository.checkAllAuthorizationStatuses()
-//                    self.loadAllData()
+                    //                    //            self.loadHeartRatesForAllWorkouts()
+                    //                    self.loadRestingHeartRateWithinRange()
+                    //                    self.loadAge()
+                    //                    repository.checkAllAuthorizationStatuses()
+                    //                    self.loadAllData()
                 } else {
                     self.errorMessage = "Akses HealthKit ditolak."
                 }
@@ -139,14 +139,14 @@ final class HealthKitViewModel: ObservableObject {
                 self.errorMessage = "Gagal load workout: \(error)"
                 
             case .success(let workouts):
-
+                
                 self.repository.fetchHeartRates(for: workouts) { hrResult in
                     switch hrResult {
                     case .failure(let error):
                         self.errorMessage = "Gagal load HR samples: \(error)"
                         
                     case .success(let data):
-
+                        
                         let unit = HKUnit.count().unitDivided(by: .minute())
                         data.forEach { workout, samples in
                             let start = DateFormatter.localizedString(
@@ -186,9 +186,6 @@ final class HealthKitViewModel: ObservableObject {
                 
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd HH:mm"
-
-                let energyType   = HKQuantityType(.activeEnergyBurned)
-                let distanceType = HKQuantityType(.distanceWalkingRunning)
                 
                 for workout in workouts {
                     let id       = workout.uuid.uuidString
@@ -353,14 +350,14 @@ final class HealthKitViewModel: ObservableObject {
     }
     
     private func loadRestingHeartRateWithinRange() {
-
+        
         let (start, end) = Date.last30DaysRange
         
         repository.fetchRestingHeartRateWithinRange(from: start, to: end) { [weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let samples):
-
+                
                 guard let lastSample = samples.sorted(by: { $0.startDate > $1.startDate }).first else {
                     print("Tidak ada data resting heart rate")
                     return
@@ -377,7 +374,7 @@ final class HealthKitViewModel: ObservableObject {
                 
                 print("🔎 Resting Heart Rate Samples: \(samples.count) entries\n")
                 for sample in samples {
-
+                    
                     let timestamp = df.string(from: sample.startDate)
                     let bpm       = sample.quantity.doubleValue(for: unit)
                     print("• \(timestamp): \(Int(bpm)) bpm")
@@ -413,36 +410,36 @@ final class HealthKitViewModel: ObservableObject {
     }
     
     func loadAge() -> Int {
-//        repository.fetchAge { [weak self] result in
-//            guard let self = self else { return }
-//            switch result {
-//            case .success(let age):
-//                print("Usia: \(age) tahun")
-//            case .failure(let error):
-//                self.errorMessage = "Gagal load usia: \(error)"
-//            }
-//        }
-//        print("USER EG: \(repository.userAge) dasndka")
+        //        repository.fetchAge { [weak self] result in
+        //            guard let self = self else { return }
+        //            switch result {
+        //            case .success(let age):
+        //                print("Usia: \(age) tahun")
+        //            case .failure(let error):
+        //                self.errorMessage = "Gagal load usia: \(error)"
+        //            }
+        //        }
+        //        print("USER EG: \(repository.userAge) dasndka")
         return repository.userAge
     }
-  
+    
     func loadRestingHeartRateDaily() {
         let (start, end) = Date.last30DaysRange
-
+        
         repository.fetchRestingHeartRateWithinRange(from: start, to: end) { [weak self] result in
             guard let self = self else { return }
-
+            
             switch result {
             case .success(let samples):
                 if samples.isEmpty {
                     print("No resting heart rate data available")
                     return
                 }
-
+                
                 let unit = HKUnit.count().unitDivided(by: .minute())
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd"
-
+                
                 // Step 1: Group values by date string
                 var dailyData: [String: [Double]] = [:]
                 for sample in samples {
@@ -450,7 +447,7 @@ final class HealthKitViewModel: ObservableObject {
                     let bpm = sample.quantity.doubleValue(for: unit)
                     dailyData[dateString, default: []].append(bpm)
                 }
-
+                
                 // Step 2: Generate last 7 date strings
                 let calendar = Calendar.current
                 let today = calendar.startOfDay(for: Date())
@@ -458,7 +455,7 @@ final class HealthKitViewModel: ObservableObject {
                     guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
                     return df.string(from: date)
                 }.reversed() // Make oldest first
-
+                
                 // Step 3: Build complete dailyRates including missing dates with value 0
                 let dailyRates: [DailyRate] = last7Dates.map { dateString in
                     if let values = dailyData[dateString], !values.isEmpty {
@@ -468,19 +465,19 @@ final class HealthKitViewModel: ObservableObject {
                         return DailyRate(date: dateString, value: 0)
                     }
                 }
-
+                
                 // Step 4: Calculate average over available values
                 let nonZeroValues = dailyRates.map(\.value).filter { $0 > 0 }
                 let overallAvg = nonZeroValues.isEmpty
-                    ? 0
-                    : Double(nonZeroValues.reduce(0, +)) / Double(nonZeroValues.count)
-
+                ? 0
+                : Double(nonZeroValues.reduce(0, +)) / Double(nonZeroValues.count)
+                
                 DispatchQueue.main.async {
                     self.restingHeartRateDailyv2 = dailyRates
                     self.overallRestingHR = overallAvg
                 }
                 
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.errorMessage = "Gagal load resting heart rate: \(error)"
@@ -496,12 +493,12 @@ final class HealthKitViewModel: ObservableObject {
         var prevATL  = 0.0
         var prevCTL  = 0.0
         var history: [TrainingStressOfTheDay] = []
-
+        
         for date in dates {
             let dayActs = activities.filter {
                 cal.isDate($0.startDate, inSameDayAs: date)
             }
-
+            
             let dayStress = TrainingStressOfTheDay(
                 date:         date,
                 activities:   dayActs,
@@ -510,12 +507,12 @@ final class HealthKitViewModel: ObservableObject {
                 previousCTL:  prevCTL
             )
             history.append(dayStress)
-
+            
             prevTSR = dayStress.totalTSR
             prevATL = dayStress.todayATL
             prevCTL = dayStress.todayCTL
         }
-
+        
         return history
     }
     
@@ -526,7 +523,7 @@ final class HealthKitViewModel: ObservableObject {
     func loadAllData() {
         
         stressHistory42Days = loadStressHistoryFromUserDefaults()
-    
+        
         let (start42, end42) = Date.last42DaysRange
         let (start7, end7) = Date.last7DaysRange
         
@@ -542,8 +539,8 @@ final class HealthKitViewModel: ObservableObject {
                     repository.setUserAge(age)
                     repository.setUserMaxHR(220 - age)
                 } else {
-//                    repository.setUserAge(30)
-//                    repository.setUserMaxHR(190)
+                    //                    repository.setUserAge(30)
+                    //                    repository.setUserMaxHR(190)
                 }
             }
         }
@@ -562,7 +559,7 @@ final class HealthKitViewModel: ObservableObject {
                     let avgRHR = Int(totalRHR / Double(rhrSamples.count))
                     repository.setUserRestingHR(avgRHR)
                 } else {
-//                    repository.setUserRestingHR(60)?\
+                    //                    repository.setUserRestingHR(60)?\
                 }
             }
         }
@@ -580,8 +577,8 @@ final class HealthKitViewModel: ObservableObject {
                 case .failure(let err):
                     self.errorMessage = "Gagal load workouts: \(err)"
                     if self.activities.isEmpty {
-                                        self.activities = []
-                                    }
+                        self.activities = []
+                    }
                     
                 case .success(let workouts):
                     if workouts.isEmpty {
@@ -605,7 +602,7 @@ final class HealthKitViewModel: ObservableObject {
             group.enter()
             repository.fetchHeartRateSamplesForWorkout(for: workout) { [weak self] hrResult in
                 defer { group.leave() }
-                guard let self = self else { return }
+                guard self != nil else { return }
                 
                 let hrSamples: [HeartRateSample]
                 if case let .success(samples) = hrResult, !samples.isEmpty {
@@ -664,16 +661,15 @@ final class HealthKitViewModel: ObservableObject {
             case .success(let samples):
                 // Process HRV samples
                 if !samples.isEmpty {
-                    let unit = HKUnit.secondUnit(with: .milli)
                     let df = DateFormatter()
                     df.dateFormat = "yyyy-MM-dd HH:mm"
                     
-//                    print("📊 HRV Samples: \(samples.count) entries")
-                    for sample in samples {
-                        let timestamp = df.string(from: sample.startDate)
-                        let hrvValue = sample.quantity.doubleValue(for: unit)
-//                        print("• \(timestamp): \(hrvValue) ms")
-                    }
+                    //                    print("📊 HRV Samples: \(samples.count) entries")
+                    //                    for sample in samples {
+                    //                        let timestamp = df.string(from: sample.startDate)
+                    //                        let hrvValue = sample.quantity.doubleValue(for: unit)
+                    //                        print("• \(timestamp): \(hrvValue) ms")
+                    //                    }
                     
                     // MARK: You can store these values in a published property
                     // self.hrvSamples = samples.map { ... }
@@ -691,13 +687,13 @@ final class HealthKitViewModel: ObservableObject {
         let (start7, end7) = Date.last7DaysRange
         repository.fetchHeartRateVariability(from: start7, to: end7) { [weak self] result in
             guard let self = self else { return }
-
+            
             switch result {
             case .success(let samples):
                 let unit = HKUnit.secondUnit(with: .milli)
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd"
-
+                
                 // Group by date string
                 var dailyData: [String: [Double]] = [:]
                 for sample in samples {
@@ -705,7 +701,7 @@ final class HealthKitViewModel: ObservableObject {
                     let hrvValue = sample.quantity.doubleValue(for: unit)
                     dailyData[dateKey, default: []].append(hrvValue)
                 }
-
+                
                 // Generate last 7 dates
                 let calendar = Calendar.current
                 let today = calendar.startOfDay(for: Date())
@@ -713,7 +709,7 @@ final class HealthKitViewModel: ObservableObject {
                     guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
                     return df.string(from: date)
                 }.reversed() // oldest to newest
-
+                
                 // Build complete dailyRates array with 0-filled values
                 let dailyRates: [DailyRate] = last7Dates.map { dateString in
                     if let values = dailyData[dateString], !values.isEmpty {
@@ -723,17 +719,17 @@ final class HealthKitViewModel: ObservableObject {
                         return DailyRate(date: dateString, value: 0)
                     }
                 }
-
+                
                 // Calculate average HRV
                 let nonZeroHRV = dailyRates.map(\.value).filter { $0 > 0 }
                 let avgHRV = nonZeroHRV.isEmpty ? 0 :
-                    Double(nonZeroHRV.reduce(0, +)) / Double(nonZeroHRV.count)
-
+                Double(nonZeroHRV.reduce(0, +)) / Double(nonZeroHRV.count)
+                
                 DispatchQueue.main.async {
                     self.HeartRateVariabilityDaily = dailyRates
                     self.overallAvgHRV = avgHRV
                 }
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to load HRV data: \(error)"
@@ -742,60 +738,60 @@ final class HealthKitViewModel: ObservableObject {
         }
     }
     
-//    func loadHeartRate() {
-//        let (start7, end7) = Date.last7DaysRange
-//        repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
-//            guard let self = self else { return }
-//            
-//            switch result {
-//            case .success(let samples):
-//                if !samples.isEmpty {
-//                    let unit = HKUnit.count().unitDivided(by: .minute())
-//                    let df = DateFormatter()
-//                    df.dateFormat = "yyyy-MM-dd HH:mm"
-//                    
-//                    print("❤️ Heart Rate Samples: \(samples.count) entries")
-//                    for sample in samples {
-//                        let timestamp = df.string(from: sample.startDate)
-//                        let hrValue = sample.quantity.doubleValue(for: unit)
-//                        print("• \(timestamp): \(Int(hrValue)) bpm")
-//                    }
-//                    
-//                    // MARK: You can store these values in a published property
-//                    // self.heartRateSamples = samples.map { ... }
-//                } else {
-//                    print("No heart rate data available")
-//                }
-//                
-//            case .failure(let error):
-//                self.errorMessage = "Failed to load heart rate data: \(error)"
-//            }
-//        }
-//    }
+    //    func loadHeartRate() {
+    //        let (start7, end7) = Date.last7DaysRange
+    //        repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
+    //            guard let self = self else { return }
+    //
+    //            switch result {
+    //            case .success(let samples):
+    //                if !samples.isEmpty {
+    //                    let unit = HKUnit.count().unitDivided(by: .minute())
+    //                    let df = DateFormatter()
+    //                    df.dateFormat = "yyyy-MM-dd HH:mm"
+    //
+    //                    print("❤️ Heart Rate Samples: \(samples.count) entries")
+    //                    for sample in samples {
+    //                        let timestamp = df.string(from: sample.startDate)
+    //                        let hrValue = sample.quantity.doubleValue(for: unit)
+    //                        print("• \(timestamp): \(Int(hrValue)) bpm")
+    //                    }
+    //
+    //                    // MARK: You can store these values in a published property
+    //                    // self.heartRateSamples = samples.map { ... }
+    //                } else {
+    //                    print("No heart rate data available")
+    //                }
+    //
+    //            case .failure(let error):
+    //                self.errorMessage = "Failed to load heart rate data: \(error)"
+    //            }
+    //        }
+    //    }
     
     // Modify the loadHeartRate function to accept a Binding
     func loadHeartRate() {
         let (start7, end7) = Date.last7DaysRange
-
+        
         repository.fetchHeartRate(from: start7, to: end7) { [weak self] result in
             guard let self = self else { return }
-
+            
             switch result {
             case .success(let samples):
                 let unit = HKUnit.count().unitDivided(by: .minute())
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd"
-
+                
                 var groupedRates: [String: [Double]] = [:]
                 var allRates: [Double] = []
-
+                
                 for sample in samples {
                     let dateKey = df.string(from: sample.startDate)
                     let value = sample.quantity.doubleValue(for: unit)
                     groupedRates[dateKey, default: []].append(value)
                     allRates.append(value)
                 }
-
+                
                 // Get the last 7 date strings (oldest to newest)
                 let calendar = Calendar.current
                 let today = calendar.startOfDay(for: Date())
@@ -803,7 +799,7 @@ final class HealthKitViewModel: ObservableObject {
                     guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
                     return df.string(from: date)
                 }.reversed()
-
+                
                 // Construct dailyRates with zero-filled missing values
                 let dailyRates: [DailyRate] = last7Dates.map { dateString in
                     if let values = groupedRates[dateString], !values.isEmpty {
@@ -816,12 +812,12 @@ final class HealthKitViewModel: ObservableObject {
                 
                 let nonZeroValues = dailyRates.map(\.value).filter { $0 > 0 }
                 let averageOfAll = nonZeroValues.isEmpty ? 0 : Double(nonZeroValues.reduce(0, +)) / Double(nonZeroValues.count)
-
+                
                 DispatchQueue.main.async {
                     self.HeartRateDailyv2 = dailyRates
                     self.overallAverageHR = averageOfAll
                 }
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.errorMessage = "Error: \(error.localizedDescription)"
@@ -837,36 +833,36 @@ final class HealthKitViewModel: ObservableObject {
         // Clear existing data first to prevent duplication
         self.sleepDuration = []
         self.totalSleepInterval = 0
-
+        
         // Use sleep-specific date range instead of 24h range
         let (start, end) = Date.sleepDateRange()
         
         repository.fetchSleepData(from: start, to: end) { [weak self] result in
             guard let self = self else { return }
-
+            
             switch result {
             case .success(let samples):
                 guard !samples.isEmpty else {
                     print("No sleep data available")
                     return
                 }
-
+                
                 // Calculate total sleep (except 'awake' phase)
                 let totalSeconds = samples.reduce(0) { sum, sample in
                     let duration = sample.endDate.timeIntervalSince(sample.startDate)
                     return sample.value == HKCategoryValueSleepAnalysis.awake.rawValue
-                        ? sum
-                        : sum + duration
+                    ? sum
+                    : sum + duration
                 }
                 DispatchQueue.main.async {
                     self.totalSleepInterval = totalSeconds
                 }
-
+                
                 // Process sleep data by day
                 let df = DateFormatter()
                 df.dateFormat = "yyyy-MM-dd HH:mm"
                 print("😴 Sleep Data: \(samples.count) entries")
-
+                
                 // Group sleep samples by day
                 let calendar = Calendar.current
                 var sleepByDay: [Date: [HKCategorySample]] = [:]
@@ -874,7 +870,7 @@ final class HealthKitViewModel: ObservableObject {
                     let day = calendar.startOfDay(for: sample.startDate)
                     sleepByDay[day, default: []].append(sample)
                 }
-
+                
                 // Process each day's sleep data
                 for (day, daySamples) in sleepByDay {
                     let sorted = daySamples.sorted { $0.startDate < $1.startDate }
@@ -886,7 +882,7 @@ final class HealthKitViewModel: ObservableObject {
                     var deepSleepDuration: TimeInterval = 0
                     var remSleepDuration: TimeInterval = 0
                     var coreSleepDuration: TimeInterval = 0
-
+                    
                     for sample in daySamples {
                         let duration = sample.endDate.timeIntervalSince(sample.startDate)
                         switch sample.value {
@@ -904,7 +900,7 @@ final class HealthKitViewModel: ObservableObject {
                             break
                         }
                     }
-
+                    
                     let sleep = Sleep(
                         day: day,
                         startTime: earliest,
@@ -916,14 +912,14 @@ final class HealthKitViewModel: ObservableObject {
                         coreSleepDuration: coreSleepDuration
                     )
                     sleepDuration.append(sleep)
-
+                    
                     // Format and log sleep data
                     func formatDuration(_ interval: TimeInterval) -> String {
                         let h = Int(interval / 3600)
                         let m = Int((interval.truncatingRemainder(dividingBy: 3600)) / 60)
                         return "\(h)h \(m)m"
                     }
-
+                    
                     print("• \(dateString):")
                     print("  - In Bed: \(formatDuration(inBedDuration))")
                     print("  - Asleep: \(formatDuration(asleepDuration))")
@@ -933,7 +929,7 @@ final class HealthKitViewModel: ObservableObject {
                         print("  - Core Sleep: \(formatDuration(coreSleepDuration))")
                     }
                 }
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to load sleep data: \(error)"
@@ -941,8 +937,8 @@ final class HealthKitViewModel: ObservableObject {
             }
         }
     }
-
-
+    
+    
     func loadAllPast7DaysWorkout() {
         let (start, end) = Date.last7DaysRange
         let calendar = Calendar.current
@@ -1027,10 +1023,10 @@ final class HealthKitViewModel: ObservableObject {
                 durationByDay[calendar.startOfDay(for: day)] = 0
             }
         }
-
+        
         repository.fetchAllWorkoutsWithinRange(from: start, to: end) { [weak self] result in
             guard let self = self else { return }
-
+            
             switch result {
             case .success(let workouts):
                 for workout in workouts {
@@ -1038,7 +1034,7 @@ final class HealthKitViewModel: ObservableObject {
                     let durationMinutes = Int(workout.duration / 60)
                     durationByDay[dayStart, default: 0] += durationMinutes
                 }
-
+                
                 let dailyRates: [DailyRate] = durationByDay.map { (date, totalMinutes) in
                     let dateStr = df.string(from: date)
                     return DailyRate(date: dateStr, value: totalMinutes)
@@ -1047,16 +1043,15 @@ final class HealthKitViewModel: ObservableObject {
                           let d2 = df.date(from: $1.date) else { return false }
                     return d1 < d2 // newest first
                 }
-
-                let total = dailyRates.reduce(0) { $0 + $1.value }
+                
                 let workoutDays = dailyRates.filter { $0.value > 0 }
                 let avg = workoutDays.isEmpty ? 0 : Double(workoutDays.reduce(0) { $0 + $1.value }) / Double(workoutDays.count)
-
+                
                 DispatchQueue.main.async {
                     self.past7DaysWorkoutDuration = dailyRates
                     self.overallAvgWorkoutDuration = avg
                 }
-
+                
             case .failure(let error):
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to load workout durations: \(error)"
@@ -1070,34 +1065,34 @@ final class HealthKitViewModel: ObservableObject {
             print("No workout activities found.")
             return
         }
-
+        
         print("📊 WORKOUT ACTIVITIES (\(activities.count) total)")
         print("═════════════════════════════════════════════")
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
-
+        
         for (index, activity) in activities.enumerated() {
             let startDateStr = dateFormatter.string(from: activity.startDate)
             let endDateStr = dateFormatter.string(from: activity.endDate)
             let durationMinutes = Int(activity.duration / 60)
             let durationSeconds = Int(activity.duration.truncatingRemainder(dividingBy: 60))
-
+            
             print("\n🏋️ ACTIVITY #\(index + 1): \(activity.name)")
             print("  • Start Date: \(startDateStr)")
             print("  • End Date: \(endDateStr)")
             print("  • Duration: \(durationMinutes)m \(durationSeconds)s")
-
+            
             if let distance = activity.distance {
                 let distanceKm = distance / 1000
                 print("  • Distance: \(String(format: "%.2f", distanceKm)) km")
             } else {
                 print("  • Distance: N/A")
             }
-
+            
             print("  • Calories: \(Int(activity.caloriesBurned)) kcal")
-
+            
             print("  • Heart Rate Zones:")
             if activity.zoneDurations.isEmpty {
                 print("    - No zone data available")
@@ -1108,14 +1103,14 @@ final class HealthKitViewModel: ObservableObject {
                     print("    - Zone \(zone.zone) (\(zone.lowerBound)-\(zone.upperBound) bpm): \(minutes)m \(seconds)s")
                 }
             }
-
-
+            
+            
             if !activity.heartRateSamples.isEmpty {
                 let bpms = activity.heartRateSamples.map { $0.bpm }
                 let minBPM = Int(bpms.min() ?? 0)
                 let maxBPM = Int(bpms.max() ?? 0)
                 let avgBPM = Int(bpms.reduce(0, +) / Double(bpms.count))
-
+                
                 print("  • Heart Rate:")
                 print("    - Min: \(minBPM) bpm")
                 print("    - Avg: \(avgBPM) bpm")
@@ -1124,29 +1119,29 @@ final class HealthKitViewModel: ObservableObject {
             } else {
                 print("  • Heart Rate: No data available")
             }
-
+            
             print("─────────────────────────────────────────────")
         }
     }
     
     func printStressHistories() {
-            let df = DateFormatter()
-            df.dateStyle = .medium
-            df.timeStyle = .none
-            
-            func printHistory(_ history: [TrainingStressOfTheDay], title: String) {
-                print("\n=== \(title) ===")
-                for day in history {
-                    let dateStr = df.string(from: day.date)
-                    let tsr  = String(format: "%.1f", day.totalTSR)
-                    let atl  = String(format: "%.1f", day.todayATL)
-                    let ctl  = String(format: "%.1f", day.todayCTL)
-                    let tsb  = String(format: "%.1f", day.todayTSB)
-                    let dTSR = String(format: "%+.1f", day.deltaTSR)
-                    let dATL = String(format: "%+.1f", day.deltaATL)
-                    let dCTL = String(format: "%+.1f", day.deltaCTL)
-                    
-                    print("""
+        let df = DateFormatter()
+        df.dateStyle = .medium
+        df.timeStyle = .none
+        
+        func printHistory(_ history: [TrainingStressOfTheDay], title: String) {
+            print("\n=== \(title) ===")
+            for day in history {
+                let dateStr = df.string(from: day.date)
+                let tsr  = String(format: "%.1f", day.totalTSR)
+                let atl  = String(format: "%.1f", day.todayATL)
+                let ctl  = String(format: "%.1f", day.todayCTL)
+                let tsb  = String(format: "%.1f", day.todayTSB)
+                let dTSR = String(format: "%+.1f", day.deltaTSR)
+                let dATL = String(format: "%+.1f", day.deltaATL)
+                let dCTL = String(format: "%+.1f", day.deltaCTL)
+                
+                print("""
                     • \(dateStr)
                       – TSR: \(tsr)
                       – ATL: \(atl)
@@ -1154,18 +1149,18 @@ final class HealthKitViewModel: ObservableObject {
                       – TSB: \(tsb)
                       – ΔTSR: \(dTSR), ΔATL: \(dATL), ΔCTL: \(dCTL)
                     """)
-                }
             }
-            
-            printHistory(stressHistory42Days, title: "Training Stress (Last 42 Days)")
-
-            printHistory(stressHistory7Days,  title: "Training Stress (Last 7 Days)")
         }
+        
+        printHistory(stressHistory42Days, title: "Training Stress (Last 42 Days)")
+        
+        printHistory(stressHistory7Days,  title: "Training Stress (Last 7 Days)")
+    }
     
     func loadPast7DaysWorkoutTSR() {
         print("🔄 Loading past 7 days TSR from 42-day history...")
         print("stressHistory42Days count: \(stressHistory42Days.count)")
-
+        
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
         
@@ -1176,9 +1171,9 @@ final class HealthKitViewModel: ObservableObject {
         let filtered = stressHistory42Days.filter {
             $0.date >= sevenDaysAgo && $0.date <= today
         }
-
+        
         print("Filtered last 7 days count: \(filtered.count)")
-
+        
         let rates: [DailyRate] = filtered.map { entry in
             DailyRate(date: df.string(from: entry.date), value: Int(entry.totalTSR.rounded()))
         }.sorted {
@@ -1186,22 +1181,22 @@ final class HealthKitViewModel: ObservableObject {
                   let d2 = df.date(from: $1.date) else { return false }
             return d1 < d2 // oldest to newest
         }
-
+        
         // Only average non-zero days
         let nonZeroRates = rates.filter { $0.value > 0 }
         var avg: Double = 0
-
+        
         if !nonZeroRates.isEmpty {
             avg = Double(nonZeroRates.reduce(0) { $0 + $1.value }) / Double(nonZeroRates.count)
             if avg > 0 && avg < 1 {
                 avg = 1
             }
         }
-
+        
         DispatchQueue.main.async {
             self.past7DaysWorkoutTSR = rates
             self.overallAvgWorkoutTSR = avg
-
+            
             print("✅ Finished loading TSR from filtered 7 days.")
             print("Average TSR: \(avg)")
             print("Daily TSR values:")
@@ -1210,7 +1205,7 @@ final class HealthKitViewModel: ObservableObject {
             }
         }
     }
-
+    
     private func saveStressHistoryToUserDefaults() {
         do {
             let data = try JSONEncoder().encode(self.stressHistory42Days)
@@ -1220,7 +1215,7 @@ final class HealthKitViewModel: ObservableObject {
             print("Failed to save stress history: \(error)")
         }
     }
-
+    
     private func loadStressHistoryFromUserDefaults() -> [TrainingStressOfTheDay] {
         guard let data = UserDefaults.standard.data(forKey: "stressHistory42Days") else {
             print("No saved stress history found in UserDefaults")

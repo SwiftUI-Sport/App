@@ -22,7 +22,6 @@ struct ATLProgressView: View {
     private let barHeight: CGFloat = 38
     private let handleSize: CGSize = CGSize(width: 18, height: 56)
     
-    // This will store the animated value
     @State private var animatedATL: Double = 0
     
     var body: some View {
@@ -65,7 +64,7 @@ struct ATLProgressView: View {
                         x: xPos - handleSize.width/2,
                         y: -(handleSize.height - barHeight)/2
                     )
-                    // Make sure the handle animates smoothly
+                // Make sure the handle animates smoothly
                     .animation(.spring(response: 0.6, dampingFraction: 0.7), value: animatedATL)
             }
             .frame(height: handleSize.height)
@@ -73,11 +72,9 @@ struct ATLProgressView: View {
         .frame(height: handleSize.height)
         .padding(.horizontal)
         .onAppear {
-            // Start with the current ATL value when the view appears
             animatedATL = atl
         }
         .onChange(of: atl) { _, newValue in
-            // Animate to the new value whenever atl changes
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 animatedATL = newValue
             }
@@ -96,7 +93,7 @@ struct BlobHeaderShape: Shape {
         
         path.move(to: .zero)
         path.addLine(to: CGPoint(x: 0, y: rect.height * 0.86 ))
-    
+        
         path.addCurve(
             to: CGPoint(x: rect.width * 0.65 - 70, y: (rect.height + 30) * 0.65 + 50),
             control1: CGPoint(x: rect.width * 0.1, y: rect.height + 20),
@@ -115,48 +112,9 @@ struct BlobHeaderShape: Shape {
         return path
     }
 }
-
-//struct HeaderBlobView: View {
-//    let subtitle: String
-//    let title: String
-//    let icon: Image
-//    
-//    var body: some View {
-//        ZStack (alignment: .top) {
-//            BlobHeaderShape()
-//                .fill(Color(red: 1.0, green: 0.96, blue: 0.85))
-//                .frame(height: 450)
-//                .ignoresSafeArea(edges: .top)
-//            
-//            VStack(alignment: .leading, spacing: 15) {
-//
-//                Text(subtitle)
-//                    .padding(.top, 50)
-//                    .font(.subheadline)
-//                    .foregroundColor(.gray)
-//                
-//                HStack(alignment: .top) {
-//                    Text(title)
-//                        .font(.largeTitle)
-//                        .fontWeight(.bold)
-//                        .foregroundColor(Color(red: 0.93, green: 0.38, blue: 0.33))
-//                    
-//                    Spacer()
-//                    
-//                    icon
-//                        .resizable()
-//                        .scaledToFit()
-//                        .frame(width: 80, height: 80)
-//                }
-//                .padding(.horizontal)
-//                FatigueCard()
-//                    .padding(.horizontal)
-//            }
-//        }
-//    }
-//}
-
 struct Empty_authorized_view: View {
+    @State private var showingPermissionsHelp = false
+    
     var body: some View {
         VStack (spacing: 0){
             Image("empty_health")
@@ -166,7 +124,7 @@ struct Empty_authorized_view: View {
                 .padding(.bottom, 20)
             
             Text("Connect to Health")
-                . font(.system(.largeTitle, design: .rounded))
+                .font(.system(.largeTitle, design: .rounded))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.leading)
                 .lineLimit(nil)
@@ -174,11 +132,23 @@ struct Empty_authorized_view: View {
                 .foregroundColor(Color("primary_1"))
                 .padding(.bottom, 20)
             
-            Text("Allow All Requirements !")
-                .font(.title3)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-                .lineLimit(nil)
+            HStack(spacing: 8) {
+                Text("Allow All Requirements!")
+                    .font(.title3)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                
+                Button(action: {
+                    showingPermissionsHelp.toggle()
+                }) {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.gray)
+                }
+                .popover(isPresented: $showingPermissionsHelp, arrowEdge: .top) {
+                    HealthPermissionsGuide()
+                }
+            }
             
             Text("Runday uses your workout history, heart rate, and sleep data from Apple Health to give you the best recomendation")
                 .font(.callout)
@@ -186,8 +156,146 @@ struct Empty_authorized_view: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
                 .frame(width: 270)
+                .padding(.vertical, 12)
             
         }
+    }
+    
+}
+
+struct HealthPermissionsGuide: View {
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("How to Allow Health Permissions")
+                .font(.headline)
+                .fontWeight(.bold)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                PermissionStep(
+                    number: "1",
+                    title: "Open Settings App",
+                    description: "Tap the Open Settings button below",
+                    imageName: "gear",
+                    isSystemImage: true
+                )
+                
+                PermissionStep(
+                    number: "2",
+                    title: "Go to Health App",
+                    description: "Scroll down and tap on the Health app",
+                    imageName: "heart.fill",
+                    isSystemImage: true
+                )
+                
+                PermissionStep(
+                    number: "3",
+                    title: "Data Access & Devices",
+                    description: "Tap on Data Access & Devices",
+                    imageName: "arrow.up.right.square.fill",
+                    isSystemImage: true
+                )
+                
+                PermissionStep(
+                    number: "4",
+                    title: "Select Runday",
+                    description: "Find and tap on Runday in the apps list",
+                    imageName: "app.badge.fill",
+                    isSystemImage: true
+                )
+                
+                PermissionStep(
+                    number: "5",
+                    title: "Enable All Categories",
+                    description: "Toggle ON all categories to allow full access",
+                    imageName: "checkmark.circle.fill",
+                    isSystemImage: true
+                )
+            }
+            
+            Divider()
+                .padding(.vertical, 8)
+            
+            Text("These permissions allow Runday to access your health data to calculate your fatigue level and recommend appropriate workouts")
+                .font(.caption)
+                .foregroundColor(.gray)
+            
+            HStack {
+                Spacer()
+                Button(action: openAppSettings) {
+                    HStack {
+                        Image(systemName: "gear")
+                        Text("Open Settings")
+                            .fontWeight(.medium)
+                    }
+                    .frame(height: 44)
+                    .frame(maxWidth: .infinity)
+                    .background(Color("primary_1"))
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+                .buttonStyle(.plain)
+                Spacer()
+            }
+            .padding(.top, 12)
+        }
+        .padding(.horizontal)
+    }
+    
+    func openAppSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+
+struct PermissionStep: View {
+    var number: String
+    var title: String
+    var description: String
+    var imageName: String
+    var isSystemImage: Bool = false
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(Color("primary_1"))
+                    .frame(width: 28, height: 28)
+                Text(number)
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    if isSystemImage {
+                        Image(systemName: imageName)
+                            .font(.system(size: 18))
+                            .foregroundColor(Color("primary_1"))
+                            .frame(width: 24, height: 24)
+                    } else {
+                        Image(imageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 24, height: 24)
+                    }
+                    
+                    Text(title)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.semibold)
+                }
+                
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.vertical, 4)
     }
 }
 
@@ -213,7 +321,6 @@ struct Empty_activity_view: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(nil)
                 .frame(width: 270)
-            
         }
     }
 }
@@ -221,8 +328,6 @@ struct Empty_activity_view: View {
 #Preview {
     Empty_activity_view()
 }
-
-
 
 #Preview {
     Empty_authorized_view()
@@ -264,7 +369,7 @@ struct FatigueCard: View {
                 .padding(.bottom, 18)
                 
                 ATLProgressView(atl: logScalePercentage(value: trainingStressOfTheDay.todayATL))
-
+                
                 Text(message)
                     .font(.callout)
                     .foregroundColor(Color("headerMessage"))
@@ -313,10 +418,12 @@ struct FatigueInfoPopover: View {
                 )
             }
             
+            Divider()
+                .padding(.vertical, 8)
+            
             Text("Your fatigue level is calculated using your training load, heart rate data, and sleep quality.")
                 .font(.caption)
                 .foregroundColor(.gray)
-                .padding(.top, 8)
         }
         .padding()
         .frame(width: 300)
@@ -348,6 +455,4 @@ struct FatigueInfoRow: View {
         }
     }
 }
-//#Preview {
-//    FatigueCard()
-//}
+

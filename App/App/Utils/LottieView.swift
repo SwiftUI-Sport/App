@@ -28,7 +28,6 @@ struct LottieView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         
-        // Create animation view during initialization
         let animationView = LottieAnimationView()
         let loadingIndicator = UIActivityIndicatorView(style: .medium)
         
@@ -49,16 +48,13 @@ struct LottieView: UIViewRepresentable {
         context.coordinator.animationView = animationView
         loadingIndicator.startAnimating()
         
-        // Start loading animation asynchronously
         loadAnimationAsync(name: name, animationView: animationView, loadingIndicator: loadingIndicator, coordinator: context.coordinator)
         
         return view
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        // Only load animation if we haven't already started loading or loaded
         if !context.coordinator.isLoading && !context.coordinator.animationLoaded {
-            // Find existing animation view and loading indicator
             let animationView = context.coordinator.animationView
             let loadingIndicator = uiView.subviews.compactMap { $0 as? UIActivityIndicatorView }.first
             
@@ -69,12 +65,12 @@ struct LottieView: UIViewRepresentable {
     }
     
     private func loadAnimationAsync(name: String, animationView: LottieAnimationView, loadingIndicator: UIActivityIndicatorView, coordinator: Coordinator) {
-        // Mark that we're starting to load
+
         coordinator.isLoading = true
         
-        // Load animation in background thread
+
         DispatchQueue.global(qos: .userInitiated).async {
-            // Try loading .lottie file format first
+
             if let url = Bundle.main.url(forResource: name, withExtension: "lottie") {
                 DotLottieFile.loadedFrom(url: url) { result in
                     DispatchQueue.main.async {
@@ -104,7 +100,6 @@ struct LottieView: UIViewRepresentable {
                     }
                 }
             } else {
-                // Try JSON format if .lottie file not found
                 DispatchQueue.main.async {
                     loadingIndicator.stopAnimating()
                     loadingIndicator.isHidden = true
@@ -116,7 +111,7 @@ struct LottieView: UIViewRepresentable {
     }
     
     private func tryLoadingJSON(name: String, animationView: LottieAnimationView, coordinator: Coordinator) {
-        // Try loading as JSON in background
+
         DispatchQueue.global(qos: .userInitiated).async {
             let animation = LottieAnimation.named(name)
             
@@ -172,7 +167,6 @@ struct LottieLihat: UIViewRepresentable {
         
         loadingIndicator.startAnimating()
         
-        // Load animation asynchronously
         DispatchQueue.global(qos: .userInitiated).async {
             DotLottieFile.loadedFrom(url: url) { result in
                 DispatchQueue.main.async {
@@ -195,7 +189,7 @@ struct LottieLihat: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        // No updates needed as everything is handled in makeUIView
+   
     }
 }
 
@@ -215,13 +209,12 @@ struct TestLottieLihat: View {
 
 struct TestLottieView: View {
     init() {
-        // Check if the animation file exists
+       
         if let lottieURL = Bundle.main.url(forResource: "logo", withExtension: "lottie") {
             print("Found animation at: \(lottieURL)")
         } else {
             print("⚠️ Animation file 'logo.lottie' not found!")
             
-            // List all .lottie files in the bundle for debugging
             let lottieFiles = Bundle.main.paths(forResourcesOfType: "lottie", inDirectory: nil)
             print("Available .lottie files: \(lottieFiles)")
         }

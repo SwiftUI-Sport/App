@@ -53,25 +53,20 @@ struct ActivityView: View {
     private func generateDailySummaries() {
         let calendar = Calendar.current
         let today = Date()
-        let sevenDaysAgo = calendar.date(byAdding: .day, value: -6, to: today)!
         
-        // Generate dates for the last 7 days
         var summaries: [DailyActivitySummary] = []
         for dayOffset in 0..<7 {
             let date = calendar.date(byAdding: .day, value: -dayOffset, to: today)!
             
-            // Filter running activities for this specific day
             let activitiesForDay = healthKitViewModel.activities.filter { activity in
                 return activity.name == "Running" &&
-                       calendar.isDate(activity.startDate, inSameDayAs: date)
+                calendar.isDate(activity.startDate, inSameDayAs: date)
             }
             
-            // Create a summary for this day
             let summary = DailyActivitySummary(date: date, activities: activitiesForDay)
             summaries.append(summary)
         }
         
-        // Sort summaries from newest to oldest
         dailySummaries = summaries.sorted { $0.date > $1.date }
     }
     
@@ -110,7 +105,6 @@ struct ActivityView: View {
                             }
                             Spacer()
                         }
-//                        .padding(.top, 50)
                         .padding(.bottom, 20)
                         
                     }
@@ -122,7 +116,6 @@ struct ActivityView: View {
     }
     
     private var headerView: some View {
-        // Your existing header view code
         ZStack(alignment: .bottomLeading) {
             Image("actv_head")
                 .resizable()
@@ -147,14 +140,13 @@ struct ActivityView: View {
     }
 }
 
-// Separate component for day summary
+
 struct DaySummaryView: View {
     let summary: DailyActivitySummary
     @ObservedObject var router: ActivityFlowRouter
     
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            // Day header
             HStack {
                 Text(summary.weekdayName)
                     .padding(.horizontal)
@@ -170,7 +162,6 @@ struct DaySummaryView: View {
             .padding(.top, 16)
             
             if summary.hasRunningActivity {
-                // Display each running activity for this day
                 ForEach(summary.activities, id: \.startDate) { activity in
                     Button(action: {
                         router.navigate(to: .secondProfile(activity))
@@ -198,7 +189,7 @@ struct DaySummaryView: View {
                                 }
                                 .padding(.trailing, 15)
                                 
-                                    Image(systemName: "chevron.right")
+                                Image(systemName: "chevron.right")
                                     .font(.system(size: 16, weight: .bold))
                             }
                         }
@@ -214,7 +205,6 @@ struct DaySummaryView: View {
                     .padding(.horizontal)
                 }
             } else {
-                // Show placeholder for days with no running activities
                 HStack {
                     Text("No running activity")
                         .foregroundColor(.gray)
@@ -247,8 +237,6 @@ func formatDuration(_ seconds: TimeInterval) -> String {
     
     return formatter.string(from: seconds) ?? "00:00"
 }
-
-
 
 #Preview {
     ActivityView()

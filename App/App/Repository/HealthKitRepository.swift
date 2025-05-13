@@ -7,7 +7,6 @@
 
 import HealthKit
 
-
 protocol HealthKitRepositoryProtocol {
     
     var isHealthDataAvailable: Bool { get }
@@ -69,12 +68,12 @@ protocol HealthKitRepositoryProtocol {
         from start: Date,
         to end: Date,
         completion: @escaping (Result<[HKWorkout], HealthKitError>) -> Void
-      )
+    )
     
     func fetchHeartRateSamplesForWorkout(
-       for workout: HKWorkout,
-       completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
-     )
+        for workout: HKWorkout,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+    )
     
     func fetchHeartRateVariability(
         from start: Date,
@@ -95,7 +94,7 @@ protocol HealthKitRepositoryProtocol {
     )
     
     func checkAllAuthorizationStatuses()
-
+    
     
 }
 
@@ -260,8 +259,8 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
     }
     
     func fetchHeartRateSamplesForWorkout(
-       for workout: HKWorkout,
-       completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
+        for workout: HKWorkout,
+        completion: @escaping (Result<[HKQuantitySample], HealthKitError>) -> Void
     ) {
         store.fetchHeartRateSamplesForWorkout(for: workout) { result in
             completion(result)
@@ -327,12 +326,10 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
                     print("\(type.identifier): \(statusString)")
                 }
                 
-                // Check if any types need authorization
                 let needsAuth = statusDict.contains { $0.value == .notDetermined }
                 if needsAuth {
                     print("Some types need authorization - requesting now")
                     self.requestAuthorization { _ in
-                        // Re-check after authorization
                         self.checkAllAuthorizationStatuses()
                     }
                 }
@@ -342,6 +339,4 @@ final class HealthKitRepository: HealthKitRepositoryProtocol {
             }
         }
     }
-    
-    
 }

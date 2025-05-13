@@ -168,7 +168,6 @@ struct SecondActivityView: View {
     private var heartRateZonesCard: some View {
         CardView(maxHeight: 600) {
             VStack(alignment: .leading, spacing: 12) {
-                // Header with info button
                 HStack {
                     ZStack {
                         Circle()
@@ -178,7 +177,7 @@ struct SecondActivityView: View {
                             .foregroundColor(Color("primary_1"))
                             .font(.system(size: 15, weight: .medium))
                     }
-
+                    
                     Text("Heart Rate Training Zone")
                         .foregroundColor(.black)
                         .font(.title3)
@@ -196,7 +195,6 @@ struct SecondActivityView: View {
                     }
                 }
                 
-                // Zone list
                 ForEach(activity.zoneDurations, id: \.zone) { zoneData in
                     zoneRow(for: zoneData)
                 }
@@ -238,26 +236,26 @@ struct SecondActivityView: View {
         .background(Color("backgroundApp"))
         .presentationDetents([.large])
     }
-
+    
     private func zoneRow(for zoneData: WorkoutHeartRateZone) -> some View {
         VStack(spacing: 0) {
             // Zone title
             if zoneData.zone < 1 {
                 Text("Zone 0")
                     .foregroundColor(.black)
-                    . font(.system(.footnote, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
             } else {
                 Text("Zone \(zoneData.zone)")
                     .foregroundColor(.black)
-                    . font(.system(.footnote, design: .rounded))                    .fontWeight(.bold)
+                    .font(.system(.footnote, design: .rounded))
+                    .fontWeight(.bold)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.bottom, 8)
             }
             
-            // Zone range and duration
             HStack {
                 if zoneData.zone < 1 {
                     Text("< \(zoneData.upperBound)")
@@ -277,17 +275,15 @@ struct SecondActivityView: View {
             . font(.system(.footnote, design: .rounded))
             .padding(.bottom, 10)
             
-            // Zone slider
             zoneSlider(for: zoneData)
                 .padding(.bottom, 6)
         }
     }
     
     private func zoneSlider(for zoneData: WorkoutHeartRateZone) -> some View {
-        // Calculate total duration of all zones
+        
         let totalDuration = activity.zoneDurations.reduce(0) { $0 + $1.duration }
         
-        // Calculate percentage of time spent in this zone (0-100%)
         let percentage = totalDuration > 0 ? (zoneData.duration / totalDuration) * 100 : 0
         
         let value = Binding<Double>(
@@ -326,10 +322,10 @@ struct SecondActivityView: View {
             thumbColor: .clear,
             minTrackColor: fillColor,
             maxTrackColor: trackColor,
-            height: 10 // Set slider height
+            height: 10
         )
         .frame(maxWidth: .infinity)
-    }    // MARK: - Helper Methods
+    }
     
     func color(for zone: Int) -> Color {
         switch zone {
@@ -391,15 +387,11 @@ struct SecondActivityView: View {
             return "0,0"
         }
         
-        // Assume input is in meters (common for most activity tracking)
         let distanceInMeters = distance
         
-        // Format based on magnitude
         if distanceInMeters < 1000 {
-            // Less than 1km - show in meters
             return "\(Int(distanceInMeters))"
         } else {
-            // 1km or more - show in kilometers with 1 decimal place
             let distanceInKm = distanceInMeters / 1000.0
             
             let formatter = NumberFormatter()
@@ -419,7 +411,6 @@ struct SecondActivityView: View {
 }
 
 // MARK: - Supporting Views
-
 struct CardView<Content: View>: View {
     let content: Content
     var height: CGFloat?
@@ -509,14 +500,14 @@ struct UISliderView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UISlider {
         let slider = CustomHeightSlider(frame: .zero)
-        slider.trackHeight = height // Set custom track height
+        slider.trackHeight = height
         slider.thumbTintColor = thumbColor
         slider.minimumTrackTintColor = minTrackColor
         slider.maximumTrackTintColor = maxTrackColor
         slider.minimumValue = Float(minValue)
         slider.maximumValue = Float(maxValue)
         slider.value = Float(value)
-        slider.setThumbImage(UIImage(), for: .normal) // Hide thumb
+        slider.setThumbImage(UIImage(), for: .normal)
         
         slider.addTarget(
             context.coordinator,
@@ -551,7 +542,6 @@ class CustomHeightSlider: UISlider {
     }
     
     private func updateCustomTrack() {
-        // Remove existing custom layers if any
         trackLayer?.removeFromSuperlayer()
         progressLayer?.removeFromSuperlayer()
         
@@ -563,7 +553,6 @@ class CustomHeightSlider: UISlider {
             height: trackHeight
         )
         
-        // Create background track layer (unfilled portion)
         let trackLayer = CALayer()
         trackLayer.frame = trackRect
         trackLayer.backgroundColor = maximumTrackTintColor?.cgColor
@@ -571,7 +560,6 @@ class CustomHeightSlider: UISlider {
         self.layer.insertSublayer(trackLayer, at: 0)
         self.trackLayer = trackLayer
         
-        // Create progress layer (filled portion)
         let progressWidth = trackRect.width * CGFloat((value - minimumValue) / (maximumValue - minimumValue))
         let progressRect = CGRect(
             x: trackRect.minX,
@@ -588,14 +576,12 @@ class CustomHeightSlider: UISlider {
         self.progressLayer = progressLayer
     }
     
-    // Update custom track when value changes
     override var value: Float {
         didSet {
             updateCustomTrack()
         }
     }
     
-    // Update custom track when tint colors change
     override var minimumTrackTintColor: UIColor? {
         didSet {
             updateCustomTrack()

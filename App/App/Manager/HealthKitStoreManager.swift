@@ -273,11 +273,6 @@ final class HealthKitStore: HealthKitStoreProtocol {
             options: .strictStartDate
         )
         
-        let sort = NSSortDescriptor(
-            key: HKSampleSortIdentifierStartDate,
-            ascending: true
-        )
-        
         let query = HKSampleQuery(
             sampleType: hrType,
             predicate: predicate,

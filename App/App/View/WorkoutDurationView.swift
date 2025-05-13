@@ -11,7 +11,6 @@ struct WorkoutDurationView: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @Environment(\.dismiss) private var dismiss
     
-    // Format date range text from daily data points
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         guard !dailyRates.isEmpty else { return "No data available" }
         
@@ -24,17 +23,17 @@ struct WorkoutDurationView: View {
               let endDate = formatter.date(from: last.date) else {
             return "Date range unavailable"
         }
-
+        
         let dayFormatter = DateFormatter()
         dayFormatter.dateFormat = "dd"
-
+        
         let startDay = dayFormatter.string(from: startDate)
         let endDay = dayFormatter.string(from: endDate)
-
+        
         let monthYearFormatter = DateFormatter()
         monthYearFormatter.dateFormat = "MMMM yyyy"
         let monthYear = monthYearFormatter.string(from: endDate)
-
+        
         return "\(startDay)-\(endDay) \(monthYear)"
     }
     
@@ -76,7 +75,7 @@ struct WorkoutDurationView: View {
         tipsTitle: ["Record Your Workouts", "Sync Your Devices", "Start Small", "Be Consistent"],
         tipsDetail: ["Make sure to log all your exercise sessions to get accurate insights.", "Ensure your fitness tracker is properly connected to your Health app.", "Even short workouts count! Begin with manageable sessions if you're just starting.", "Aim for regular activity rather than occasional intense sessions for better health outcomes."]
     )
-        
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -86,7 +85,7 @@ struct WorkoutDurationView: View {
                     
                     Rectangle()
                         .frame(width: 150, height: 2, alignment: .leading)
-                        .foregroundStyle(Color("Pink"))
+                        .foregroundStyle(Color("Pinky"))
                     
                     Text(selectedMessage.detail)
                         .padding(.top, 8)
@@ -120,7 +119,7 @@ struct WorkoutDurationView: View {
                         
                         Text("trimp")
                             .font(.title2.bold())
-                            .foregroundStyle(Color("Pink"))
+                            .foregroundStyle(Color("Pinky"))
                         
                         Spacer()
                         
@@ -136,7 +135,7 @@ struct WorkoutDurationView: View {
                             averageValue7Days: $healthKitViewModel.overallAvgWorkoutTSR,
                             data: $healthKitViewModel.past7DaysWorkoutTSR,
                             showAverage: false,
-                            mainColor: Color("Pink")
+                            mainColor: Color("Pinky")
                         )
                     } else {
                         // Show empty state for chart
@@ -188,7 +187,7 @@ struct WorkoutDurationView: View {
                 SimpleCard(
                     title: "Disclaimer",
                     content: "These recommendations are based on general health guidelines and not intended to diagnose or treat any medical condition. Please consult a healthcare professional for personalized advice.",
-                    titleColor: Color("Pink"),
+                    titleColor: Color("Pinky"),
                     showIcon: true,
                     backgroundColor: Color("OrangeBGx")
                 )
@@ -254,8 +253,3 @@ struct WorkoutDurationView: View {
         }
     }
 }
-
-//#Preview {
-//    WorkoutDurationView()
-//        .environmentObject(HealthKitViewModel())
-//}

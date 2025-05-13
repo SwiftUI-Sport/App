@@ -23,8 +23,6 @@ struct AppApp: App {
             else{
                 OnboardingView()
             }
-//            ContentView()
-//                .preferredColorScheme(.light)
         }
         .environmentObject(di.getHealthViewModel())
     }

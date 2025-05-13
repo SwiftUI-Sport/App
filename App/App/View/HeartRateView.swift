@@ -11,90 +11,64 @@ import Charts
 
 struct SegmentedControl: View {
     @Environment(\.dismiss) private var dismiss
-      @Binding var activeTab: String
-      let tabs = [ "RHR", "HR" , "HRV"]
+    @Binding var activeTab: String
+    let tabs = [ "RHR", "HR" , "HRV"]
     
     @Namespace private var animation
     
-
-      var body: some View {
-          
-           
-
-//              Picker("Options", selection: $activeTab) {
-//                  ForEach(tabs, id: \.self) { option in
-//                      Text(option)
-//                  }
-//              }
-//              .pickerStyle(.segmented)
-//              .padding()
-              
-
-          
-          
-          HStack(spacing: 0) {
-              ForEach(tabs.indices, id: \.self) { index in
-                        let tab = tabs[index]
-                  
-                         Button(action: {
-                             withAnimation(.easeOut(duration: 0.2)) {
-                                 activeTab = tab
-                             }
-                         }) {
-                             Text(tab)
-                                 .font(.system(size: 14, weight: .medium))
-                                 .foregroundColor(activeTab == tab ? .white : .gray)
-                                 .frame(maxWidth: .infinity, minHeight: 25)
-                                 .padding(.vertical, 8)
-                                 .background(
-                                     ZStack {
-                                         if activeTab == tab {
-                                             RoundedRectangle(cornerRadius: 8)
-                                                 .fill(Color("primary_1"))
-                                                 .matchedGeometryEffect(id: "tab", in: animation)
-                                         }
-                                     }
-                                 )
-                         }
-                         .frame(maxWidth: .infinity)
-                         
-//                         // Add separator if not the last item
-//                         if index < tabs.count - 1 {
-//                             Divider()
-//                                 .frame(width: 1, height: 20)
-//                                 .background(Color.white.opacity(0.7)) // You can adjust opacity or color
-                  //                         }
-              }
-          }
-//          .navigationTitle("")                         // judul jadi kosong
-          .toolbarBackground(.visible, for: .navigationBar)
-          .navigationBarTitleDisplayMode(.inline)
-          .navigationBarBackButtonHidden(true)
-          // 2. Tambahkan tombol Leading baru
-          .toolbar {
-              ToolbarItem(placement: .navigationBarLeading) {
-                  Button {
-                      dismiss()
-                  } label: {
-                      HStack(spacing: 4) {
-                          Image(systemName: "chevron.left")
-                              .fontWeight(.semibold)
-                          Text("Back")
-                      }
-                  }
-                  .foregroundColor(Color("primary_1"))
-              }
-          }
-          .background(EnableSwipeBack().frame(width: 0, height: 0))
-          .background(
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(tabs.indices, id: \.self) { index in
+                let tab = tabs[index]
+                
+                Button(action: {
+                    withAnimation(.easeOut(duration: 0.2)) {
+                        activeTab = tab
+                    }
+                }) {
+                    Text(tab)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(activeTab == tab ? .white : .gray)
+                        .frame(maxWidth: .infinity, minHeight: 25)
+                        .padding(.vertical, 8)
+                        .background(
+                            ZStack {
+                                if activeTab == tab {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color("primary_1"))
+                                        .matchedGeometryEffect(id: "tab", in: animation)
+                                }
+                            }
+                        )
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                            .fontWeight(.semibold)
+                        Text("Back")
+                    }
+                }
+                .foregroundColor(Color("primary_1"))
+            }
+        }
+        .background(EnableSwipeBack().frame(width: 0, height: 0))
+        .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color(.systemGray4))
-          )
-          .padding()
-          
-          
-      }
-    
+        )
+        .padding()
+        
+    }
 }
 
 
@@ -109,7 +83,6 @@ struct SimpleCard: View {
     
     var showMainText:Bool = true
     
-    
     var showSecondaryText : Bool = false
     var secondaryTitle : String = ""
     
@@ -119,9 +92,6 @@ struct SimpleCard: View {
     
     
     var body: some View {
-        
-        
-        
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline){
                 
@@ -136,9 +106,6 @@ struct SimpleCard: View {
                     .font(.title3.bold())
                     .padding(.bottom, 8)
                     .foregroundColor(titleColor)
-                
-                
-                
             }
             
             if showMainText {
@@ -201,42 +168,34 @@ struct AboutCard: View {
         
         VStack(alignment: .leading) {
             
-                
+            
             Text(title)
                 .font(.title3.bold())
                 .padding(.bottom, 8)
                 .foregroundColor(.primary)
-                
-       
+            
             Text(content)
                 .foregroundColor(.primary)
             
-            
-            
-            
             Text(secondaryTitle)
-//                .font(.headline)
                 .font(.title3.bold())
                 .padding(.vertical, 8)
                 .foregroundColor(secondaryTitleColor)
             
             VStack(alignment : .leading){
-                    ForEach(0..<keypoints.count, id: \.self) { index in
-                        (
-                            Text(keypoints[index])
-                                .font(.body)
-                                .bold()
-                            + Text(" \(keypointdescription[index])")
-                                .font(.body)
-                        )
-                        .multilineTextAlignment(.leading)
-                        .padding(.bottom, 8)
-                    }
-                    
+                ForEach(0..<keypoints.count, id: \.self) { index in
+                    (
+                        Text(keypoints[index])
+                            .font(.body)
+                            .bold()
+                        + Text(" \(keypointdescription[index])")
+                            .font(.body)
+                    )
+                    .multilineTextAlignment(.leading)
+                    .padding(.bottom, 8)
                 }
                 
-            
-            
+            }
         }
         .padding(.vertical)
         .padding(.horizontal)
@@ -251,21 +210,13 @@ struct AboutCard: View {
     }
 }
 
-
-
-//Ini CHART
-
-
-
-
-
 struct MyChart: View {
     @Binding var averageValue7Days: Double
-    @Binding var data: [DailyRate]  // Generalized data
+    @Binding var data: [DailyRate]
     @State private var selectedXValue: String? = nil
-    @State private var selectedDate: String? = nil // ← This is persistent
+    @State private var selectedDate: String? = nil
     var showAverage: Bool = true
-
+    
     var mainColor: Color = Color("OrangeTwox")
     
     func getShortDay(for dateString: String) -> String {
@@ -275,7 +226,7 @@ struct MyChart: View {
             return dateString
         }
         
-        formatter.dateFormat = "E" // e.g., "Tue"
+        formatter.dateFormat = "E"
         return formatter.string(from: date)
     }
     
@@ -285,22 +236,19 @@ struct MyChart: View {
             
             var highlightIndex: Int? {
                 
-
-                let last3 = data.suffix(3)
                 
-                // Check if all last 3 values are zero
+                let last3 = data.suffix(3)
                 if last3.allSatisfy({ $0.value == 0 }) {
                     return nil
                 }
-
-                // Otherwise, find the index of the rightmost non-zero in the last 3
+                
                 for i in (data.count - 3..<data.count).reversed() {
                     if data[i].value > 0 {
                         return i
                     }
                 }
-
-                return nil  // fallback, shouldn't reach here
+                
+                return nil
             }
             
             ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
@@ -327,24 +275,8 @@ struct MyChart: View {
                     }
             }
             
-            
-           
         }
         .frame(height: 200)
-//        .chartXSelection(value: $selectedXValue)
-//        .onChange(of: selectedXValue) { _, newValue in
-//            if let newDate = newValue {
-//                selectedDate = newDate
-//            }
-//        }
-//
-//
-//        .onAppear {
-//            if selectedDate == nil {
-//                selectedDate = data.last?.date  // Initial highlight on last bar
-//            }
-//        }
-    
         .padding(.vertical)
         .padding(.horizontal)
         .chartXAxis {
@@ -359,9 +291,6 @@ struct MyChart: View {
         }
     }
 }
-
-
-//INI SECTION PERTAMA
 
 struct AverageHeartRateSection: View {
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
@@ -379,17 +308,17 @@ struct AverageHeartRateSection: View {
               let endDate = formatter.date(from: last.date) else {
             return "Date range unavailable"
         }
-
+        
         let dayFormatter = DateFormatter()
         dayFormatter.dateFormat = "dd"
-
+        
         let startDay = dayFormatter.string(from: startDate)
         let endDay = dayFormatter.string(from: endDate)
-
+        
         let monthYearFormatter = DateFormatter()
         monthYearFormatter.dateFormat = "MMMM yyyy"
         let monthYear = monthYearFormatter.string(from: endDate)
-
+        
         return "\(startDay)-\(endDay) \(monthYear)"
     }
     
@@ -474,9 +403,9 @@ struct AverageHeartRateSection: View {
               let avgHR = avgHR, avgHR > 0 else {
             return noDataMessage
         }
-
+        
         let avg = Int(avgHR)
-
+        
         if current >= avg - 10 && current <= avg + 10 {
             return normalMessage
         } else if current > avg + 10 && current <= avg + 20 {
@@ -649,17 +578,17 @@ struct RestingHeartRateSection: View {
               let endDate = formatter.date(from: last.date) else {
             return "Date range unavailable"
         }
-
+        
         let dayFormatter = DateFormatter()
         dayFormatter.dateFormat = "dd"
-
+        
         let startDay = dayFormatter.string(from: startDate)
         let endDay = dayFormatter.string(from: endDate)
-
+        
         let monthYearFormatter = DateFormatter()
         monthYearFormatter.dateFormat = "MMMM yyyy"
         let monthYear = monthYearFormatter.string(from: endDate)
-
+        
         return "\(startDay)-\(endDay) \(monthYear)"
     }
     
@@ -732,9 +661,9 @@ struct RestingHeartRateSection: View {
               let avgHR = avgHR, avgHR > 0 else {
             return noDataMessage
         }
-
+        
         let avg = Int(avgHR)
-
+        
         if current >= avg - 10 && current <= avg + 10 {
             return normalMessage
         } else if current > avg + 10 && current <= avg + 20 {
@@ -904,17 +833,17 @@ struct HeartRateVariabilitySection: View {
               let endDate = formatter.date(from: last.date) else {
             return "Date range unavailable"
         }
-
+        
         let dayFormatter = DateFormatter()
         dayFormatter.dateFormat = "dd"
-
+        
         let startDay = dayFormatter.string(from: startDate)
         let endDay = dayFormatter.string(from: endDate)
-
+        
         let monthYearFormatter = DateFormatter()
         monthYearFormatter.dateFormat = "MMMM yyyy"
         let monthYear = monthYearFormatter.string(from: endDate)
-
+        
         return "\(startDay)-\(endDay) \(monthYear)"
     }
     
@@ -993,14 +922,14 @@ struct HeartRateVariabilitySection: View {
                      "Drink enough water to support circulation and heart health."]
     )
     
-        func heartRateVariabilityStatus(currentHRV: Int?, avgHRV: Double?) -> HeartRateVariabilityMessage {
+    func heartRateVariabilityStatus(currentHRV: Int?, avgHRV: Double?) -> HeartRateVariabilityMessage {
         guard let current = currentHRV, current > 0,
               let avgHRV = avgHRV, avgHRV > 0 else {
             return noDataMessage
         }
-
+        
         let avg = Int(avgHRV)
-
+        
         if current >= avg - 10 && current <= avg + 10 {
             return normalMessage
         } else if current < avg - 10 && current >= avg - 20 {
@@ -1157,17 +1086,11 @@ struct HeartRateVariabilitySection: View {
     }
 }
 
-
-
-
-
-
-
 public struct HeartRateView: View {
     
     @State private var activeTab = "RHR"
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
-
+    
     
     public var body: some View {
         ScrollView{
@@ -1175,7 +1098,7 @@ public struct HeartRateView: View {
             VStack() {
                 
                 SegmentedControl(activeTab: $activeTab)
-                    
+                
                 
                 
                 
@@ -1191,22 +1114,8 @@ public struct HeartRateView: View {
                 
                 Spacer()
             }
-            
-           
-            
-            
-            
         }
         .background(Color("BackgroundColorx"))
-//        .onAppear {
-//
-//            HealthKitViewModel.loadHeartRate(target: HeartRateOfTheDay)
-//            print("Ini sebenernya udah jalan 2")
-//        }
     }
-        
+    
 }
-
-//#Preview {
-//    HeartRateView()
-//}

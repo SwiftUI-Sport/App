@@ -119,22 +119,18 @@ struct HomeView: View {
         }
         .environmentObject(router)
         .onAppear {
-            // Just trigger loading data
             healthKitViewModel.loadAllData()
             healthKitViewModel.loadHeartRateVariability()
             healthKitViewModel.loadHeartRate()
             healthKitViewModel.loadRestingHeartRateDaily()
             healthKitViewModel.loadPast7DaysWorkoutTSR()
             healthKitViewModel.loadSleepData()
-
-            // Set initial header based on current data
             updateSelectedHeader()
         }
         .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in
-            // Update when data changes
             updateSelectedHeader()
             healthKitViewModel.loadPast7DaysWorkoutTSR()
-
+            
         }
     }
     
@@ -192,8 +188,6 @@ struct HomeView: View {
                                 )
                                 .padding(.horizontal)
                                 .padding(.top, 15)
-                                //                            .offset(y: -50)
-                                
                             }
                         }
                         
@@ -201,8 +195,6 @@ struct HomeView: View {
                             Empty_authorized_view()
                         }
                         .frame(height: 500)
-                        
-                        
                         
                     }
                     .background(Color("backgroundApp"))
@@ -217,36 +209,33 @@ struct HomeView: View {
                             VStack(spacing: 0){
                                 
                                 
-                                    HeaderSectionView(
-                                        trainingStressOfTheDay: healthKitViewModel.stressHistory42Days.isEmpty
-                                        ? TrainingStressOfTheDay.defaultValue()
-                                        : healthKitViewModel.stressHistory42Days.last ?? TrainingStressOfTheDay.defaultValue(),
-                                        title:  selectedHeader?.title ?? sampleHeader[1].title,
-                                        message:  selectedHeader?.message ?? sampleHeader[1].message,
-                                        iconName: selectedHeader?.iconName ?? sampleHeader[1].iconName
-//                                        title:  sampleHeader[1].title,
-//                                        message:  sampleHeader[1].message,
-//                                        iconName: sampleHeader[1].iconName
-                                    )
+                                HeaderSectionView(
+                                    trainingStressOfTheDay: healthKitViewModel.stressHistory42Days.isEmpty
+                                    ? TrainingStressOfTheDay.defaultValue()
+                                    : healthKitViewModel.stressHistory42Days.last ?? TrainingStressOfTheDay.defaultValue(),
+                                    title:  selectedHeader?.title ?? sampleHeader[1].title,
+                                    message:  selectedHeader?.message ?? sampleHeader[1].message,
+                                    iconName: selectedHeader?.iconName ?? sampleHeader[1].iconName
+                                    //                                        title:  sampleHeader[1].title,
+                                    //                                        message:  sampleHeader[1].message,
+                                    //                                        iconName: sampleHeader[1].iconName
+                                )
                                 
                                 
                                 .padding(.top, 30)
                             }
                             
                         }
-//                        
                         HeresWhySection(reasons: sampleReasons)
-//
-                            
-                            
-                        }
-                        .background(Color("backgroundApp"))
+                        
                     }
-                    
+                    .background(Color("backgroundApp"))
                 }
+                
             }
         }
     }
+}
 
 
 struct BottomRoundedRectangle: Shape {
@@ -328,23 +317,6 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .second )
                 } label : {
-//                    
-//                    var trainingLoadHeadline: String {
-//                        let data = healthKitViewModel.past7DaysWorkoutTSR
-//                        let last3 = data.suffix(3)
-//                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
-//                        let lastNonZero = data.last(where: { $0.value > 0 })
-//                        let status = trainingLoadStatus(lastTrainingLoad: allLast3Zero ? nil : Int(lastNonZero?.value ?? 0))
-//
-//                        switch status {
-//                        case "Hard":
-//                            return "Your Training Load Is Quite High"
-//                        case "Normal":
-//                            return "You Trained Just Enough Last Session"
-//                        default:
-//                            return "Training Load Data Missing"
-//                        }
-//                    }
                     
                     HomeCardComponent(title: "Training Load",
                                       headline: trainingLoadHeadline,
@@ -353,7 +325,7 @@ struct HeresWhySection: View {
                                       unit: "TRIMP",
                                       icon: "figure.run"
                     )
-
+                    
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
@@ -367,29 +339,6 @@ struct HeresWhySection: View {
                     // navigate here
                     router.navigate(to: .first )
                 } label : {
-//                    var restingHRHeadline: String {
-//                        let data = healthKitViewModel.restingHeartRateDailyv2
-//                        let last3 = data.suffix(3)
-//                        let allLast3Zero = last3.allSatisfy { $0.value == 0 }
-//                        let lastNonZero = data.last(where: { $0.value > 0 })
-//                        
-//                        let currentHR = allLast3Zero ? nil : Int(lastNonZero?.value ?? 0)
-//                        let avgHR = healthKitViewModel.overallRestingHR
-//
-//                        let status = restingHeartRateStatus(currentHR: currentHR, avgHR: avgHR)
-//
-//                        switch status {
-//                        case "Normal":
-//                            return "Your Resting Heart Rate Is Within a Healthy Range"
-//                        case "Slightly High":
-//                            return "Your Resting Heart Rate Is Slightly Elevated"
-//                        case "High":
-//                            return "Your Elevated Resting Heart Rate May Signal Fatigue"
-//                        default:
-//                            return "Your Resting Heart Rate Is Within a Healthy Range"
-//                        }
-//                    }
-                    
                     
                     HomeCardComponent(title: "Resting Heart Rate",
                                       headline: restingHRHeadline(),
@@ -406,13 +355,13 @@ struct HeresWhySection: View {
                 } label : {
                     
                     SleepCardComponent(title: "Sleep Duration",
-                                      headline: sleepHeadlineStatus(),
-                                      mainColor: Color("primary_3")
+                                       headline: sleepHeadlineStatus(),
+                                       mainColor: Color("primary_3")
                     )
                 }
                 .buttonStyle(.plain)
                 .padding(.horizontal)
-
+                
                 
                 Spacer()
             }
@@ -443,13 +392,13 @@ struct HeresWhySection: View {
             return "Your Resting Heart Rate Status Is Unknown"
         }
     }
-
+    
     private func restingHeartRateStatus(currentHR: Int?, avgHR: Double?) -> String {
         guard let current = currentHR, current > 0,
               let avgHR = avgHR, avgHR > 0 else {
             return "No Data"
         }
-
+        
         let avg = Int(avgHR)
         
         if current >= avg - 10 && current <= avg + 10 {
@@ -496,7 +445,7 @@ struct HeresWhySection: View {
         // Calculate the average sleep duration from all available data
         let totalSleepHours = healthKitViewModel.sleepDuration.reduce(0) { $0 + $1.asleepDuration / 3600 }
         let avgSleepHours = healthKitViewModel.sleepDuration.isEmpty ? 0 :
-                             totalSleepHours / Double(healthKitViewModel.sleepDuration.count)
+        totalSleepHours / Double(healthKitViewModel.sleepDuration.count)
         
         // Get the latest sleep duration in hours
         guard let latestSleep = latestSleep else {
@@ -519,12 +468,10 @@ struct HeresWhySection: View {
             return "Sleep Data Not Available"
         }
     }
-
+    
     func sleepStatus(currentSleepHours: Double, avgSleepHours: Double) -> String {
         // Guidelines suggest 7-9 hours for adults
         let recommendedMin = 7.0
-        let recommendedMax = 9.0
-        
         if currentSleepHours >= recommendedMin {
             return "Good"
         } else if currentSleepHours >= recommendedMin - 1.5 {
@@ -536,16 +483,16 @@ struct HeresWhySection: View {
         // Alternative approach using personal average as baseline
         // If you want to compare to the person's own average instead:
         /*
-        let percentDiff = (currentSleepHours - avgSleepHours) / avgSleepHours * 100
-        
-        if percentDiff >= -5 {
-            return "Good"
-        } else if percentDiff >= -15 {
-            return "Moderate"
-        } else {
-            return "Poor"
-        }
-        */
+         let percentDiff = (currentSleepHours - avgSleepHours) / avgSleepHours * 100
+         
+         if percentDiff >= -5 {
+         return "Good"
+         } else if percentDiff >= -15 {
+         return "Moderate"
+         } else {
+         return "Poor"
+         }
+         */
     }
 }
 

@@ -15,8 +15,6 @@ struct OnboardingPage: Identifiable {
     let description: String
 }
 
-// MARK: - ViewModel
-// Modifikasi pada OnboardingViewModel di onBoardingView.swift
 final class OnboardingViewModel: ObservableObject {
     @Published var currentPage: Int = 0
     @AppStorage("isOnboardingCompleted") var isOnboardingCompleted: Bool = false
@@ -77,14 +75,13 @@ struct OnboardingView: View {
                     if viewModel.isLastPage {
                         if healthKitViewModel.isAuthorized {
                             viewModel.isAuthorizationInProgress = false
-                            healthKitViewModel.loadAge()    
                             viewModel.completeOnboarding()
                             healthKitViewModel.loadAllData()
                             healthKitViewModel.loadHeartRateVariability()
                             healthKitViewModel.loadHeartRate()
                             healthKitViewModel.loadRestingHeartRateDaily()
                             healthKitViewModel.loadPast7DaysWorkoutTSR()
-
+                            
                         } else {
                             viewModel.isAuthorizationInProgress = true
                             healthKitViewModel.start()
@@ -101,20 +98,20 @@ struct OnboardingView: View {
         .padding(.bottom, 100)
         .background(Color(.systemBackground))
         .onChange(of: healthKitViewModel.isAuthorized) { _, isAuthorized in
-                DispatchQueue.main.async {
-                    viewModel.isAuthorizationInProgress = false
-                    healthKitViewModel.loadAllData()
-                    healthKitViewModel.loadHeartRateVariability()
-                    healthKitViewModel.loadHeartRate()
-                    healthKitViewModel.loadRestingHeartRateDaily()
-                    healthKitViewModel.loadPast7DaysWorkoutTSR()
-                    healthKitViewModel.loadSleepData()
-                }
+            DispatchQueue.main.async {
+                viewModel.isAuthorizationInProgress = false
+                healthKitViewModel.loadAllData()
+                healthKitViewModel.loadHeartRateVariability()
+                healthKitViewModel.loadHeartRate()
+                healthKitViewModel.loadRestingHeartRateDaily()
+                healthKitViewModel.loadPast7DaysWorkoutTSR()
+                healthKitViewModel.loadSleepData()
+            }
         }
         .onChange(of: healthKitViewModel.stressHistory42Days) { _, _ in
             // Update when data changes
             viewModel.completeOnboarding()
-
+            
         }
         .onChange(of: healthKitViewModel.errorMessage) { _, errorMessage in
             if errorMessage != nil {
@@ -203,10 +200,3 @@ struct NavigationButtons: View {
         }
     }
 }
-
-// MARK: - Preview
-//struct OnboardingView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        OnboardingView()
-//    }
-//}

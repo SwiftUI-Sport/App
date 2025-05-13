@@ -4,13 +4,13 @@
 //
 //  Created by Ali An Nuur on 24/04/25.
 //
+
 import SwiftUI
 
 enum ActivityFlow: NavigationDestination, Hashable {
- 
+    
     case firstProfile
     case secondProfile(WorkoutActivity)
-    
     
     var title: String {
         switch self {

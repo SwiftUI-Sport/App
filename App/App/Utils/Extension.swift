@@ -32,11 +32,11 @@ extension Date {
     }
     
     static var last24HoursRange: (start: Date, end: Date) {
-            let end = Date()
-            let start = Calendar.current.date(byAdding: .hour, value: -24, to: end)!
-            return (start, end)
-        }
-//    dada
+        let end = Date()
+        let start = Calendar.current.date(byAdding: .hour, value: -24, to: end)!
+        return (start, end)
+    }
+    
     static var last7DaysRange: (start: Date, end: Date) {
         lastDaysRange(7)
     }
@@ -64,43 +64,37 @@ extension Date {
     }
     
     static func sleepDateRange(sleepStartHour: Int = 20, wakeHour: Int = 8) -> (start: Date, end: Date) {
-            let calendar = Calendar.current
-            let now = Date()
-            
-            // Create date components for today's wake time
-            let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
-            var wakeComponents = todayComponents
-            wakeComponents.hour = wakeHour
-            wakeComponents.minute = 0
-            wakeComponents.second = 0
-            let wakeTime = calendar.date(from: wakeComponents)!
-            
-            // Create date components for yesterday's sleep time
-            var sleepComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -1, to: now)!)
-            sleepComponents.hour = sleepStartHour
-            sleepComponents.minute = 0
-            sleepComponents.second = 0
-            let sleepTime = calendar.date(from: sleepComponents)!
-            
-            return (sleepTime, wakeTime)
-        }
+        let calendar = Calendar.current
+        let now = Date()
         
-        // For querying sleep data across multiple days
-        static func sleepDateRangeForLastDays(_ days: Int) -> (start: Date, end: Date) {
-            let end = Date()
-            let calendar = Calendar.current
-            
-            // Calculate start by going back specified number of days + evening hours
-            var dateComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -(days), to: end)!)
-            dateComponents.hour = 20 // Typical sleep start time (8 PM)
-            dateComponents.minute = 0
-            dateComponents.second = 0
-            let start = calendar.date(from: dateComponents)!
-            
-            return (start, end)
-        }
+        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+        var wakeComponents = todayComponents
+        wakeComponents.hour = wakeHour
+        wakeComponents.minute = 0
+        wakeComponents.second = 0
+        let wakeTime = calendar.date(from: wakeComponents)!
+        
+        var sleepComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -1, to: now)!)
+        sleepComponents.hour = sleepStartHour
+        sleepComponents.minute = 0
+        sleepComponents.second = 0
+        let sleepTime = calendar.date(from: sleepComponents)!
+        
+        return (sleepTime, wakeTime)
+    }
     
-    
+    static func sleepDateRangeForLastDays(_ days: Int) -> (start: Date, end: Date) {
+        let end = Date()
+        let calendar = Calendar.current
+        
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -(days), to: end)!)
+        dateComponents.hour = 20
+        dateComponents.minute = 0
+        dateComponents.second = 0
+        let start = calendar.date(from: dateComponents)!
+        
+        return (start, end)
+    }
 }
 
 extension Color {

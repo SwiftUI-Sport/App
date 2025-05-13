@@ -63,16 +63,15 @@ struct HeartRateSample: Hashable,Codable {
 
 struct Sleep: Hashable, Codable, Identifiable {
     var id = UUID()
-    let day: Date               // startOfDay
-    let startTime: Date         // earliest sample.startDate
-    let endTime: Date           // latest  sample.endDate
+    let day: Date
+    let startTime: Date
+    let endTime: Date
     let inBedDuration: TimeInterval
     let asleepDuration: TimeInterval
     let deepSleepDuration: TimeInterval
     let remSleepDuration: TimeInterval
     let coreSleepDuration: TimeInterval
-
-    // (optional) helper untuk total:
+    
     var totalDuration: TimeInterval {
         inBedDuration + asleepDuration + deepSleepDuration + remSleepDuration + coreSleepDuration
     }
@@ -277,7 +276,6 @@ struct WorkoutDetails {
         self.endDate = workout.endDate
         self.duration = workout.duration
         
-        // Extract distance if available
         let distanceType = HKQuantityType(.distanceWalkingRunning)
         if let statsD = workout.statistics(for: distanceType),
            let sumD = statsD.sumQuantity() {
@@ -286,7 +284,6 @@ struct WorkoutDetails {
             self.distance = nil
         }
         
-        // Extract calories
         let energyType = HKQuantityType(.activeEnergyBurned)
         if let stats = workout.statistics(for: energyType),
            let sumQty = stats.sumQuantity() {

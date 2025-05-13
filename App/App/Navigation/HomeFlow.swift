@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum HomeFlow: NavigationDestination {
-
+    
     case first
     case second
     case third
@@ -23,7 +23,7 @@ enum HomeFlow: NavigationDestination {
             return "Sleep Duration"
         }
     }
-        
+    
     var destinationView: some View {
         switch self {
         case .first: HeartRateView()

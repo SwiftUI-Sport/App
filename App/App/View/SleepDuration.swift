@@ -303,20 +303,21 @@ struct SleepDuration: View {
     }
     
     // Helper to format sleep duration in hours and minutes
- 
+    
 }
 
 func formatDurationSleep(_ seconds: TimeInterval) -> String {
     let hours = Int(seconds) / 3600
     let minutes = (Int(seconds) % 3600) / 60
     
-//    if hours == 0 {
-//        return "\(minutes)m"
-//    } else if minutes == 0 {
-//        return "\(hours)h"
-//    } else {
-//        return "\(hours)h \(minutes)m"
-//    }
+    // Alternative
+    //    if hours == 0 {
+    //        return "\(minutes)m"
+    //    } else if minutes == 0 {
+    //        return "\(hours)h"
+    //    } else {
+    //        return "\(hours)h \(minutes)m"
+    //    }
     
     return "\(hours)h \(minutes)m"
 }
@@ -409,11 +410,3 @@ struct SimpleCardest: View {
         
     }
 }
-
-
-
-
-
-//#Preview {
-//    SleepDuration()
-//}
