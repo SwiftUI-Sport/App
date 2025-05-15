@@ -175,11 +175,13 @@ struct SleepDuration: View {
                     )
                     
                     if let sleep = latestSleep, hasDetailedSleepData(sleep) {
+                        let percentage = sleep.asleepDuration > 0 ? Int((sleep.deepSleepDuration/sleep.asleepDuration)*100) : 0
                         keyPointRow(
-                            title: "Deep sleep (\(Int((sleep.deepSleepDuration/sleep.asleepDuration)*100))% of your sleep)",
+                            title: "Deep sleep (\(percentage)% of your sleep)",
                             description: "is crucial for physical recovery, immune function, and memory consolidation."
                         )
                     }
+                    
                 }
             }
             .padding(.vertical)

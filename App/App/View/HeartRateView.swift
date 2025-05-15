@@ -128,6 +128,7 @@ struct SimpleCard: View {
                         Text(tipTitles[index])
                             .font(.headline)
                             .bold()
+                            .padding(.bottom, 4)
                         
                         Text(tipmessages[index])
                             .padding(.bottom, 8)
@@ -184,15 +185,17 @@ struct AboutCard: View {
             
             VStack(alignment : .leading){
                 ForEach(0..<keypoints.count, id: \.self) { index in
-                    (
+//                    (
                         Text(keypoints[index])
                             .font(.body)
                             .bold()
-                        + Text(" \(keypointdescription[index])")
+                            .padding(.bottom, 4)
+                        Text(keypointdescription[index])
                             .font(.body)
-                    )
-                    .multilineTextAlignment(.leading)
-                    .padding(.bottom, 8)
+                            .padding(.bottom, 8)
+//                    )
+//                    .multilineTextAlignment(.leading)
+//                    .padding(.bottom, 8)
                 }
                 
             }

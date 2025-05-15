@@ -117,7 +117,7 @@ struct WorkoutDurationView: View {
                                 .bold()
                         }
                         
-                        Text("trimp")
+                        Text("TRIMP")
                             .font(.title2.bold())
                             .foregroundStyle(Color("Pinky"))
                         
@@ -178,9 +178,9 @@ struct WorkoutDurationView: View {
                     secondaryTitleColor: Color("primary_2"),
                     keypoints: ["Normal TSS (50–100)", "High TSS (>100)", "Recovery Time"],
                     keypointdescription: [
-                        "\nThis range indicates moderate intensity workouts with manageable stress on your body.",
-                        "\nWorkouts in this range are intense and may require additional recovery days to prevent overtraining.",
-                        "\nAfter high-intensity sessions, it's crucial to monitor how your body feels and ensure proper rest, sleep, and hydration to optimize recovery and avoid burnout"
+                        "This range indicates moderate intensity workouts with manageable stress on your body.",
+                        "Workouts in this range are intense and may require additional recovery days to prevent overtraining.",
+                        "After high-intensity sessions, it's crucial to monitor how your body feels and ensure proper rest, sleep, and hydration to optimize recovery and avoid burnout"
                     ]
                 )
                 
