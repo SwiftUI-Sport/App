@@ -525,7 +525,7 @@ struct FatigueLevelSheet: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, 4)
+            .padding(.horizontal, 12)
             .padding(.top, 8)
         }
         .padding(.horizontal)
