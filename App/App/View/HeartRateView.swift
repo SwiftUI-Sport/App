@@ -240,17 +240,11 @@ struct MyChart: View {
             var highlightIndex: Int? {
                 
                 
-                let last3 = data.suffix(3)
-                if last3.allSatisfy({ $0.value == 0 }) {
-                    return nil
-                }
-                
-                for i in (data.count - 3..<data.count).reversed() {
+                for i in (0..<data.count).reversed() {
                     if data[i].value > 0 {
                         return i
                     }
                 }
-                
                 return nil
             }
             
