@@ -238,21 +238,34 @@ struct MyChart: View {
     }
     
     
+    
+    
     var body: some View {
          let chart = Chart {
+             
+             
+             var paddedData: [DailyRate] {
+                 if showAverage {
+                     return [DailyRate(date: " ", value: 0)] + data // Dummy Data
+                 } else {
+                     return data
+                 }
+             }
             
             var highlightIndex: Int? {
                 
                 
                 for i in (0..<data.count).reversed() {
                     if data[i].value > 0 {
-                        return i
+                        return i + 1
                     }
                 }
                 return nil
             }
+             
             
-            ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
+            
+            ForEach(Array(paddedData.enumerated()), id: \.element.date) { index, item in
                 BarMark(
                     x: .value("Day", item.date),
                     y: .value("Value", item.value)
@@ -260,36 +273,49 @@ struct MyChart: View {
                 .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
                 .cornerRadius(5)
                 
+                
             }
+            
             
             if showAverage {
                 RuleMark(y: .value("Average", Int(averageValue7Days)))
                     .foregroundStyle(mainColor)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                    .annotation(position: .top, alignment: .leading) {
+                    .annotation(position: .overlay, alignment: .leading) {
                         Text("Avg: \(Int(averageValue7Days))")
                             .font(.caption)
-                            .foregroundColor(mainColor)
-                            .padding(.horizontal, 4)
-                            .background(Color.white.opacity(0.8))
+                            .bold(true)
+                            .foregroundColor(.white)
+                            .padding(.all, 4)
+                            .background(Color("Orangey"))
                             .cornerRadius(4)
+                            .offset(x: -8)
                     }
             }
             
         }
         .frame(height: 200)
         .padding(.vertical)
-        .padding(.horizontal)
+//        .padding(.horizontal)
+        
         .chartXAxis {
             AxisMarks(values: .automatic) { value in
-                if let dateStr = value.as(String.self) {
+                if let dateStr = value.as(String.self), dateStr.trimmingCharacters(in: .whitespaces).isEmpty == false {
                     AxisValueLabel(getShortDay(for: dateStr))
+                } else {
+                    // No label for dummy bar
+                    AxisValueLabel("")
                 }
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading)
+            AxisMarks(position: .leading){value in
+                AxisGridLine().foregroundStyle(Color.gray.opacity(0.2))
+                AxisTick()
+                AxisValueLabel()
+            }
         }
+        
         
         if isTrainingLoad {
           chart.chartYScale(domain: 0...150)
