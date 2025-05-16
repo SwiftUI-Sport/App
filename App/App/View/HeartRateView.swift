@@ -217,12 +217,15 @@ struct MyChart: View {
     @Binding var averageValue7Days: Double
     @Binding var data: [DailyRate]
     @State private var selectedXValue: String? = nil
-    @State private var selectedDate: String? = nil
+    @Binding var selectedDate: String?
+    @State private var tappedIndex: Int? = nil
+    @State private var animateBars = false
     var showAverage: Bool = true
     
     
     var mainColor: Color = Color("OrangeTwox")
     var isTrainingLoad: Bool = false
+    
     
     func getShortDay(for dateString: String) -> String {
         let formatter = DateFormatter()
@@ -259,15 +262,45 @@ struct MyChart: View {
                  return nil
              }
              
+             var activeHighlightIndex: Int? {
+                 if let selectedDate, let index = paddedData.firstIndex(where: { $0.date == selectedDate }) {
+                     return index // Highlight the tapped bar
+                 } else {
+                     return highlightIndex // Fallback to last non-zero bar
+                 }
+             }
             
             
             ForEach(Array(paddedData.enumerated()), id: \.element.date) { index, item in
                 BarMark(
                     x: .value("Day", item.date),
-                    y: .value("Value", item.value)
+                    y: .value("Value", animateBars ? item.value : 0)
                 )
-                .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
+                .foregroundStyle(index == activeHighlightIndex ? mainColor : Color("Barx"))
                 .cornerRadius(5)
+                
+//                .annotation(position: .overlay) {
+//                    if index == activeHighlightIndex {
+//                        VStack(spacing: 2) {
+//                            Text(item.date)
+//                                .font(.caption2)
+//                                .foregroundColor(.white)
+//                            Text("\(Int(item.value)) bpm")
+//                                .font(.caption2.bold())
+//                                .foregroundColor(.white)
+//                        }
+//                        .padding(.vertical, 4)
+//                        .padding(.horizontal, 6)
+//                        .background(Color.gray.opacity(0.8))
+//                        .cornerRadius(4)
+//                        .fixedSize()
+//                        .frame(maxWidth: 100)
+//                        .offset(x: index == 0 ? 20 : index == paddedData.count - 1 ? -20 : 0)
+//                        .offset(y:-20)
+//                    }
+//                }
+                
+                
                 
                 
             }
@@ -293,6 +326,11 @@ struct MyChart: View {
         .frame(height: 200)
         .padding(.vertical)
 //        .padding(.horizontal)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.3)) {
+                animateBars = true
+            }
+        }
         
         .chartXAxis {
             AxisMarks(values: .automatic) { value in
@@ -305,12 +343,14 @@ struct MyChart: View {
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading){value in
+            AxisMarks(position: .trailing){value in
                 AxisGridLine().foregroundStyle(Color.gray.opacity(0.2))
                 AxisTick()
                 AxisValueLabel()
             }
         }
+        .chartXSelection(value: $selectedDate)
+        
         
         
         if isTrainingLoad {
@@ -319,15 +359,37 @@ struct MyChart: View {
           chart
       }
  
+        
 
     }
+    
+    
     
         
 }
 
+
 struct AverageHeartRateSection: View {
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     @State var current: Int? = nil
+    @State private var selectedDate: String? = nil
+
+       var data: [DailyRate] {
+           HealthKitViewModel.HeartRateDailyv2
+       }
+
+       var lastNonZeroValue: Int {
+           data.reversed().first(where: { $0.value > 0 })?.value ?? 0
+       }
+
+       var selectedValue: Int {
+           if let date = selectedDate,
+              let match = data.first(where: { $0.date == date }) {
+               return match.value
+           } else {
+               return lastNonZeroValue
+           }
+       }
     
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         guard !dailyRates.isEmpty else { return "No data available" }
@@ -481,19 +543,14 @@ struct AverageHeartRateSection: View {
                             .font(.system(size: 18, weight: .medium))
                     }
                     
-                    let data = HealthKitViewModel.HeartRateDailyv2
                     let hasData = !data.allSatisfy { $0.value == 0 }
-                    
+
                     if !hasData {
                         Text("--")
                             .font(.title)
                             .bold()
-                    } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
-                        Text(String(format: "%.0f", Double(lastNonZero.value)))
-                            .font(.title)
-                            .bold()
                     } else {
-                        Text("0")
+                        Text("\(selectedValue)")
                             .font(.title)
                             .bold()
                     }
@@ -504,9 +561,16 @@ struct AverageHeartRateSection: View {
                     
                     Spacer()
                     
-                    Text(dateRangeText(from: HealthKitViewModel.HeartRateDailyv2))
-                        .font(.caption)
-                        .foregroundStyle(Color.gray)
+                    if let selected = selectedDate {
+                        Text(formattedDate(selected))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    } else {
+                        Text(dateRangeText(from: HealthKitViewModel.HeartRateDailyv2))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    }
+                    
                 }
                 .padding(.top, 12)
                 
@@ -514,7 +578,8 @@ struct AverageHeartRateSection: View {
                 if !HealthKitViewModel.HeartRateDailyv2.allSatisfy({ $0.value == 0 }) {
                     MyChart(
                         averageValue7Days: $HealthKitViewModel.overallAverageHR,
-                        data: $HealthKitViewModel.HeartRateDailyv2
+                        data: $HealthKitViewModel.HeartRateDailyv2,
+                        selectedDate: $selectedDate // ✅ <-- Pass binding here!
                     )
                 } else {
                     // Show empty state for chart
@@ -606,6 +671,24 @@ struct AverageHeartRateSection: View {
 struct RestingHeartRateSection: View {
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     @State var current: Int? = nil
+    @State private var selectedDate: String? = nil
+
+       var data: [DailyRate] {
+           HealthKitViewModel.restingHeartRateDailyv2
+       }
+
+       var lastNonZeroValue: Int {
+           data.reversed().first(where: { $0.value > 0 })?.value ?? 0
+       }
+
+       var selectedValue: Int {
+           if let date = selectedDate,
+              let match = data.first(where: { $0.date == date }) {
+               return match.value
+           } else {
+               return lastNonZeroValue
+           }
+       }
     
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         guard !dailyRates.isEmpty else { return "No data available" }
@@ -747,19 +830,14 @@ struct RestingHeartRateSection: View {
                             .font(.system(size: 18, weight: .medium))
                     }
                     
-                    let data = HealthKitViewModel.restingHeartRateDailyv2
                     let hasData = !data.allSatisfy { $0.value == 0 }
-                    
+
                     if !hasData {
                         Text("--")
                             .font(.title)
                             .bold()
-                    } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
-                        Text(String(format: "%.0f", Double(lastNonZero.value)))
-                            .font(.title)
-                            .bold()
                     } else {
-                        Text("0")
+                        Text("\(selectedValue)")
                             .font(.title)
                             .bold()
                     }
@@ -770,9 +848,15 @@ struct RestingHeartRateSection: View {
                     
                     Spacer()
                     
-                    Text(dateRangeText(from: HealthKitViewModel.restingHeartRateDailyv2))
-                        .font(.caption)
-                        .foregroundStyle(Color.gray)
+                    if let selected = selectedDate {
+                        Text(formattedDate(selected))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    } else {
+                        Text(dateRangeText(from: HealthKitViewModel.restingHeartRateDailyv2))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    }
                 }
                 .padding(.top, 8)
                 
@@ -780,7 +864,8 @@ struct RestingHeartRateSection: View {
                 if !HealthKitViewModel.restingHeartRateDailyv2.allSatisfy({ $0.value == 0 }) {
                     MyChart(
                         averageValue7Days: $HealthKitViewModel.overallRestingHR,
-                        data: $HealthKitViewModel.restingHeartRateDailyv2
+                        data: $HealthKitViewModel.restingHeartRateDailyv2,
+                        selectedDate: $selectedDate // ✅ <-- Pass binding here!
                     )
                 } else {
                     // Show empty state for chart
@@ -869,6 +954,24 @@ struct RestingHeartRateSection: View {
 struct HeartRateVariabilitySection: View {
     @EnvironmentObject var HealthKitViewModel: HealthKitViewModel
     @State var current: Int? = nil
+    @State private var selectedDate: String? = nil
+
+       var data: [DailyRate] {
+           HealthKitViewModel.HeartRateVariabilityDaily
+       }
+
+       var lastNonZeroValue: Int {
+           data.reversed().first(where: { $0.value > 0 })?.value ?? 0
+       }
+
+       var selectedValue: Int {
+           if let date = selectedDate,
+              let match = data.first(where: { $0.date == date }) {
+               return match.value
+           } else {
+               return lastNonZeroValue
+           }
+       }
     
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         guard !dailyRates.isEmpty else { return "No data available" }
@@ -1021,19 +1124,14 @@ struct HeartRateVariabilitySection: View {
                             .font(.system(size: 18, weight: .medium))
                     }
                     
-                    let data = HealthKitViewModel.HeartRateVariabilityDaily
                     let hasData = !data.allSatisfy { $0.value == 0 }
-                    
+
                     if !hasData {
                         Text("--")
                             .font(.title)
                             .bold()
-                    } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
-                        Text(String(format: "%.0f", Double(lastNonZero.value)))
-                            .font(.title)
-                            .bold()
                     } else {
-                        Text("0")
+                        Text("\(selectedValue)")
                             .font(.title)
                             .bold()
                     }
@@ -1044,9 +1142,16 @@ struct HeartRateVariabilitySection: View {
                     
                     Spacer()
                     
-                    Text(dateRangeText(from: HealthKitViewModel.HeartRateVariabilityDaily))
-                        .font(.caption)
-                        .foregroundStyle(Color.gray)
+                    if let selected = selectedDate {
+                        Text(formattedDate(selected))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    } else {
+                        Text(dateRangeText(from: HealthKitViewModel.HeartRateVariabilityDaily))
+                            .font(.caption)
+                            .foregroundStyle(Color.gray)
+                    }
+                    
                 }
                 .padding(.top, 8)
                 
@@ -1054,7 +1159,8 @@ struct HeartRateVariabilitySection: View {
                 if !HealthKitViewModel.HeartRateVariabilityDaily.allSatisfy({ $0.value == 0 }) {
                     MyChart(
                         averageValue7Days: $HealthKitViewModel.overallAvgHRV,
-                        data: $HealthKitViewModel.HeartRateVariabilityDaily
+                        data: $HealthKitViewModel.HeartRateVariabilityDaily,
+                        selectedDate: $selectedDate // ✅ <-- Pass binding here!
                     )
                 } else {
                     // Show empty state for chart

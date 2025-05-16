@@ -64,3 +64,12 @@ func styledText(from string: String) -> Text {
     
     return result
 }
+
+
+func formattedDate(_ input: String) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    guard let date = formatter.date(from: input) else { return input }
+    formatter.dateStyle = .medium // Will give "14 May 2025"
+    return formatter.string(from: date)
+}

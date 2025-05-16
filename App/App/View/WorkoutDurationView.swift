@@ -10,6 +10,24 @@ import SwiftUI
 struct WorkoutDurationView: View {
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedDate: String? = nil
+
+       var data: [DailyRate] {
+           healthKitViewModel.past7DaysWorkoutTSR
+       }
+
+       var lastNonZeroValue: Int {
+           data.reversed().first(where: { $0.value > 0 })?.value ?? 0
+       }
+
+       var selectedValue: Int {
+           if let date = selectedDate,
+              let match = data.first(where: { $0.date == date }) {
+               return match.value
+           } else {
+               return lastNonZeroValue
+           }
+       }
     
     func dateRangeText(from dailyRates: [DailyRate]) -> String {
         guard !dailyRates.isEmpty else { return "No data available" }
@@ -36,6 +54,8 @@ struct WorkoutDurationView: View {
         
         return "\(startDay)-\(endDay) \(monthYear)"
     }
+    
+    
     
     struct WorkoutStressMessage {
         let title: String
@@ -76,6 +96,10 @@ struct WorkoutDurationView: View {
         tipsDetail: ["Make sure to log all your exercise sessions to get accurate insights.", "Ensure your fitness tracker is properly connected to your Health app.", "Even short workouts count! Begin with manageable sessions if you're just starting.", "Aim for regular activity rather than occasional intense sessions for better health outcomes."]
     )
     
+    
+    
+
+    
     var body: some View {
         ScrollView {
             VStack {
@@ -109,13 +133,18 @@ struct WorkoutDurationView: View {
                         
                         let data = healthKitViewModel.past7DaysWorkoutTSR
                         let hasData = !data.allSatisfy { $0.value == 0 }
-                        
+
                         if !hasData {
                             Text("--")
                                 .font(.title)
                                 .bold()
+                        } else if let selectedDate,
+                                  let selected = data.first(where: { $0.date == selectedDate }) {
+                            Text("\(selected.value)")
+                                .font(.title)
+                                .bold()
                         } else if let lastNonZero = data.last(where: { $0.value > 0 }) {
-                            Text(String(format: "%.0f", Double(lastNonZero.value)))
+                            Text("\(lastNonZero.value)")
                                 .font(.title)
                                 .bold()
                         } else {
@@ -130,9 +159,17 @@ struct WorkoutDurationView: View {
                         
                         Spacer()
                         
-                        Text(dateRangeText(from: healthKitViewModel.past7DaysWorkoutTSR))
-                            .font(.caption)
-                            .foregroundStyle(Color.gray)
+                        if let selected = selectedDate {
+                            Text(formattedDate(selected))
+                                .font(.caption)
+                                .foregroundStyle(Color.gray)
+                        } else {
+                            Text(dateRangeText(from: healthKitViewModel.past7DaysWorkoutTSR))
+                                .font(.caption)
+                                .foregroundStyle(Color.gray)
+                        }
+                        
+                        
                     }
                     .padding(.top, 8)
                     
@@ -141,6 +178,7 @@ struct WorkoutDurationView: View {
                         MyChart(
                             averageValue7Days: $healthKitViewModel.overallAvgWorkoutTSR,
                             data: $healthKitViewModel.past7DaysWorkoutTSR,
+                            selectedDate: $selectedDate, // ✅ <-- Pass binding here!
                             showAverage: false,
                             mainColor: Color("Pinky"),
                             isTrainingLoad: true
