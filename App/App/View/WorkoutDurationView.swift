@@ -54,7 +54,7 @@ struct WorkoutDurationView: View {
     
     // Message for normal workout stress levels
     let normalMessage: WorkoutStressMessage = WorkoutStressMessage(
-        title: "Your Recent Workouts Level Is Within Normal Range",
+        title: "is Within Normal Range",
         detail: "Your training load is balanced. Continue to listen to your body and adjust intensity as needed.",
         tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
         tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
@@ -62,7 +62,7 @@ struct WorkoutDurationView: View {
     
     // Message for high workout stress levels
     let highMessage: WorkoutStressMessage = WorkoutStressMessage(
-        title: "Your Recent Workouts Level Is Higher Than Usual",
+        title: "is High",
         detail: "You've been pushing harder than normal. This can be great for progress, but make sure your body has enough time to recover to avoid injury.",
         tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
         tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
@@ -80,8 +80,15 @@ struct WorkoutDurationView: View {
         ScrollView {
             VStack {
                 VStack(alignment: .leading) {
-                    Text(selectedMessage.title)
-                        .font(.title3.bold())
+                    (
+                        Text("Your Recent Training Load ")
+                            .font(.title3.bold())
+                            
+                        +
+                        Text(selectedMessage.title)
+                            .font(.title3.bold())
+                            .foregroundColor(Color("primary_2"))
+                    )
                     
                     Rectangle()
                         .frame(width: 150, height: 2, alignment: .leading)
@@ -135,7 +142,8 @@ struct WorkoutDurationView: View {
                             averageValue7Days: $healthKitViewModel.overallAvgWorkoutTSR,
                             data: $healthKitViewModel.past7DaysWorkoutTSR,
                             showAverage: false,
-                            mainColor: Color("Pinky")
+                            mainColor: Color("Pinky"),
+                            isTrainingLoad: true
                         )
                     } else {
                         // Show empty state for chart
@@ -163,7 +171,7 @@ struct WorkoutDurationView: View {
                 .padding(.bottom, 16)
                 
                 SimpleCard(
-                    title: "Here's What You Can Do to Help You Recover Well",
+                    title: "How to Recover After a Running Exercise",
                     content: "",
                     showMainText: false,
                     isShowTip: true,
@@ -172,11 +180,11 @@ struct WorkoutDurationView: View {
                 )
                 
                 AboutCard(
-                    title: "About Trimp Score",
-                    content: "Training Stress Score (TSS) is a measurement used to quantify the intensity and duration of your workout. It helps gauge how much stress your body is under during and after exercise, helping you balance effort and recovery.",
+                    title: "About Training Load",
+                    content: "Your training load is calculated using a formula called TRIMP (TRaining IMPulse), a method that measures both the intensity and duration of your workout. It helps estimate how much stress your body experiences during and after exercise allowing you to balance training and recovery more effectively..",
                     secondaryTitle: "Keypoint about Trimp Score",
                     secondaryTitleColor: Color("primary_2"),
-                    keypoints: ["Normal TSS (50–100)", "High TSS (>100)", "Recovery Time"],
+                    keypoints: ["Normal TRIMP (0–100)", "High TRIMP (>100)", "Recovery Time"],
                     keypointdescription: [
                         "This range indicates moderate intensity workouts with manageable stress on your body.",
                         "Workouts in this range are intense and may require additional recovery days to prevent overtraining.",

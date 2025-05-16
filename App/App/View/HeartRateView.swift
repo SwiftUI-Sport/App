@@ -128,7 +128,7 @@ struct SimpleCard: View {
                         Text(tipTitles[index])
                             .font(.headline)
                             .bold()
-                            .padding(.bottom, 4)
+//                            .padding(.bottom, 2) // padding dalam loop
                         
                         Text(tipmessages[index])
                             .padding(.bottom, 8)
@@ -180,22 +180,20 @@ struct AboutCard: View {
             
             Text(secondaryTitle)
                 .font(.title3.bold())
-                .padding(.vertical, 8)
+                .padding(.vertical, 4)
                 .foregroundColor(secondaryTitleColor)
             
             VStack(alignment : .leading){
                 ForEach(0..<keypoints.count, id: \.self) { index in
-//                    (
+
                         Text(keypoints[index])
                             .font(.body)
                             .bold()
-                            .padding(.bottom, 4)
+//                            .padding(.bottom, 2)  //padding dalam loop
                         Text(keypointdescription[index])
                             .font(.body)
                             .padding(.bottom, 8)
-//                    )
-//                    .multilineTextAlignment(.leading)
-//                    .padding(.bottom, 8)
+
                 }
                 
             }
@@ -213,6 +211,8 @@ struct AboutCard: View {
     }
 }
 
+
+
 struct MyChart: View {
     @Binding var averageValue7Days: Double
     @Binding var data: [DailyRate]
@@ -220,7 +220,9 @@ struct MyChart: View {
     @State private var selectedDate: String? = nil
     var showAverage: Bool = true
     
+    
     var mainColor: Color = Color("OrangeTwox")
+    var isTrainingLoad: Bool = false
     
     func getShortDay(for dateString: String) -> String {
         let formatter = DateFormatter()
@@ -234,27 +236,32 @@ struct MyChart: View {
     }
     
     
+    
+    
     var body: some View {
-        Chart {
+         let chart = Chart {
+             
+             
+             var paddedData: [DailyRate] {
+                 if showAverage {
+                     return [DailyRate(date: " ", value: 0)] + data // Dummy Data
+                 } else {
+                     return data
+                 }
+             }
             
-            var highlightIndex: Int? {
-                
-                
-                let last3 = data.suffix(3)
-                if last3.allSatisfy({ $0.value == 0 }) {
-                    return nil
-                }
-                
-                for i in (data.count - 3..<data.count).reversed() {
-                    if data[i].value > 0 {
-                        return i
-                    }
-                }
-                
-                return nil
-            }
+             var highlightIndex: Int? {
+                 for i in (0..<data.count).reversed() {
+                     if data[i].value > 0 {
+                         return showAverage ? i + 1 : i
+                     }
+                 }
+                 return nil
+             }
+             
             
-            ForEach(Array(data.enumerated()), id: \.element.date) { index, item in
+            
+            ForEach(Array(paddedData.enumerated()), id: \.element.date) { index, item in
                 BarMark(
                     x: .value("Day", item.date),
                     y: .value("Value", item.value)
@@ -262,37 +269,60 @@ struct MyChart: View {
                 .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
                 .cornerRadius(5)
                 
+                
             }
+            
             
             if showAverage {
                 RuleMark(y: .value("Average", Int(averageValue7Days)))
                     .foregroundStyle(mainColor)
                     .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
-                    .annotation(position: .top, alignment: .leading) {
+                    .annotation(position: .overlay, alignment: .leading) {
                         Text("Avg: \(Int(averageValue7Days))")
                             .font(.caption)
-                            .foregroundColor(mainColor)
-                            .padding(.horizontal, 4)
-                            .background(Color.white.opacity(0.8))
+                            .bold(true)
+                            .foregroundColor(.white)
+                            .padding(.all, 4)
+                            .background(Color("Orangey"))
                             .cornerRadius(4)
+                            .offset(x: -5)
                     }
             }
             
         }
         .frame(height: 200)
         .padding(.vertical)
-        .padding(.horizontal)
+//        .padding(.horizontal)
+        
         .chartXAxis {
             AxisMarks(values: .automatic) { value in
-                if let dateStr = value.as(String.self) {
+                if let dateStr = value.as(String.self), dateStr.trimmingCharacters(in: .whitespaces).isEmpty == false {
                     AxisValueLabel(getShortDay(for: dateStr))
+                } else {
+                    // No label for dummy bar
+                    AxisValueLabel("")
                 }
             }
         }
         .chartYAxis {
-            AxisMarks(position: .leading)
+            AxisMarks(position: .leading){value in
+                AxisGridLine().foregroundStyle(Color.gray.opacity(0.2))
+                AxisTick()
+                AxisValueLabel()
+            }
         }
+        
+        
+        if isTrainingLoad {
+          chart.chartYScale(domain: 0...150)
+      } else {
+          chart
+      }
+ 
+
     }
+    
+        
 }
 
 struct AverageHeartRateSection: View {
@@ -335,7 +365,7 @@ struct AverageHeartRateSection: View {
     
     // No data message
     let noDataMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "No Heart Rate Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your heart rate. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -346,9 +376,9 @@ struct AverageHeartRateSection: View {
     
     // Normal message
     let normalMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate Is Within Normal Range",
-        detail: "This may indicate that your body is in a good balance. You can continue running, but listen to your body and adjust as needed.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
+        title: "Within Normal Range",
+        detail: "This may indicate that <b>your body is in a good balance.</b> You can continue running, but listen to your body and adjust as needed.",
+        secondaryTitle: "How to Maintain Your Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body.",
@@ -357,9 +387,9 @@ struct AverageHeartRateSection: View {
     
     // Slightly high message
     let slightlyHighMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate Is Slightly Higher Than Your Average",
-        detail: "Your body may need a little recovery. If you still want to stay active, go for something light like walking, stretching, or yoga.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate",
+        title: "Slightly Higher Than Normal",
+        detail: "Your body <b>may need a little recovery.</b> If you still want to stay active, go for something light like walking, stretching, or yoga.",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -369,9 +399,9 @@ struct AverageHeartRateSection: View {
     
     // High message
     let highMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate is Higher Than Average Heart Rate",
-        detail: "This could be a sign your body is still recovering from recent activity, stress, or lack of rest.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate",
+        title: "Higher Than Normal",
+        detail: "This could be a sign <b>your body is still recovering </b>from recent activity, stress, or lack of rest.",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -381,9 +411,9 @@ struct AverageHeartRateSection: View {
     
     // Lower message
     let lowerMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate is Lower Than Average Heart Rate",
-        detail: "This could mean your body is well-rested or relaxed. If you're feeling fatigued or dizzy, consider checking your health.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
+        title: "Lower Than Usual",
+        detail: "This could mean <b>your body is well-rested or relaxed.</b> If you're feeling fatigued or dizzy, consider checking your health.",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
                      "If you experience dizziness, fatigue, or other unusual symptoms, consult a doctor.",
@@ -392,7 +422,7 @@ struct AverageHeartRateSection: View {
     )
     
     @State private var selectedMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Loading Heart Rate Data...",
+        title: "Loading...",
         detail: "We're analyzing your heart rate patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -423,14 +453,22 @@ struct AverageHeartRateSection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Average Heart Rate is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
@@ -518,9 +556,9 @@ struct AverageHeartRateSection: View {
                 secondaryTitle: "Keypoint about Heart Rate",
                 keypoints: ["An abnormally high or low", "Consistently high heart rate", "Consistently low heart rate"],
                 keypointdescription: [
-                    "average heart rate may indicate cardiovascular stress, fatigue, or underlying health concerns.",
-                    "can signal overtraining, dehydration, stress, or poor sleep.",
-                    "(below 60 bpm) is normal for athletes, but may be a concern if accompanied by symptoms like dizziness or fatigue."
+                    "Average heart rate may indicate cardiovascular stress, fatigue, or underlying health concerns.",
+                    "Can signal overtraining, dehydration, stress, or poor sleep.",
+                    "Below 60 bpm is normal for athletes, but may be a concern if accompanied by symptoms like dizziness or fatigue."
                 ]
             )
             
@@ -605,7 +643,7 @@ struct RestingHeartRateSection: View {
     
     // No data message
     let noDataMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "No Resting Heart Rate Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your resting heart rate. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -615,33 +653,33 @@ struct RestingHeartRateSection: View {
     )
     
     let normalMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Within Normal Range",
-        detail: "This is may indicate that your body is in a healthy state. Your heart is functioning well, and you're maintaining a balanced level of physical recovery.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
+        title: "Within Normal Range",
+        detail: "This is may indicate that <b>your body is in a healthy state. </b>Your heart is functioning well, and you're maintaining a balanced level of physical recovery.",
+        secondaryTitle: "How to Maintain Your Resting Heart Rate",
         tipTitles: ["Stay Active", "Priroritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.", "Make sure you get enough sleep and rest to avoid unnecessary stress on your body", "Drink enough water to support circulation and heart health."]
     )
     
     let slightlyHighMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Slightly Higher Than Usual",
-        detail: "This is may indicate that your body is not fully rested. It's a good idea to take it easy today and give yourself time to recover.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Resting Heart Rate",
+        title: "Slightly Higher Than Usual",
+        detail: "This is may indicate that <b>your body is not fully rested.</b> It's a good idea to take it easy today and give yourself time to recover.",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
     
     let highMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Higher Than Usual",
-        detail: "This could be a sign that your body is still recovering, under stress, or not fully rested.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Resting Heart Rate",
+        title: "Higher Than Usual",
+        detail: "This could be a sign that your <b>body is still recovering, under stress, or not fully rested.</b>",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
     
     let lowMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Lower Than Usual",
-        detail: "This can indicate good cardiovascular fitness or relaxation. If you're feeling dizzy or unwell, it may be worth checking in with your health.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
+        title: "Lower Than Usual",
+        detail: "This can indicate<b> good cardiovascular fitness or relaxation.</b> If you're feeling dizzy or unwell, it may be worth checking in with your health.",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
                      "If you experience dizziness, fatigue, or other unusual symptoms, consult a doctor.",
@@ -650,7 +688,7 @@ struct RestingHeartRateSection: View {
     )
     
     @State private var selectedMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Loading Resting Heart Rate Data...",
+        title: "Loading ...",
         detail: "We're analyzing your resting heart rate patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -681,14 +719,22 @@ struct RestingHeartRateSection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Current Resting Heart Rate is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
@@ -775,9 +821,9 @@ struct RestingHeartRateSection: View {
                 content: "Resting Heart Rate (RHR) is the number of times your heart beats per minute (bpm) when your body is at complete rest. RHR is typically measured after you wake up, before any physical activity.",
                 secondaryTitle: "Keypoint about Resting Heart Rate",
                 keypoints: ["Normal range", "Lower RHR", "Higher RHR"],
-                keypointdescription: ["for most adults, a healthy RHR is between 60–100 bpm. Athletes or very fit individuals may have lower RHRs, around 40–60 bpm.",
-                                      "often indicates good cardiovascular fitness and efficient heart function.",
-                                      "can be a sign of fatigue, stress, dehydration, illness, or overtraining."]
+                keypointdescription: ["For most adults, a healthy RHR is between 60–100 bpm. Athletes or very fit individuals may have lower RHRs, around 40–60 bpm.",
+                                      "Often indicates good cardiovascular fitness and efficient heart function.",
+                                      "Can be a sign of fatigue, stress, dehydration, illness, or overtraining."]
             )
             
             SimpleCard(
@@ -860,7 +906,7 @@ struct HeartRateVariabilitySection: View {
     
     // No data message
     let noDataMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "No Heart Rate Variability Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your heart rate variability. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -871,9 +917,9 @@ struct HeartRateVariabilitySection: View {
     
     // Normal message
     let normalMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Within Normal Range",
-        detail: "This may indicate your body is recovering well and your autonomic nervous system is balanced.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
+        title: "Within Normal Range",
+        detail: "This may indicate <b>your body is recovering well </b>and your autonomic nervous system is balanced.",
+        secondaryTitle: "How to Maintain Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body",
@@ -882,9 +928,9 @@ struct HeartRateVariabilitySection: View {
     
     // Slightly low message
     let slightlyLowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Slightly Lower Than Usual",
-        detail: "This may be a sign your body is under stress or still recovering, take it slow for today.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate Variability",
+        title: "Slightly Lower Than Usual",
+        detail: "This may be a sign <b>your body is under stress or still recovering, </b>take it slow for today.",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -894,9 +940,9 @@ struct HeartRateVariabilitySection: View {
     
     // Low message
     let lowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Lower Than Usual",
-        detail: "This may be a sign of current or future health problems because it shows that your body isn't adapting to changes well.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate Variability",
+        title: "Lower Than Usual",
+        detail: "This may be a sign of <b>current or future health problems</b> because it shows that your body isn't adapting to changes well.",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -906,9 +952,9 @@ struct HeartRateVariabilitySection: View {
     
     // High message
     let highMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Higher Than Usual",
-        detail: "This is a positive sign that your body is adapting well to physical and emotional demands.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
+        title: "Higher Than Usual",
+        detail: "This is a <b>positive sign that your body is adapting well</b> to physical and emotional demands.",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body",
@@ -916,7 +962,7 @@ struct HeartRateVariabilitySection: View {
     )
     
     @State private var selectedMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Loading Heart Rate Variability Data...",
+        title: "Loading...",
         detail: "We're analyzing your heart rate variability patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -947,14 +993,22 @@ struct HeartRateVariabilitySection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Current Heart Rate Variability is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
@@ -1043,10 +1097,10 @@ struct HeartRateVariabilitySection: View {
                 secondaryTitleColor: Color("primary_1"),
                 keypoints: ["Higher HRV", "Low HRV", "People with low HRV", "HRV is personal and fluctuates daily."],
                 keypointdescription: [
-                    " may indicate better heart health and greater adaptability to stress.",
-                    " can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.",
-                    " are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.",
-                    " What's considered \"normal\" can vary greatly from person to person."
+                    "May indicate better heart health and greater adaptability to stress.",
+                    "Can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.",
+                    "Are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.",
+                    "What's considered \"normal\" can vary greatly from person to person."
                 ]
             )
             

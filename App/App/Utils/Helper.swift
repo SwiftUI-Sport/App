@@ -37,3 +37,30 @@ struct EnableSwipeBack: UIViewControllerRepresentable {
         }
     }
 }
+
+
+
+func styledText(from string: String) -> Text {
+    var result = Text("")
+    var current = string[...]
+    
+    while let rangeStart = current.range(of: "<b>"),
+          let rangeEnd = current.range(of: "</b>") {
+        
+        // Plain text before the <b>
+        let before = current[..<rangeStart.lowerBound]
+        result = result + Text(String(before))
+        
+        // Bold text inside <b>...</b>
+        let bold = current[rangeStart.upperBound..<rangeEnd.lowerBound]
+        result = result + Text(String(bold)).bold()
+        
+        // Move to next chunk
+        current = current[rangeEnd.upperBound...]
+    }
+    
+    // Append any remaining plain text
+    result = result + Text(String(current))
+    
+    return result
+}

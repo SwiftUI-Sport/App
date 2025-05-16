@@ -13,16 +13,19 @@ struct HomeChart: View {
     var mainColor: Color = Color("OrangeTwox")
     
     private var highlightIndex: Int? {
-        guard !data.isEmpty else { return nil }
-        
-        // Look for the most recent non-zero value in the entire dataset
+        // If all values are zero, return nil
+        guard data.contains(where: { $0.value > 0 }) else {
+            return nil
+        }
+
+        // Find the last non-zero value
         for i in (0..<data.count).reversed() {
             if data[i].value > 0 {
                 return i
             }
         }
-        
-        return nil // No non-zero values found
+
+        return nil // Fallback, though this line should never be hit
     }
     
     var body: some View {
