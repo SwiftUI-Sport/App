@@ -18,7 +18,7 @@ enum HomeFlow: NavigationDestination {
         case .first:
             return "Heart Rate"
         case .second:
-            return "Workout Duration"
+            return "Training Load"
         case .third:
             return "Sleep Duration"
         }

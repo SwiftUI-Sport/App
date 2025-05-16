@@ -164,7 +164,7 @@ struct WorkoutDurationView: View {
                 .padding(.bottom, 16)
                 
                 SimpleCard(
-                    title: "Here's What You Can Do to Help You Recover Well",
+                    title: "How to Recover After a Running Exercise",
                     content: "",
                     showMainText: false,
                     isShowTip: true,
@@ -173,11 +173,11 @@ struct WorkoutDurationView: View {
                 )
                 
                 AboutCard(
-                    title: "About Trimp Score",
-                    content: "Training Stress Score (TSS) is a measurement used to quantify the intensity and duration of your workout. It helps gauge how much stress your body is under during and after exercise, helping you balance effort and recovery.",
+                    title: "About Training Load",
+                    content: "Your training load is calculated using a formula called TRIMP (TRaining IMPulse), a method that measures both the intensity and duration of your workout. It helps estimate how much stress your body experiences during and after exercise allowing you to balance training and recovery more effectively..",
                     secondaryTitle: "Keypoint about Trimp Score",
                     secondaryTitleColor: Color("primary_2"),
-                    keypoints: ["Normal TSS (50–100)", "High TSS (>100)", "Recovery Time"],
+                    keypoints: ["Normal TRIMP (0–100)", "High TRIMP (>100)", "Recovery Time"],
                     keypointdescription: [
                         "This range indicates moderate intensity workouts with manageable stress on your body.",
                         "Workouts in this range are intense and may require additional recovery days to prevent overtraining.",

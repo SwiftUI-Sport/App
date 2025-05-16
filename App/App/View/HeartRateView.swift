@@ -128,7 +128,7 @@ struct SimpleCard: View {
                         Text(tipTitles[index])
                             .font(.headline)
                             .bold()
-                            .padding(.bottom, 4)
+//                            .padding(.bottom, 2) // padding dalam loop
                         
                         Text(tipmessages[index])
                             .padding(.bottom, 8)
@@ -180,22 +180,20 @@ struct AboutCard: View {
             
             Text(secondaryTitle)
                 .font(.title3.bold())
-                .padding(.vertical, 8)
+                .padding(.vertical, 4)
                 .foregroundColor(secondaryTitleColor)
             
             VStack(alignment : .leading){
                 ForEach(0..<keypoints.count, id: \.self) { index in
-//                    (
+
                         Text(keypoints[index])
                             .font(.body)
                             .bold()
-                            .padding(.bottom, 4)
+//                            .padding(.bottom, 2)  //padding dalam loop
                         Text(keypointdescription[index])
                             .font(.body)
                             .padding(.bottom, 8)
-//                    )
-//                    .multilineTextAlignment(.leading)
-//                    .padding(.bottom, 8)
+
                 }
                 
             }
@@ -289,7 +287,7 @@ struct MyChart: View {
                             .padding(.all, 4)
                             .background(Color("Orangey"))
                             .cornerRadius(4)
-                            .offset(x: -8)
+                            .offset(x: -5)
                     }
             }
             
@@ -382,7 +380,7 @@ struct AverageHeartRateSection: View {
     let normalMessage: AverageHeartRateMessage = AverageHeartRateMessage(
         title: "Your Current Heart Rate Is Within Normal Range",
         detail: "This may indicate that your body is in a good balance. You can continue running, but listen to your body and adjust as needed.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
+        secondaryTitle: "How to Maintain Your Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body.",
@@ -393,7 +391,7 @@ struct AverageHeartRateSection: View {
     let slightlyHighMessage: AverageHeartRateMessage = AverageHeartRateMessage(
         title: "Your Current Heart Rate Is Slightly Higher Than Your Average",
         detail: "Your body may need a little recovery. If you still want to stay active, go for something light like walking, stretching, or yoga.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -405,7 +403,7 @@ struct AverageHeartRateSection: View {
     let highMessage: AverageHeartRateMessage = AverageHeartRateMessage(
         title: "Your Current Heart Rate is Higher Than Average Heart Rate",
         detail: "This could be a sign your body is still recovering from recent activity, stress, or lack of rest.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -417,7 +415,7 @@ struct AverageHeartRateSection: View {
     let lowerMessage: AverageHeartRateMessage = AverageHeartRateMessage(
         title: "Your Current Heart Rate is Lower Than Average Heart Rate",
         detail: "This could mean your body is well-rested or relaxed. If you're feeling fatigued or dizzy, consider checking your health.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
+        secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
                      "If you experience dizziness, fatigue, or other unusual symptoms, consult a doctor.",
@@ -552,9 +550,9 @@ struct AverageHeartRateSection: View {
                 secondaryTitle: "Keypoint about Heart Rate",
                 keypoints: ["An abnormally high or low", "Consistently high heart rate", "Consistently low heart rate"],
                 keypointdescription: [
-                    "average heart rate may indicate cardiovascular stress, fatigue, or underlying health concerns.",
-                    "can signal overtraining, dehydration, stress, or poor sleep.",
-                    "(below 60 bpm) is normal for athletes, but may be a concern if accompanied by symptoms like dizziness or fatigue."
+                    "Average heart rate may indicate cardiovascular stress, fatigue, or underlying health concerns.",
+                    "Can signal overtraining, dehydration, stress, or poor sleep.",
+                    "Below 60 bpm is normal for athletes, but may be a concern if accompanied by symptoms like dizziness or fatigue."
                 ]
             )
             
@@ -651,7 +649,7 @@ struct RestingHeartRateSection: View {
     let normalMessage: RestingHeartRateMessage = RestingHeartRateMessage(
         title: "Your Current Resting Heart Rate Is Within Normal Range",
         detail: "This is may indicate that your body is in a healthy state. Your heart is functioning well, and you're maintaining a balanced level of physical recovery.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
+        secondaryTitle: "How to Maintain Your Resting Heart Rate",
         tipTitles: ["Stay Active", "Priroritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.", "Make sure you get enough sleep and rest to avoid unnecessary stress on your body", "Drink enough water to support circulation and heart health."]
     )
@@ -659,7 +657,7 @@ struct RestingHeartRateSection: View {
     let slightlyHighMessage: RestingHeartRateMessage = RestingHeartRateMessage(
         title: "Your Current Resting Heart Rate Is Slightly Higher Than Usual",
         detail: "This is may indicate that your body is not fully rested. It's a good idea to take it easy today and give yourself time to recover.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Resting Heart Rate",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
@@ -667,7 +665,7 @@ struct RestingHeartRateSection: View {
     let highMessage: RestingHeartRateMessage = RestingHeartRateMessage(
         title: "Your Current Resting Heart Rate Is Higher Than Usual",
         detail: "This could be a sign that your body is still recovering, under stress, or not fully rested.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Resting Heart Rate",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
@@ -675,7 +673,7 @@ struct RestingHeartRateSection: View {
     let lowMessage: RestingHeartRateMessage = RestingHeartRateMessage(
         title: "Your Current Resting Heart Rate Is Lower Than Usual",
         detail: "This can indicate good cardiovascular fitness or relaxation. If you're feeling dizzy or unwell, it may be worth checking in with your health.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
+        secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
                      "If you experience dizziness, fatigue, or other unusual symptoms, consult a doctor.",
@@ -809,9 +807,9 @@ struct RestingHeartRateSection: View {
                 content: "Resting Heart Rate (RHR) is the number of times your heart beats per minute (bpm) when your body is at complete rest. RHR is typically measured after you wake up, before any physical activity.",
                 secondaryTitle: "Keypoint about Resting Heart Rate",
                 keypoints: ["Normal range", "Lower RHR", "Higher RHR"],
-                keypointdescription: ["for most adults, a healthy RHR is between 60–100 bpm. Athletes or very fit individuals may have lower RHRs, around 40–60 bpm.",
-                                      "often indicates good cardiovascular fitness and efficient heart function.",
-                                      "can be a sign of fatigue, stress, dehydration, illness, or overtraining."]
+                keypointdescription: ["For most adults, a healthy RHR is between 60–100 bpm. Athletes or very fit individuals may have lower RHRs, around 40–60 bpm.",
+                                      "Often indicates good cardiovascular fitness and efficient heart function.",
+                                      "Can be a sign of fatigue, stress, dehydration, illness, or overtraining."]
             )
             
             SimpleCard(
@@ -907,7 +905,7 @@ struct HeartRateVariabilitySection: View {
     let normalMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
         title: "Your Heart Rate Variability is Within Normal Range",
         detail: "This may indicate your body is recovering well and your autonomic nervous system is balanced.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
+        secondaryTitle: "How to Maintain Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body",
@@ -918,7 +916,7 @@ struct HeartRateVariabilitySection: View {
     let slightlyLowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
         title: "Your Heart Rate Variability is Slightly Lower Than Usual",
         detail: "This may be a sign your body is under stress or still recovering, take it slow for today.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate Variability",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -930,7 +928,7 @@ struct HeartRateVariabilitySection: View {
     let lowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
         title: "Your Heart Rate Variability is Lower Than Usual",
         detail: "This may be a sign of current or future health problems because it shows that your body isn't adapting to changes well.",
-        secondaryTitle: "Here's What You Can Do To Recover Your Heart Rate Variability",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
                      "Drink enough water to support your heart and energy levels.",
@@ -942,7 +940,7 @@ struct HeartRateVariabilitySection: View {
     let highMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
         title: "Your Heart Rate Variability is Higher Than Usual",
         detail: "This is a positive sign that your body is adapting well to physical and emotional demands.",
-        secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
+        secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
                      "Make sure you get enough sleep and rest to avoid unnecessary stress on your body",
@@ -1077,10 +1075,10 @@ struct HeartRateVariabilitySection: View {
                 secondaryTitleColor: Color("primary_1"),
                 keypoints: ["Higher HRV", "Low HRV", "People with low HRV", "HRV is personal and fluctuates daily."],
                 keypointdescription: [
-                    " may indicate better heart health and greater adaptability to stress.",
-                    " can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.",
-                    " are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.",
-                    " What's considered \"normal\" can vary greatly from person to person."
+                    "May indicate better heart health and greater adaptability to stress.",
+                    "Can be linked to a high resting heart rate and may suggest your body is under stress or not recovering well.",
+                    "Are sometimes at higher risk for conditions like diabetes, high blood pressure, arrhythmias, asthma, anxiety, and depression. Consult professional healthcare if you have concerns.",
+                    "What's considered \"normal\" can vary greatly from person to person."
                 ]
             )
             
