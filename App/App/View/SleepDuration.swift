@@ -83,34 +83,34 @@ struct SleepDuration: View {
                     .padding(.top, 6)
                 
                 // Sleep phases breakdown - only show if data exists
-                if let sleep = latestSleep, hasDetailedSleepData(sleep) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Sleep Phases")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .padding(.top, 12)
-                        
-                        HStack(spacing: 20) {
-                            sleepPhaseItem(
-                                label: "Deep",
-                                value: formatDurationSimple(sleep.deepSleepDuration),
-                                color: Color("primary_3")
-                            )
-                            
-                            sleepPhaseItem(
-                                label: "REM",
-                                value: formatDurationSimple(sleep.remSleepDuration),
-                                color: Color("blueTint")
-                            )
-                            
-                            sleepPhaseItem(
-                                label: "Core",
-                                value: formatDurationSimple(sleep.coreSleepDuration),
-                                color: Color("primary_2")
-                            )
-                        }
-                    }
-                }
+//                if let sleep = latestSleep, hasDetailedSleepData(sleep) {
+//                    VStack(alignment: .leading, spacing: 12) {
+//                        Text("Sleep Phases")
+//                            .font(.subheadline)
+//                            .fontWeight(.semibold)
+//                            .padding(.top, 12)
+//                        
+//                        HStack(spacing: 20) {
+//                            sleepPhaseItem(
+//                                label: "Deep",
+//                                value: formatDurationSimple(sleep.deepSleepDuration),
+//                                color: Color("primary_3")
+//                            )
+//                            
+//                            sleepPhaseItem(
+//                                label: "REM",
+//                                value: formatDurationSimple(sleep.remSleepDuration),
+//                                color: Color("blueTint")
+//                            )
+//                            
+//                            sleepPhaseItem(
+//                                label: "Core",
+//                                value: formatDurationSimple(sleep.coreSleepDuration),
+//                                color: Color("primary_2")
+//                            )
+//                        }
+//                    }
+//                }
             }
             .padding(.vertical)
             .padding(.horizontal)

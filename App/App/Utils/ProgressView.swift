@@ -15,6 +15,7 @@ struct HeaderContent: Identifiable {
     let message: String
     let iconName: String
 }
+
 struct ATLProgressView: View {
     let atl: Double
     let maxATL: Double = 100
@@ -81,6 +82,8 @@ struct ATLProgressView: View {
         }
     }
 }
+
+
 #Preview {
     ATLProgressView(
         atl: 20
@@ -333,6 +336,61 @@ struct Empty_activity_view: View {
     Empty_authorized_view()
 }
 
+struct FatigueCardempty: View {
+    var trainingStressOfTheDay: Double
+    var message: String
+    var iconName: String
+    @State private var showingInfoPopover = false
+    
+    var body: some View {
+        ZStack{
+            VStack(alignment: .center) {
+                HStack {
+                    Text("Level of Fatigue")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                    
+                    Button(action: {
+                        showingInfoPopover.toggle()
+                    }) {
+                        Image(systemName: "info.square.fill")
+                            .font(.system(.title2, design: .rounded))
+                            .foregroundColor(Color("primary_1"))
+                    }
+                    .popover(isPresented: $showingInfoPopover, arrowEdge: .top) {
+                        FatigueInfoPopover()
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 18)
+                .padding(.bottom, 38)
+                
+                FatigueProgressBarView(atl: trainingStressOfTheDay)
+//                    .padding(.top, 20)
+                    .padding(.bottom, 10)
+                
+                Text(message)
+                    .font(.system(.callout, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(Color("headerMessage"))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(nil)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal)
+                    .padding(.bottom, 18)
+                
+            }
+            .background(Color.white)
+            .cornerRadius(6)
+            .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
+//            .offset(x: 0, y: 130)
+        }
+    }
+}
+
+
 struct FatigueCard: View {
     var trainingStressOfTheDay: TrainingStressOfTheDay
     var message: String
@@ -357,8 +415,9 @@ struct FatigueCard: View {
                     Button(action: {
                         showingInfoPopover.toggle()
                     }) {
-                        Image(systemName: "info.circle")
-                            .foregroundColor(.gray)
+                        Image(systemName: "info.square.fill")
+                            .font(.system(.title2, design: .rounded))
+                            .foregroundColor(Color("primary_1"))
                     }
                     .popover(isPresented: $showingInfoPopover, arrowEdge: .top) {
                         FatigueInfoPopover()
@@ -368,10 +427,13 @@ struct FatigueCard: View {
                 .padding(.top, 18)
                 .padding(.bottom, 18)
                 
-                ATLProgressView(atl: logScalePercentage(value: trainingStressOfTheDay.todayATL))
+                FatigueProgressBarView(atl: logScalePercentage(value: trainingStressOfTheDay.todayATL))
+                    .padding(.top, 20)
+                    .padding(.bottom, 10)
                 
                 Text(message)
-                    .font(.callout)
+                    .font(.system(.callout, design: .rounded))
+                    .fontWeight(.bold)
                     .foregroundColor(Color("headerMessage"))
                     .multilineTextAlignment(.center)
                     .lineLimit(nil)
@@ -383,7 +445,7 @@ struct FatigueCard: View {
             .background(Color.white)
             .cornerRadius(6)
             .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
-            .offset(x: 0, y: 115)
+            .offset(x: 0, y: 130)
             .onAppear {
                 print("ATL: \(trainingStressOfTheDay.todayATL)")
             }
@@ -456,3 +518,152 @@ struct FatigueInfoRow: View {
     }
 }
 
+/// Custom handle view: bubble persen + image di bawahnya
+struct ATLHandleView: View {
+  let percent: Int
+  let icon: Image
+    let bubbleColor: Color = Color("primary_1")
+
+  var body: some View {
+    ZStack {
+      // 1) Bubble dengan persenan + “arrow” di bawahnya
+
+
+      // 2) Ikon di bawah bubble (di dalam bar)
+//      icon
+        Image("tear")
+        .resizable()
+        .scaledToFit()
+            .frame(maxWidth: 50, maxHeight: 50)
+//            .foregroundColor(.orange)
+//        .padding(6)
+//        .rotationEffect(.degrees(180))
+//        .background(iconBackground)
+//        .clipShape(Circle())
+        Text("\(percent)%")
+            .font(.system( .caption2, design: .rounded))
+            .fontWeight(.bold)
+          .foregroundColor(.white)
+          .padding(.vertical, 4)
+          .padding(.horizontal, 15)
+          .background(bubbleColor)
+          .cornerRadius(8)
+          .padding(.bottom, 8)
+        
+//          .overlay(
+//            // segitiga kecil sebagai arrow
+//            Triangle()
+//              .fill(bubbleColor)
+//              .frame(width: 10, height: 6)
+//              .offset(y: 5),
+//            alignment: .bottom
+//          )
+    }
+  }
+}
+
+/// Simple triangle shape pointing down
+//struct Triangle: Shape {
+//  func path(in rect: CGRect) -> Path {
+//    Path { p in
+//      p.move(to:    CGPoint(x: rect.minX, y: rect.minY))
+//      p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+//      p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+//      p.closeSubpath()
+//    }
+//  }
+//}
+
+
+struct FatigueProgressBarView: View {
+    let atl: Double
+    private let barHeight: CGFloat = 38
+    var body: some View {
+        ZStack(alignment: .center){
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color("ATLBar/thumbBorder"))
+                .frame(maxHeight: barHeight + 15)
+                
+            ATLProgressBarView(atl: atl, barHeight: barHeight)
+        }
+        .padding(.horizontal)
+        
+    }
+}
+
+struct ATLProgressBarView: View {
+    let atl: Double
+    let maxATL: Double = 100.0   // contohnya
+    let barHeight: CGFloat
+
+    @State private var animatedATL: Double = 0
+
+    var body: some View {
+        GeometryReader { geo in
+            let width      = geo.size.width
+            let clamped    = min(max(animatedATL, 0), maxATL)
+            let fraction   = maxATL > 0 ? clamped / maxATL : 0
+
+            let barPadding = CGFloat(9)
+            let usableWidth = width - barPadding
+            let xPos = barPadding + usableWidth * fraction
+
+            ZStack(alignment: .topLeading) {
+                ZStack {
+                    LinearGradient(gradient: Gradient(colors: [
+                        Color("ATLBar/leftBar"),
+                        Color("ATLBar/secondLeftBar"),
+                        Color("ATLBar/thirdLeftBar"),
+                        Color("ATLBar/centerBar"),
+                        Color("ATLBar/thirdRightBar"),
+                        Color("ATLBar/secondRightBar"),
+                        Color("ATLBar/rightBar")
+                    ]), startPoint: .leading, endPoint: .trailing)
+                      .frame(height: barHeight)
+                      .clipShape(RoundedRectangle(cornerRadius: 6))
+                    HStack {
+                        Image(systemName: "bolt.circle.fill")
+                            .font(.system(.title))
+                          .foregroundColor(.white)
+                          .padding(.leading, 2)
+                        Spacer()
+                    }
+                                        .frame(height: barHeight)
+                }
+
+                ATLHandleView(
+                  percent: Int(clamped / maxATL * 100),
+                  icon: Image(systemName: "bolt.fill")
+                )
+                // posisikan handle supaya tepat “tengah” pada xPos
+                .offset(
+                        x: xPos - 30,   // 30 = half bubble width
+                        y: -(57 - barHeight/2)
+                      )
+                
+//                x: xPos - handleSize.width/2,
+//                y: -(handleSize.height - barHeight)/2
+                // animasi smooth
+                .animation(.spring(response: 0.6, dampingFraction: 0.7),
+                           value: animatedATL)
+            }
+            .frame(height: barHeight) // kasih extra space buat bubble
+        }
+        .frame(height: barHeight)
+        .padding(.horizontal,8)
+        .onAppear {
+            animatedATL = atl
+        }
+        .onChange(of: atl) { newValue, _ in
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+                animatedATL = newValue
+            }
+        }
+    }
+}
+
+#Preview {
+    FatigueProgressBarView(
+        atl: 0
+    )
+}

@@ -76,6 +76,8 @@ struct ActivityView: View {
                 gradient: Gradient(colors: [
                     Color("home_bg_color"),
                     Color("home_bg_color"),
+                    Color("home_bg_color"),
+                    Color("home_bg_color"),
                     Color("backgroundApp"),
                     Color("backgroundApp"),
                     Color("backgroundApp"),

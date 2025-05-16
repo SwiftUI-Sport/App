@@ -88,21 +88,21 @@ struct HomeView: View {
     var sampleHeader = [
         HeaderContent(
             title : "You Can Run Today",
-            message: "Your body is well-rested and your recovery metrics look great. It’s a perfect day to hit the road and crush your run.",
+            message: "Your recovery metrics look great! It’s a perfect day to hit the road and crush your run.",
             iconName:  "chacha"
         ),
         HeaderContent(
-            title : "You Seem a Little Bit Tired Today",
-            message: "Your data shows minor signs of fatigue, but you're still in decent shape. A light or moderate run could be just right today.",
+            title : "You’re Good for a Light Run Today",
+            message: "Your data shows minor signs of fatigue! A light or moderate run could be just right today.",
             iconName:  "chachatired"
         ),
         HeaderContent(
-            title : "You Need Some Rest",
-            message: "Your recovery signals suggest your body needs time to recharge. Take a break today to avoid burnout and come back stronger tomorrow.",
+            title : "Feet Up, Runner! It's Rest Day",
+            message: "Your body needs rest! Take the day off and come back stronger tomorrow.",
             iconName:  "chachasleep"
         ),
         HeaderContent(
-            title : "No Data \nAvailable",
+            title : "No Data Available",
             message: "Looks like we don’t have enough info yet. Keep your Health data synced, and we’ll start giving smart recommendations soon!.",
             iconName:  "empty_logo"
         )
@@ -166,38 +166,84 @@ struct HomeView: View {
             ScrollView {
                 
                 if healthKitViewModel.loadAge() <= 0{
+//                    VStack(spacing: 0) {
+//                        ZStack(alignment: .top){
+//                            BottomRoundedRectangle(radius: 50)
+//                                .fill(Color("home_bg_color"))
+//                                .frame(maxWidth: .infinity, maxHeight: 320)
+//                            VStack(spacing: 10){
+//                                HStack(alignment: .top) {
+//                                    EmptyHeaderSectionView(
+//                                        title:    sampleHeader[3].title,
+//                                        message:  sampleHeader[3].message,
+//                                        iconName:  sampleHeader[3].iconName
+//                                    )
+//                                    .padding(.top, 10)
+//                                    
+//                                }
+//                                
+//                                EmptyFatigueCard(
+//                                    trainingStressOfTheDay:
+//                                        TrainingStressOfTheDay.emptyDefaultValue()
+//                                )
+//                                .padding(.horizontal)
+//                                .padding(.top, 15)
+//                            }
+//                        }
+//                        
+//                        VStack(alignment: .center){
+//                            Empty_authorized_view()
+//                        }
+//                        .frame(height: 500)
+//                        
+//                    }
+//                    .background(Color("backgroundApp"))
+                    
+                    
                     VStack(spacing: 0) {
                         ZStack(alignment: .top){
-                            BottomRoundedRectangle(radius: 50)
-                                .fill(Color("home_bg_color"))
-                                .frame(maxWidth: .infinity, maxHeight: 320)
-                            VStack(spacing: 10){
-                                HStack(alignment: .top) {
-                                    EmptyHeaderSectionView(
-                                        title:    sampleHeader[3].title,
-                                        message:  sampleHeader[3].message,
-                                        iconName:  sampleHeader[3].iconName
-                                    )
-                                    .padding(.top, 10)
-                                    
-                                }
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    Color("home_bg_color"),
+                                    Color("home_bg_color"),
+                                    Color("home_bg_color"),
+                                    Color("backgroundApp"),
+                                    Color("backgroundApp"),
+                                    Color("backgroundApp"),
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            Image("rech")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(.top, 90)
+                            VStack(spacing: 0){
                                 
-                                EmptyFatigueCard(
-                                    trainingStressOfTheDay:
-                                        TrainingStressOfTheDay.emptyDefaultValue()
+                                HeaderSectionViewEmpty(
+                                    trainingStressOfTheDay: 0,
+                                    title:  sampleHeader[3].title,
+                                    message:  sampleHeader[3].message,
+                                    iconName: sampleHeader[3].iconName
+                                    //                                        title:  sampleHeader[1].title,
+                                    //                                        message:  sampleHeader[1].message,
+                                    //                                        iconName: sampleHeader[1].iconName
                                 )
-                                .padding(.horizontal)
-                                .padding(.top, 15)
+                                
+                                
+                                .padding(.top, 30)
                             }
+                            
                         }
                         
                         VStack(alignment: .center){
                             Empty_authorized_view()
+                                .padding(.bottom, 50)
                         }
                         .frame(height: 500)
-                        
                     }
                     .background(Color("backgroundApp"))
+                    
                 }
                 else {
                     VStack(spacing: 0) {
@@ -297,6 +343,42 @@ struct HeaderSectionView: View {
         .padding(.horizontal)
     }
 }
+
+struct HeaderSectionViewEmpty: View {
+    var trainingStressOfTheDay: Double
+    let title: String
+    let message: String
+    let iconName: String
+    
+    var body: some View {
+        
+        VStack(alignment: .center, spacing: 0) {
+            Text(title)
+                . font(.system(.largeTitle, design: .rounded))
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .foregroundColor(Color("primary_1"))
+                .padding(.bottom, 15)
+            
+            Image(iconName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 230, height: 230)
+            
+            FatigueCardempty(
+                trainingStressOfTheDay: trainingStressOfTheDay,
+                message: message,
+                iconName: iconName
+            )
+            
+        }
+        .padding(.horizontal)
+    }
+}
+
+
 
 struct HeresWhySection: View {
     let reasons: [Reason]
