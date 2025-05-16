@@ -225,6 +225,7 @@ struct MyChart: View {
     
     var mainColor: Color = Color("OrangeTwox")
     var isTrainingLoad: Bool = false
+    @State private var hasTriggeredHaptic = false
     
     
     func getShortDay(for dateString: String) -> String {
@@ -350,7 +351,15 @@ struct MyChart: View {
             }
         }
         .chartXSelection(value: $selectedDate)
-        
+        .onChange(of: selectedDate) { newSelectedDate, oldSelectedDate in
+            guard newSelectedDate != nil else { return }
+
+            if !hasTriggeredHaptic {
+                hasTriggeredHaptic = true
+            }
+
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
         
         
         if isTrainingLoad {
