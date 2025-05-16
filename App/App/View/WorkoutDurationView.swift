@@ -54,7 +54,7 @@ struct WorkoutDurationView: View {
     
     // Message for normal workout stress levels
     let normalMessage: WorkoutStressMessage = WorkoutStressMessage(
-        title: "Your Recent Workouts Level Is Within Normal Range",
+        title: "is Within Normal Range",
         detail: "Your training load is balanced. Continue to listen to your body and adjust intensity as needed.",
         tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
         tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
@@ -62,7 +62,7 @@ struct WorkoutDurationView: View {
     
     // Message for high workout stress levels
     let highMessage: WorkoutStressMessage = WorkoutStressMessage(
-        title: "Your Recent Workouts Level Is Higher Than Usual",
+        title: "is High",
         detail: "You've been pushing harder than normal. This can be great for progress, but make sure your body has enough time to recover to avoid injury.",
         tipsTitle: ["Prioritize Quality Sleep", "Stay Hydrated", "Move Gently", "Listen to Your Body"],
         tipsDetail: ["Aim for 7–9 hours to allow your body to fully repair.", "Water supports muscle recovery and energy regulation.", "Try light stretching, yoga, or walking to boost circulation without added stress.", "If you're still feeling sore or fatigued, take another rest day — recovery is part of progress."]
@@ -80,8 +80,15 @@ struct WorkoutDurationView: View {
         ScrollView {
             VStack {
                 VStack(alignment: .leading) {
-                    Text(selectedMessage.title)
-                        .font(.title3.bold())
+                    (
+                        Text("Your Recent Training Load ")
+                            .font(.title3.bold())
+                            
+                        +
+                        Text(selectedMessage.title)
+                            .font(.title3.bold())
+                            .foregroundColor(Color("primary_2"))
+                    )
                     
                     Rectangle()
                         .frame(width: 150, height: 2, alignment: .leading)

@@ -250,16 +250,14 @@ struct MyChart: View {
                  }
              }
             
-            var highlightIndex: Int? {
-                
-                
-                for i in (0..<data.count).reversed() {
-                    if data[i].value > 0 {
-                        return i + 1
-                    }
-                }
-                return nil
-            }
+             var highlightIndex: Int? {
+                 for i in (0..<data.count).reversed() {
+                     if data[i].value > 0 {
+                         return showAverage ? i + 1 : i
+                     }
+                 }
+                 return nil
+             }
              
             
             
@@ -367,7 +365,7 @@ struct AverageHeartRateSection: View {
     
     // No data message
     let noDataMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "No Heart Rate Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your heart rate. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -378,8 +376,8 @@ struct AverageHeartRateSection: View {
     
     // Normal message
     let normalMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate Is Within Normal Range",
-        detail: "This may indicate that your body is in a good balance. You can continue running, but listen to your body and adjust as needed.",
+        title: "Within Normal Range",
+        detail: "This may indicate that <b>your body is in a good balance.</b> You can continue running, but listen to your body and adjust as needed.",
         secondaryTitle: "How to Maintain Your Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
@@ -389,8 +387,8 @@ struct AverageHeartRateSection: View {
     
     // Slightly high message
     let slightlyHighMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate Is Slightly Higher Than Your Average",
-        detail: "Your body may need a little recovery. If you still want to stay active, go for something light like walking, stretching, or yoga.",
+        title: "Slightly Higher Than Normal",
+        detail: "Your body <b>may need a little recovery.</b> If you still want to stay active, go for something light like walking, stretching, or yoga.",
         secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
@@ -401,8 +399,8 @@ struct AverageHeartRateSection: View {
     
     // High message
     let highMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate is Higher Than Average Heart Rate",
-        detail: "This could be a sign your body is still recovering from recent activity, stress, or lack of rest.",
+        title: "Higher Than Normal",
+        detail: "This could be a sign <b>your body is still recovering </b>from recent activity, stress, or lack of rest.",
         secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
@@ -413,8 +411,8 @@ struct AverageHeartRateSection: View {
     
     // Lower message
     let lowerMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Your Current Heart Rate is Lower Than Average Heart Rate",
-        detail: "This could mean your body is well-rested or relaxed. If you're feeling fatigued or dizzy, consider checking your health.",
+        title: "Lower Than Usual",
+        detail: "This could mean <b>your body is well-rested or relaxed.</b> If you're feeling fatigued or dizzy, consider checking your health.",
         secondaryTitle: "How to Recover Your Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
@@ -424,7 +422,7 @@ struct AverageHeartRateSection: View {
     )
     
     @State private var selectedMessage: AverageHeartRateMessage = AverageHeartRateMessage(
-        title: "Loading Heart Rate Data...",
+        title: "Loading...",
         detail: "We're analyzing your heart rate patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -455,14 +453,22 @@ struct AverageHeartRateSection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Average Heart Rate is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
@@ -637,7 +643,7 @@ struct RestingHeartRateSection: View {
     
     // No data message
     let noDataMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "No Resting Heart Rate Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your resting heart rate. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -647,32 +653,32 @@ struct RestingHeartRateSection: View {
     )
     
     let normalMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Within Normal Range",
-        detail: "This is may indicate that your body is in a healthy state. Your heart is functioning well, and you're maintaining a balanced level of physical recovery.",
+        title: "Within Normal Range",
+        detail: "This is may indicate that <b>your body is in a healthy state. </b>Your heart is functioning well, and you're maintaining a balanced level of physical recovery.",
         secondaryTitle: "How to Maintain Your Resting Heart Rate",
         tipTitles: ["Stay Active", "Priroritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.", "Make sure you get enough sleep and rest to avoid unnecessary stress on your body", "Drink enough water to support circulation and heart health."]
     )
     
     let slightlyHighMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Slightly Higher Than Usual",
-        detail: "This is may indicate that your body is not fully rested. It's a good idea to take it easy today and give yourself time to recover.",
+        title: "Slightly Higher Than Usual",
+        detail: "This is may indicate that <b>your body is not fully rested.</b> It's a good idea to take it easy today and give yourself time to recover.",
         secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
     
     let highMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Higher Than Usual",
-        detail: "This could be a sign that your body is still recovering, under stress, or not fully rested.",
+        title: "Higher Than Usual",
+        detail: "This could be a sign that your <b>body is still recovering, under stress, or not fully rested.</b>",
         secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Avoid Stimulants", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.", "Drink enough water to support your heart and energy levels.", "Limit caffeine and alcohol, which can elevate your RHR.", "If you're tired, rest. Or stay active with light stretching or a gentle walk."]
     )
     
     let lowMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Your Current Resting Heart Rate Is Lower Than Usual",
-        detail: "This can indicate good cardiovascular fitness or relaxation. If you're feeling dizzy or unwell, it may be worth checking in with your health.",
+        title: "Lower Than Usual",
+        detail: "This can indicate<b> good cardiovascular fitness or relaxation.</b> If you're feeling dizzy or unwell, it may be worth checking in with your health.",
         secondaryTitle: "How to Recover Your Resting Heart Rate",
         tipTitles: ["Stay consistent with exercise", "Monitor your symptoms", "Stay hydrated", "Get regular check-ups"],
         tipDetails: ["Regular physical activity helps maintain a healthy heart rate.",
@@ -682,7 +688,7 @@ struct RestingHeartRateSection: View {
     )
     
     @State private var selectedMessage: RestingHeartRateMessage = RestingHeartRateMessage(
-        title: "Loading Resting Heart Rate Data...",
+        title: "Loading ...",
         detail: "We're analyzing your resting heart rate patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Resting Heart Rate",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -713,14 +719,22 @@ struct RestingHeartRateSection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Current Resting Heart Rate is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
@@ -892,7 +906,7 @@ struct HeartRateVariabilitySection: View {
     
     // No data message
     let noDataMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "No Heart Rate Variability Data Available",
+        title: "Not Available",
         detail: "We don't have enough information to analyze your heart rate variability. Make sure your device is properly synced with your Health app.",
         secondaryTitle: "Here's What You Can Do To Get Started",
         tipTitles: ["Wear Your Device", "Sync Your Data", "Check Permissions"],
@@ -903,8 +917,8 @@ struct HeartRateVariabilitySection: View {
     
     // Normal message
     let normalMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Within Normal Range",
-        detail: "This may indicate your body is recovering well and your autonomic nervous system is balanced.",
+        title: "Within Normal Range",
+        detail: "This may indicate <b>your body is recovering well </b>and your autonomic nervous system is balanced.",
         secondaryTitle: "How to Maintain Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
@@ -914,8 +928,8 @@ struct HeartRateVariabilitySection: View {
     
     // Slightly low message
     let slightlyLowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Slightly Lower Than Usual",
-        detail: "This may be a sign your body is under stress or still recovering, take it slow for today.",
+        title: "Slightly Lower Than Usual",
+        detail: "This may be a sign <b>your body is under stress or still recovering, </b>take it slow for today.",
         secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
@@ -926,8 +940,8 @@ struct HeartRateVariabilitySection: View {
     
     // Low message
     let lowMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Lower Than Usual",
-        detail: "This may be a sign of current or future health problems because it shows that your body isn't adapting to changes well.",
+        title: "Lower Than Usual",
+        detail: "This may be a sign of <b>current or future health problems</b> because it shows that your body isn't adapting to changes well.",
         secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Prioritize high-quality sleep", "Stay hydrated", "Practice mindfulness", "Take a recovery day"],
         tipDetails: ["Quality rest boosts recovery and overall performance.",
@@ -938,8 +952,8 @@ struct HeartRateVariabilitySection: View {
     
     // High message
     let highMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Your Heart Rate Variability is Higher Than Usual",
-        detail: "This is a positive sign that your body is adapting well to physical and emotional demands.",
+        title: "Higher Than Usual",
+        detail: "This is a <b>positive sign that your body is adapting well</b> to physical and emotional demands.",
         secondaryTitle: "How to Recover Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
         tipDetails: ["Regular exercise, like walking, jogging, or yoga, can help keep your heart rate in a healthy range.",
@@ -948,7 +962,7 @@ struct HeartRateVariabilitySection: View {
     )
     
     @State private var selectedMessage: HeartRateVariabilityMessage = HeartRateVariabilityMessage(
-        title: "Loading Heart Rate Variability Data...",
+        title: "Loading...",
         detail: "We're analyzing your heart rate variability patterns.",
         secondaryTitle: "Here's What You Can Do To Maintain Your Heart Rate Variability",
         tipTitles: ["Stay Active", "Prioritize Rest", "Stay Hydrated"],
@@ -979,14 +993,22 @@ struct HeartRateVariabilitySection: View {
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
-                Text(selectedMessage.title)
-                    .font(.title3.bold())
+                (
+                    Text("Your Current Heart Rate Variability is ")
+                        .font(.title3.bold())
+                        
+                    +
+                    Text(selectedMessage.title)
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                )
                 
                 Rectangle()
                     .frame(width: 150, height: 2, alignment: .leading)
                     .foregroundStyle(Color("OrangeThreex"))
                 
-                Text(selectedMessage.detail)
+                styledText(from: selectedMessage.detail)
+                    .font(.body)
                     .padding(.top, 8)
                 
                 HStack {
