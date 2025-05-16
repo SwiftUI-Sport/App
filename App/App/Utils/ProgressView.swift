@@ -146,7 +146,7 @@ struct Empty_authorized_view: View {
                     showingPermissionsHelp.toggle()
                 }) {
                     Image(systemName: "info.circle")
-                        .foregroundColor(.gray)
+                        .foregroundColor(Color("primary_1"))
                 }
                 .popover(isPresented: $showingPermissionsHelp, arrowEdge: .top) {
                     HealthPermissionsGuide()
@@ -171,6 +171,12 @@ struct HealthPermissionsGuide: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            Capsule()
+                .frame(width: 40, height: 5)
+                .foregroundColor(.gray.opacity(0.4))
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 8)
+            Spacer()
             Text("How to Allow Health Permissions")
                 .font(.headline)
                 .fontWeight(.bold)
@@ -242,6 +248,7 @@ struct HealthPermissionsGuide: View {
                 Spacer()
             }
             .padding(.top, 12)
+            Spacer()
         }
         .padding(.horizontal)
     }
@@ -340,7 +347,7 @@ struct FatigueCardempty: View {
     var trainingStressOfTheDay: Double
     var message: String
     var iconName: String
-    @State private var showingInfoPopover = false
+    @State private var showingInfo = false
     
     var body: some View {
         ZStack{
@@ -353,15 +360,18 @@ struct FatigueCardempty: View {
                         .foregroundColor(.primary)
                     
                     Button(action: {
-                        showingInfoPopover.toggle()
+                        showingInfo.toggle()
                     }) {
                         Image(systemName: "info.square.fill")
                             .font(.system(.title2, design: .rounded))
-                            .foregroundColor(Color("primary_1"))
+                            .foregroundColor(Color.gray)
                     }
-                    .popover(isPresented: $showingInfoPopover, arrowEdge: .top) {
-                        FatigueInfoPopover()
-                    }
+                    .sheet(isPresented: $showingInfo) {
+                               FatigueLevelSheet()                                   .presentationDetents([.height(600)])
+                                   .presentationDragIndicator(.hidden)
+                                   .interactiveDismissDisabled(false)
+                           }
+
                 }
                 .padding(.horizontal)
                 .padding(.top, 18)
@@ -395,7 +405,7 @@ struct FatigueCard: View {
     var trainingStressOfTheDay: TrainingStressOfTheDay
     var message: String
     var iconName: String
-    @State private var showingInfoPopover = false
+    @State private var showingInfo = false
     
     var body: some View {
         ZStack{
@@ -413,16 +423,19 @@ struct FatigueCard: View {
                         .foregroundColor(.primary)
                     
                     Button(action: {
-                        showingInfoPopover.toggle()
+                        showingInfo.toggle()
                     }) {
                         Image(systemName: "info.square.fill")
                             .font(.system(.title2, design: .rounded))
-                            .foregroundColor(Color("primary_1"))
+                            .foregroundColor(Color.gray)
                     }
-                    .popover(isPresented: $showingInfoPopover, arrowEdge: .top) {
-                        FatigueInfoPopover()
-                    }
+                    .sheet(isPresented: $showingInfo) {
+                               FatigueLevelSheet()                                   .presentationDetents([.height(600)])
+                                   .presentationDragIndicator(.hidden)
+                                   .interactiveDismissDisabled(false)
+                           }
                 }
+                .buttonStyle(.plain)
                 .padding(.horizontal)
                 .padding(.top, 18)
                 .padding(.bottom, 18)
@@ -445,11 +458,77 @@ struct FatigueCard: View {
             .background(Color.white)
             .cornerRadius(6)
             .shadow(color: Color("ATLBar/cardShadow").opacity(0.5), radius: 7, x: 3, y: 1)
-            .offset(x: 0, y: 130)
+            .offset(x: 0, y: 120)
             .onAppear {
                 print("ATL: \(trainingStressOfTheDay.todayATL)")
             }
         }
+    }
+}
+
+struct FatigueLevelSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Garis horisontal di atas
+            Capsule()
+                .frame(width: 40, height: 5)
+                .foregroundColor(.gray.opacity(0.4))
+                .padding(.top, 8)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            HStack {
+                Text("Fatigue Level")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                Spacer()
+                Button {
+                    dismiss()
+                } label: {
+                    ZStack {
+                        Circle()
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(width: 30, height: 30)
+                        Image(systemName: "xmark")
+                            .foregroundColor(Color.gray)
+                            .font(.system(size: 15, weight: .bold))
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            
+            VStack(alignment: .leading){
+                Text("Your Fatigue Level is calculated based on your training load over the past 7 days.")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.top, 8)
+                    .padding(.bottom, 6)
+                
+                Text("This metric reflects how much physical stress your body has accumulated recently. A higher fatigue level may indicate the need for recovery, while a lower level suggests you're well-rested and ready for more intense activity. Balancing fatigue with proper rest helps prevent injury and supports consistent performance improvement.")
+                    .font(.body)
+                    .padding(.bottom, 8)
+                
+                HStack(alignment: .firstTextBaseline){
+                    Image(systemName: "exclamationmark.icloud.fill")
+                        .font(.headline)
+                        .foregroundColor(Color("primary_1"))
+                    Text("Disclaimer")
+                        .font(.title3.bold())
+                        .foregroundColor(Color("primary_1"))
+                }
+                .padding(.bottom, 4)
+                
+                Text("This recommendation should not be used as the sole basis for your training decisions. Always listen to your body and adjust accordingly. If you’re experiencing unusual discomfort, pain, or health concerns, consult a medical professional for proper guidance.")
+                    .font(.body)
+                
+                
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+            .padding(.top, 8)
+        }
+        .padding(.horizontal)
     }
 }
 

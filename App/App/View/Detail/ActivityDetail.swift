@@ -22,6 +22,9 @@ struct SecondActivityView: View {
     @EnvironmentObject var router: ActivityFlowRouter
     @EnvironmentObject var healthKitViewModel: HealthKitViewModel
     
+    @Environment(\.dismiss) private var dismiss
+
+    
     let activity: WorkoutActivity
     
     @State private var showingSheet = false
@@ -203,11 +206,36 @@ struct SecondActivityView: View {
     }
     
     private var heartRateZonesInfoSheet: some View {
+        
         ScrollView {
             VStack(alignment: .leading) {
-                Text("Heart Rate Zones")
-                    .font(.title)
-                    .fontWeight(.bold)
+                
+                Capsule()
+                    .frame(width: 40, height: 5)
+                    .foregroundColor(.gray.opacity(0.4))
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+                
+                HStack {
+                    Text("Heart Rate Zones")
+                        .font(.title)
+                        .fontWeight(.bold)
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(Color.gray.opacity(0.2))
+                                .frame(width: 30, height: 30)
+                            Image(systemName: "xmark")
+                                .foregroundColor(Color.gray)
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.top, 6)
                 
                 (
                     Text("Heart rate zones below are calculated based on your ")
@@ -215,8 +243,6 @@ struct SecondActivityView: View {
                     + Text(" and ")
                     + Text("resting HR \(Int(healthKitViewModel.repository.userRestingHR)) bpm").bold()
                 )
-                .multilineTextAlignment(.leading)
-                .padding(.top)
                 .multilineTextAlignment(.leading)
                 .padding(.top)
                 
@@ -231,7 +257,8 @@ struct SecondActivityView: View {
                     .padding(.bottom, 4)
                 }
             }
-            .padding()
+            .padding(.horizontal)
+            
         }
         .background(Color("backgroundApp"))
         .presentationDetents([.large])

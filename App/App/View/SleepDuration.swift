@@ -18,11 +18,11 @@ struct SleepDuration: View {
         if duration == 0 {
             return "No Sleep Data Available"
         } else if duration < 21600 { // Less than 6 hours
-            return "You Need More Sleep"
+            return "You Did'nt Get Enough Sleep Last Night"
         } else if duration < 25200 { // 6-7 hours
-            return "Your Sleep Is Adequate"
+            return "You Got Enough Sleep Last Night"
         } else { // 7+ hours
-            return "You Have Good Sleep Quality"
+            return "You Have Good Sleep Quality Last Night"
         }
     }
     
@@ -268,7 +268,7 @@ struct SleepDuration: View {
         } else if duration < 21600 { // Less than 6 hours
             return "Your sleep duration is below the recommended range, which may affect your recovery, focus, and performance. Aim for 7-9 hours for optimal health."
         } else if duration < 25200 { // 6-7 hours
-            return "Your sleep duration is adequate but could be improved. Quality rest helps regulate heart rate and improve recovery. Try to get closer to 8 hours."
+            return "Your sleep duration is slightly good but could be improved. Quality rest helps regulate heart rate and improve recovery. Try to get closer to 8 hours."
         } else if duration < 32400 { // 7-9 hours
             return "Your sleep duration falls within the ideal range for recovery. Quality rest helps regulate heart rate, improve recovery, and boost overall performance. Keep it up!"
         } else { // More than 9 hours

@@ -87,18 +87,18 @@ struct HomeView: View {
     
     var sampleHeader = [
         HeaderContent(
-            title : "You Can Run Today",
-            message: "Your recovery metrics look great! It’s a perfect day to hit the road and crush your run.",
+            title : "Go For Usual Run",
+            message: "Your recovery metrics look great! Stick to your normal pace or distance.",
             iconName:  "chacha"
         ),
         HeaderContent(
-            title : "You’re Good for a Light Run Today",
-            message: "Your data shows minor signs of fatigue! A light or moderate run could be just right today.",
+            title : "Try an Easier Run",
+            message: "Your data shows minor signs of fatigue! A slower or shorter run is safer today.",
             iconName:  "chachatired"
         ),
         HeaderContent(
-            title : "Feet Up, Runner! It's Rest Day",
-            message: "Your body needs rest! Take the day off and come back stronger tomorrow.",
+            title : "Take a Rest Day",
+            message: "Your body needs recovery. Rest now to avoid injury or burnout.",
             iconName:  "chachasleep"
         ),
         HeaderContent(

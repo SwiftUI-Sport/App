@@ -113,7 +113,6 @@ struct ActivityView: View {
                 }
                 .background(Color("backgroundApp"))
             }
-            .navigationBarTitleDisplayMode(.large)
         }
     }
     
