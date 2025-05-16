@@ -135,7 +135,8 @@ struct WorkoutDurationView: View {
                             averageValue7Days: $healthKitViewModel.overallAvgWorkoutTSR,
                             data: $healthKitViewModel.past7DaysWorkoutTSR,
                             showAverage: false,
-                            mainColor: Color("Pinky")
+                            mainColor: Color("Pinky"),
+                            isTrainingLoad: true
                         )
                     } else {
                         // Show empty state for chart

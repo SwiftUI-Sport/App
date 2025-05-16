@@ -213,6 +213,8 @@ struct AboutCard: View {
     }
 }
 
+
+
 struct MyChart: View {
     @Binding var averageValue7Days: Double
     @Binding var data: [DailyRate]
@@ -220,7 +222,9 @@ struct MyChart: View {
     @State private var selectedDate: String? = nil
     var showAverage: Bool = true
     
+    
     var mainColor: Color = Color("OrangeTwox")
+    var isTrainingLoad: Bool = false
     
     func getShortDay(for dateString: String) -> String {
         let formatter = DateFormatter()
@@ -235,7 +239,7 @@ struct MyChart: View {
     
     
     var body: some View {
-        Chart {
+         let chart = Chart {
             
             var highlightIndex: Int? {
                 
@@ -286,7 +290,17 @@ struct MyChart: View {
         .chartYAxis {
             AxisMarks(position: .leading)
         }
+        
+        if isTrainingLoad {
+          chart.chartYScale(domain: 0...150)
+      } else {
+          chart
+      }
+ 
+
     }
+    
+        
 }
 
 struct AverageHeartRateSection: View {
