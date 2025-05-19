@@ -430,7 +430,8 @@ struct FatigueCard: View {
                             .foregroundColor(Color.gray)
                     }
                     .sheet(isPresented: $showingInfo) {
-                        FatigueLevelSheet()                                   .presentationDetents([.height(600)])
+                        FatigueLevelSheet()
+                            .presentationDetents([.height(620)])
                             .presentationDragIndicator(.hidden)
                             .interactiveDismissDisabled(false)
                     }
@@ -496,28 +497,42 @@ struct FatigueLevelSheet: View {
             }
             
             VStack(alignment: .leading){
-                Text("Your Fatigue Level is calculated based on your training load over the past 7 days.")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.top, 8)
-                    .padding(.bottom, 6)
+                
+                (
+                    Text("Your latigue level is ")
+                    + Text("calculated based on your training load ")
+                        .foregroundColor(Color("primary_1"))
+                    + Text("over the past 7 days")
+                )
+                .multilineTextAlignment(.leading)
+                .font(.title3)
+                .fontWeight(.bold)
+                .padding(.top, 8)
+                .padding(.bottom, 6)
                 
                 Text("This metric reflects how much physical stress your body has accumulated recently. A higher fatigue level may indicate the need for recovery, while a lower level suggests you're well-rested and ready for more intense activity. Balancing fatigue with proper rest helps prevent injury and supports consistent performance improvement.")
                     .font(.body)
                     .padding(.bottom, 8)
                 
-                HStack(alignment: .firstTextBaseline){
-                    Image(systemName: "exclamationmark.icloud.fill")
-                        .font(.headline)
-                        .foregroundColor(Color("primary_1"))
-                    Text("Disclaimer")
-                        .font(.title3.bold())
-                        .foregroundColor(Color("primary_1"))
+                VStack (alignment: .leading,spacing: 0){
+                    HStack(alignment: .firstTextBaseline){
+                        Image(systemName: "exclamationmark.icloud.fill")
+                            .font(.headline)
+                            .foregroundColor(Color("primary_1"))
+                        Text("Disclaimer")
+                            .font(.title3.bold())
+                            .foregroundColor(Color("primary_1"))
+                    }
+                    .padding(.bottom, 4)
+                    
+                    Text("This recommendation should not be used as the sole basis for your training decisions. Always listen to your body and adjust accordingly. If you’re experiencing unusual discomfort, pain, or health concerns, consult a medical professional for proper guidance.")
+                        .font(.body)
                 }
-                .padding(.bottom, 4)
-                
-                Text("This recommendation should not be used as the sole basis for your training decisions. Always listen to your body and adjust accordingly. If you’re experiencing unusual discomfort, pain, or health concerns, consult a medical professional for proper guidance.")
-                    .font(.body)
+                .padding(.vertical)
+                .padding(.horizontal)
+                .background(Color("OrangeBGx"))
+                .cornerRadius(6)
+                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
                 
                 
                 Spacer()

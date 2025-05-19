@@ -18,7 +18,7 @@ struct SleepDuration: View {
         if duration == 0 {
             return "No Sleep Data Available"
         } else if duration < 21600 { // Less than 6 hours
-            return "You Did'nt Get Enough Sleep Last Night"
+            return "You Didn't Get Enough Sleep Last Night"
         } else if duration < 25200 { // 6-7 hours
             return "You Got Enough Sleep Last Night"
         } else { // 7+ hours
@@ -150,7 +150,7 @@ struct SleepDuration: View {
                     .padding(.bottom, 8)
                     .foregroundColor(.black)
                 
-                Text("The ideal sleep duration for most adults is 7 to 9 hours per night. Staying within this range supports physical recovery, mental clarity, hormonal balance, and heart health.")
+                Text("The ideal sleep duration for most adults is 7-9 hours per night. Staying within this range supports physical recovery, mental clarity, hormonal balance, and heart health.")
                 
                 Text("Key Points About Sleep Duration")
                     .font(.title3.bold())
@@ -277,7 +277,7 @@ struct SleepDuration: View {
         if duration < 21600 { // Poor sleep - focus on improvement
             return [
                 ("Consistent Schedule", "Go to bed and wake up at the same time every day, even on weekends."),
-                ("Bedtime Routine", "Create a relaxing routine 30-60 minutes before bed - try reading, gentle stretching, or meditation."),
+                ("Bedtime Routine", "Create a relaxing routine 30-60 minutes before bed. Try reading, gentle stretching, or meditation."),
                 ("Optimize Environment", "Keep your bedroom dark, quiet, and cool (around 65-68°F or 18-20°C)."),
                 ("Limit Screen Time", "Avoid screens at least 1 hour before bed to reduce blue light exposure.")
             ]

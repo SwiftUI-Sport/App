@@ -41,3 +41,10 @@ final class Router<Destination: NavigationDestination>: ObservableObject {
         }
     }
 }
+
+struct Hello: View {
+    var name: String = "Ali"
+    var body: some View {
+        Text("Hello, \(name)!")
+    }
+}

@@ -124,12 +124,12 @@ struct ActivityView: View {
                 .clipped()
             
             VStack {
-                Text("Your Run Activity")
+                Text("Running Activities in")
                     .font(.system(.largeTitle, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(Color("primary_1"))
                 
-                Text("Last 7 Days")
+                Text("the Last 7 Days")
                     .font(.system(.largeTitle, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(Color("primary_1"))
