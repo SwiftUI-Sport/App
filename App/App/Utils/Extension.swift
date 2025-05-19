@@ -63,22 +63,83 @@ extension Date {
         return (yesterdayStart, yesterdayEnd)
     }
     
+//    static func sleepDateRange(sleepStartHour: Int = 20, wakeHour: Int = 8) -> (start: Date, end: Date) {
+//        let calendar = Calendar.current
+//        let now = Date()
+//        
+//        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
+//        var wakeComponents = todayComponents
+//        wakeComponents.hour = wakeHour
+//        wakeComponents.minute = 0
+//        wakeComponents.second = 0
+//        let wakeTime = calendar.date(from: wakeComponents)!
+//        
+//        var sleepComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -1, to: now)!)
+//        sleepComponents.hour = sleepStartHour
+//        sleepComponents.minute = 0
+//        sleepComponents.second = 0
+//        let sleepTime = calendar.date(from: sleepComponents)!
+//        
+//        return (sleepTime, wakeTime)
+//    }
+    
+//    static func sleepDateRange(sleepStartHour: Int = 20, wakeHour: Int = 8) -> (start: Date, end: Date) {
+//        let calendar = Calendar.current
+//        let now = Date()
+//        let today = calendar.startOfDay(for: now)
+//        let currentHour = calendar.component(.hour, from: now)
+//        
+//        // Determine if we're looking at last night or the night before
+//        // If it's before wake hour (e.g., before 8 AM), we're interested in the sleep that just happened
+//        // Otherwise, we're probably asking about the previous night
+//        
+//        let endDay: Date
+//        if currentHour < wakeHour {
+//            // It's early morning, we want today's wake time
+//            endDay = today
+//        } else {
+//            // It's later in the day, so we want today's sleep start and tomorrow's wake time
+//            // But since we don't have tomorrow's data yet, we'll use today's wake time instead
+//            endDay = today
+//        }
+//        
+//        let startDay = calendar.date(byAdding: .day, value: -1, to: endDay)!
+//        
+//        // Create the specific times
+//        var wakeComponents = calendar.dateComponents([.year, .month, .day], from: endDay)
+//        wakeComponents.hour = wakeHour
+//        wakeComponents.minute = 0
+//        wakeComponents.second = 0
+//        let wakeTime = calendar.date(from: wakeComponents)!
+//        
+//        var sleepComponents = calendar.dateComponents([.year, .month, .day], from: startDay)
+//        sleepComponents.hour = sleepStartHour
+//        sleepComponents.minute = 0
+//        sleepComponents.second = 0
+//        let sleepTime = calendar.date(from: sleepComponents)!
+//        
+//        return (sleepTime, wakeTime)
+//    }
+    
     static func sleepDateRange(sleepStartHour: Int = 20, wakeHour: Int = 8) -> (start: Date, end: Date) {
         let calendar = Calendar.current
         let now = Date()
+        let today = calendar.startOfDay(for: now)
         
-        let todayComponents = calendar.dateComponents([.year, .month, .day], from: now)
-        var wakeComponents = todayComponents
-        wakeComponents.hour = wakeHour
-        wakeComponents.minute = 0
-        wakeComponents.second = 0
-        let wakeTime = calendar.date(from: wakeComponents)!
+        let sleepStartDay = calendar.date(byAdding: .day, value: -1, to: today)!
+        let wakeDay = today
         
-        var sleepComponents = calendar.dateComponents([.year, .month, .day], from: calendar.date(byAdding: .day, value: -1, to: now)!)
+        var sleepComponents = calendar.dateComponents([.year, .month, .day], from: sleepStartDay)
         sleepComponents.hour = sleepStartHour
         sleepComponents.minute = 0
         sleepComponents.second = 0
         let sleepTime = calendar.date(from: sleepComponents)!
+        
+        var wakeComponents = calendar.dateComponents([.year, .month, .day], from: wakeDay)
+        wakeComponents.hour = 12
+        wakeComponents.minute = 0
+        wakeComponents.second = 0
+        let wakeTime = calendar.date(from: wakeComponents)!
         
         return (sleepTime, wakeTime)
     }

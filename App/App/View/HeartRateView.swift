@@ -140,12 +140,12 @@ struct SimpleCard: View {
             
             
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.vertical)
         .padding(.horizontal)
         .background(backgroundColor)
         .cornerRadius(6)
         .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
-        .frame(minWidth:200, maxWidth: .infinity, alignment: .center)
         .padding(.horizontal)
         .padding(.bottom, 16)
         

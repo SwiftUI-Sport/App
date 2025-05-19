@@ -36,7 +36,7 @@ struct HomeChart: View {
                     y: .value("Value", item.value)
                 )
                 .foregroundStyle(index == highlightIndex ? mainColor : Color("Barx"))
-                .cornerRadius(5)
+                .cornerRadius(6)
             }
         }
         .frame(height: 75)

@@ -31,6 +31,13 @@ struct SleepDuration: View {
         healthKitViewModel.sleepDuration.sorted { $0.day > $1.day }.first
     }
     
+    private func formatSleepTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return formatter.string(from: date)
+    }
+    
     var body: some View {
         ScrollView {
             // Sleep summary card
@@ -53,20 +60,37 @@ struct SleepDuration: View {
                     }
                     
                     Text("\(formatDurationSleep(healthKitViewModel.totalSleepInterval))")
+                        .foregroundStyle(Color("primary_3"))
                         .font(.title)
                         .bold()
                     
                     Spacer()
                     
                     if let sleep = latestSleep {
-                        VStack(alignment: .center) {
-                            Text(sleep.day, format: .dateTime.weekday(.wide).month().day())
+                        
+                        VStack(alignment: .trailing) {
+                            //                             Text(sleep.day, format: .dateTime.weekday(.wide).month().day())
+                            //                                 .font(.caption)
+                            //                                 .foregroundColor(.gray)
+                            
+                            Text("Last Sleep")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                             
-                            Text("\(sleep.startTime, format: .dateTime.hour().minute()) – \(sleep.endTime, format: .dateTime.hour().minute())")
+                            Text("\(formatSleepTime(sleep.startTime)) - \(formatSleepTime(sleep.endTime))")
                                 .font(.subheadline)
+                            
+                            
                         }
+                        
+//                        VStack(alignment: .trailing) {
+//                            Text(sleep.day, format: .dateTime.weekday(.wide).month().day())
+//                                .font(.caption)
+//                                .foregroundColor(.gray)
+//                            
+//                            Text(sleep.sleepTimeRange)
+//                                .font(.subheadline)
+//                        }
                     } else {
                         Text("No Data")
                             .font(.caption)
@@ -75,53 +99,23 @@ struct SleepDuration: View {
                 }
                 .padding(.top, 6)
                 
-                // Sleep quality analysis
                 Text(getSleepAnalysisMessage())
                     .font(.caption)
                     .foregroundStyle(Color.gray)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 6)
                 
-                // Sleep phases breakdown - only show if data exists
-//                if let sleep = latestSleep, hasDetailedSleepData(sleep) {
-//                    VStack(alignment: .leading, spacing: 12) {
-//                        Text("Sleep Phases")
-//                            .font(.subheadline)
-//                            .fontWeight(.semibold)
-//                            .padding(.top, 12)
-//                        
-//                        HStack(spacing: 20) {
-//                            sleepPhaseItem(
-//                                label: "Deep",
-//                                value: formatDurationSimple(sleep.deepSleepDuration),
-//                                color: Color("primary_3")
-//                            )
-//                            
-//                            sleepPhaseItem(
-//                                label: "REM",
-//                                value: formatDurationSimple(sleep.remSleepDuration),
-//                                color: Color("blueTint")
-//                            )
-//                            
-//                            sleepPhaseItem(
-//                                label: "Core",
-//                                value: formatDurationSimple(sleep.coreSleepDuration),
-//                                color: Color("primary_2")
-//                            )
-//                        }
-//                    }
-//                }
+
             }
             .padding(.vertical)
             .padding(.horizontal)
             .background(Color.white)
-            .cornerRadius(12)
+            .cornerRadius(6)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
             .padding(.horizontal)
             .padding(.bottom, 16)
             .padding(.top, 16)
             
-            // Sleep tips card - dynamic based on sleep quality
             VStack(alignment: .leading) {
                 Text(healthKitViewModel.totalSleepInterval < 21600 ?
                      "How to Improve Your Sleep" :
@@ -143,7 +137,7 @@ struct SleepDuration: View {
             .padding(.vertical)
             .padding(.horizontal)
             .background(.white)
-            .cornerRadius(12)
+            .cornerRadius(6)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
             .padding(.horizontal)
             .padding(.bottom, 16)
@@ -187,7 +181,7 @@ struct SleepDuration: View {
             .padding(.vertical)
             .padding(.horizontal)
             .background(.white)
-            .cornerRadius(12)
+            .cornerRadius(6)
             .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
             .padding(.horizontal)
             .padding(.bottom, 16)

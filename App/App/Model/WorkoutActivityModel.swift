@@ -72,8 +72,17 @@ struct Sleep: Hashable, Codable, Identifiable {
     let remSleepDuration: TimeInterval
     let coreSleepDuration: TimeInterval
     
+    // Format waktu tidur (22:00 - 07:00)
+    var sleepTimeRange: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        formatter.dateStyle = .none
+        return "\(formatter.string(from: startTime)) - \(formatter.string(from: endTime))"
+    }
+    
+    // Durasi total tidur yang lebih akurat
     var totalDuration: TimeInterval {
-        inBedDuration + asleepDuration + deepSleepDuration + remSleepDuration + coreSleepDuration
+        return endTime.timeIntervalSince(startTime)
     }
 }
 
