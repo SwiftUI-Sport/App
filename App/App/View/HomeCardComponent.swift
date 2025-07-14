@@ -84,7 +84,7 @@ struct HomeCardComponent: View {
                         .frame(width: 20, height: 20)
                     Image(systemName: icon)
                         .foregroundColor(mainColor)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(.caption2, weight: .medium))
                 }
                 
                 Text(title)
@@ -95,7 +95,7 @@ struct HomeCardComponent: View {
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(.callout, weight: .bold))
             }
             
             // Headline
@@ -143,7 +143,7 @@ struct SleepCardComponent: View {
                         .frame(width: 20, height: 20)
                     Image(systemName: "moon.fill")
                         .foregroundColor(mainColor)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(.caption2, weight: .medium))
                 }
                 
                 Text(title)
@@ -154,7 +154,7 @@ struct SleepCardComponent: View {
                 Spacer()
                 
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(.callout, weight: .bold))
             }
             
             // Headline

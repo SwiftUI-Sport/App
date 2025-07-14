@@ -128,7 +128,7 @@ struct WorkoutDurationView: View {
                                 .frame(width: 32, height: 32)
                             Image(systemName: "figure.run")
                                 .foregroundColor(Color("primary_2"))
-                                .font(.system(size: 18, weight: .medium))
+                                .font(.system(.body, weight: .medium))
                         }
                         
                         let data = healthKitViewModel.past7DaysWorkoutTSR
@@ -188,7 +188,7 @@ struct WorkoutDurationView: View {
                         VStack(spacing: 12) {
                             Spacer(minLength: 40)
                             Image(systemName: "chart.xyaxis.line")
-                                .font(.system(size: 36))
+                                .font(.system(.largeTitle))
                                 .foregroundColor(Color.gray.opacity(0.5))
                             Text("No workout data available")
                                 .font(.subheadline)

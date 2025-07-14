@@ -62,7 +62,7 @@ struct SecondActivityView: View {
                             .frame(width: 30, height: 30)
                         Image(systemName: "heart.fill")
                             .foregroundColor(Color("primary_1"))
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(.subheadline, weight: .medium))
                     }
                     
                     Text("Average Heart Rate")
@@ -102,7 +102,7 @@ struct SecondActivityView: View {
                             .frame(width: 30, height: 30)
                         Image(systemName: "map.fill")
                             .foregroundColor(Color.green)
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(.subheadline, weight: .medium))
                     }
                     
                     Text("Distance")
@@ -145,7 +145,7 @@ struct SecondActivityView: View {
                             .frame(width: 30, height: 30)
                         Image(systemName: "timer")
                             .foregroundColor(Color.yellow)
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(.subheadline, weight: .medium))
                     }
                     Text("Duration")
                         .foregroundColor(.black)
@@ -178,7 +178,7 @@ struct SecondActivityView: View {
                             .frame(width: 30, height: 30)
                         Image(systemName: "heart.text.square.fill")
                             .foregroundColor(Color("primary_1"))
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.system(.subheadline, weight: .medium))
                     }
                     
                     Text("Heart Rate Training Zone")
@@ -230,7 +230,7 @@ struct SecondActivityView: View {
                                 .frame(width: 30, height: 30)
                             Image(systemName: "xmark")
                                 .foregroundColor(Color.gray)
-                                .font(.system(size: 15, weight: .bold))
+                                .font(.system(.subheadline, weight: .bold))
                         }
                     }
                     .buttonStyle(.plain)

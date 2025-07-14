@@ -56,7 +56,7 @@ struct SleepDuration: View {
                             .frame(width: 32, height: 32)
                         Image(systemName: "moon.fill")
                             .foregroundColor(Color("primary_3"))
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                     }
                     
                     Text("\(formatDurationSleep(healthKitViewModel.totalSleepInterval))")

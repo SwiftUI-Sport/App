@@ -45,12 +45,12 @@ struct ATLProgressView: View {
                     
                     HStack {
                         Image(systemName: "bolt.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.system(.title2))
                             .foregroundColor(.white)
                             .padding(.leading, 4)
                         Spacer()
                         Image(systemName: "exclamationmark.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.system(.title2))
                             .foregroundColor(.white)
                             .padding(.trailing, 4)
                     }
@@ -283,7 +283,7 @@ struct PermissionStep: View {
                 HStack(spacing: 8) {
                     if isSystemImage {
                         Image(systemName: imageName)
-                            .font(.system(size: 18))
+                            .font(.system(.body))
                             .foregroundColor(Color("primary_1"))
                             .frame(width: 24, height: 24)
                     } else {
@@ -490,7 +490,7 @@ struct FatigueLevelSheet: View {
                             .frame(width: 30, height: 30)
                         Image(systemName: "xmark")
                             .foregroundColor(Color.gray)
-                            .font(.system(size: 15, weight: .bold))
+                            .font(.system(.subheadline, weight: .bold))
                     }
                 }
                 .buttonStyle(.plain)

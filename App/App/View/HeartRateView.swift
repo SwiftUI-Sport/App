@@ -27,7 +27,7 @@ struct SegmentedControl: View {
                     }
                 }) {
                     Text(tab)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(.footnote, weight: .medium))
                         .foregroundColor(activeTab == tab ? .white : .gray)
                         .frame(maxWidth: .infinity, minHeight: 25)
                         .padding(.vertical, 8)
@@ -549,7 +549,7 @@ struct AverageHeartRateSection: View {
                             .frame(width: 32, height: 32)
                         Image(systemName: "heart.fill")
                             .foregroundColor(Color("primary_1"))
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                     }
                     
                     let hasData = !data.allSatisfy { $0.value == 0 }
@@ -595,7 +595,7 @@ struct AverageHeartRateSection: View {
                     VStack(spacing: 12) {
                         Spacer(minLength: 40)
                         Image(systemName: "chart.xyaxis.line")
-                            .font(.system(size: 36))
+                            .font(.system(.largeTitle))
                             .foregroundColor(Color.gray.opacity(0.5))
                         Text("No heart rate data available")
                             .font(.subheadline)
@@ -836,7 +836,7 @@ struct RestingHeartRateSection: View {
                             .frame(width: 32, height: 32)
                         Image(systemName: "heart.fill")
                             .foregroundColor(Color("primary_1"))
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                     }
                     
                     let hasData = !data.allSatisfy { $0.value == 0 }
@@ -881,7 +881,7 @@ struct RestingHeartRateSection: View {
                     VStack(spacing: 12) {
                         Spacer(minLength: 40)
                         Image(systemName: "chart.xyaxis.line")
-                            .font(.system(size: 36))
+                            .font(.system(.largeTitle))
                             .foregroundColor(Color.gray.opacity(0.5))
                         Text("No resting heart rate data available")
                             .font(.subheadline)
@@ -1130,7 +1130,7 @@ struct HeartRateVariabilitySection: View {
                             .frame(width: 32, height: 32)
                         Image(systemName: "heart.fill")
                             .foregroundColor(Color("primary_1"))
-                            .font(.system(size: 18, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                     }
                     
                     let hasData = !data.allSatisfy { $0.value == 0 }
@@ -1176,7 +1176,7 @@ struct HeartRateVariabilitySection: View {
                     VStack(spacing: 12) {
                         Spacer(minLength: 40)
                         Image(systemName: "chart.xyaxis.line")
-                            .font(.system(size: 36))
+                            .font(.system(.largeTitle))
                             .foregroundColor(Color.gray.opacity(0.5))
                         Text("No heart rate variability data available")
                             .font(.subheadline)

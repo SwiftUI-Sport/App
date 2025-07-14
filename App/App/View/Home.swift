@@ -595,11 +595,11 @@ struct ReasonCard: View {
                         .frame(width: 20, height: 20)
                     Image(systemName: reason.iconName)
                         .foregroundColor(reason.color)
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(.caption2, weight: .medium))
                 }
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.system(.callout, weight: .bold))
             }
             Text(reason.headline)
                 .font(.headline)

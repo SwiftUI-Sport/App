@@ -191,7 +191,7 @@ struct DaySummaryView: View {
                                 .padding(.trailing, 15)
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 16, weight: .bold))
+                                    .font(.system(.callout, weight: .bold))
                             }
                         }
                         .foregroundColor(.black)
