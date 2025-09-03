@@ -258,6 +258,7 @@ public struct FaqDetail: View {
                         if expandedItems.contains(faq.id) {
                             expandedItems.remove(faq.id)
                         } else {
+                            expandedItems.removeAll()
                             expandedItems.insert(faq.id)
                         }
                     }

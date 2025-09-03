@@ -26,9 +26,9 @@ struct ContentView: View {
                         Label("Activity", systemImage: "figure.run.circle.fill")
                     }
                 
-                ProfileView()
+                FaqDetail()
                     .tabItem {
-                        Label("Profile", systemImage: "person.crop.circle.fill")
+                        Label("FAQ", systemImage: "questionmark.circle.fill")
                     }
                 
             }

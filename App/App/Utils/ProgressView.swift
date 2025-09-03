@@ -537,9 +537,6 @@ struct FatigueLevelSheet: View {
                             Text("Disclaimer")
                                 .font(.title3.bold())
                                 .foregroundColor(Color("primary_1"))
-                            Image(systemName: "questionmark.circle.fill")
-                                .font(.system(.title2, design: .rounded))
-                                .foregroundColor(Color.gray)
                         }
                         .padding(.bottom, 4)
                         
