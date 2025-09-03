@@ -222,7 +222,7 @@ struct SecondActivityView: View {
                         .fontWeight(.bold)
                     Spacer()
                     Button {
-                        dismiss()
+                        showingSheet = false
                     } label: {
                         ZStack {
                             Circle()

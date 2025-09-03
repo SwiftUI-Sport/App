@@ -83,12 +83,12 @@ struct ATLProgressView: View {
     }
 }
 
-
-#Preview {
-    ATLProgressView(
-        atl: 20
-    )
-}
+//
+//#Preview {
+//    ATLProgressView(
+//        atl: 20
+//    )
+//}
 
 struct BlobHeaderShape: Shape {
     func path(in rect: CGRect) -> Path {
@@ -106,7 +106,7 @@ struct BlobHeaderShape: Shape {
         path.addCurve(
             to: CGPoint(x: rect.width, y: rect.height * 0.6),
             control1: CGPoint(x: rect.width * 0.99/1.5, y: rect.height  * 0.76),
-            control2: CGPoint(x: rect.width * 0.9, y: rect.height * 0.9)
+            control2: CGPoint(x: rect.width * 0.8, y: rect.height * 0.9)
         )
         
         path.addLine(to: CGPoint(x: rect.width, y: 0))
@@ -115,6 +115,17 @@ struct BlobHeaderShape: Shape {
         return path
     }
 }
+
+#Preview {
+    VStack(){
+        BlobHeaderShape()
+        Spacer()
+        
+    }
+    .frame(height: 200)
+        
+}
+
 struct Empty_authorized_view: View {
     @State private var showingPermissionsHelp = false
     
@@ -526,6 +537,9 @@ struct FatigueLevelSheet: View {
                             Text("Disclaimer")
                                 .font(.title3.bold())
                                 .foregroundColor(Color("primary_1"))
+                            Image(systemName: "questionmark.circle.fill")
+                                .font(.system(.title2, design: .rounded))
+                                .foregroundColor(Color.gray)
                         }
                         .padding(.bottom, 4)
                         
@@ -724,8 +738,8 @@ struct ATLProgressBarView: View {
     }
 }
 
-#Preview {
-    FatigueProgressBarView(
-        atl: 0
-    )
-}
+//#Preview {
+//    FatigueProgressBarView(
+//        atl: 0
+//    )
+//}

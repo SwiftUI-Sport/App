@@ -16,17 +16,21 @@ struct ContentView: View {
             Group {
                 HomeView()
                     .environmentObject(HealthKitViewModel)
-                
                     .tabItem {
                         Label("Home", systemImage: "house.fill")
                     }
                 
                 
                 ActivityView()
-                
                     .tabItem {
                         Label("Activity", systemImage: "figure.run.circle.fill")
                     }
+                
+                ProfileView()
+                    .tabItem {
+                        Label("Profile", systemImage: "person.crop.circle.fill")
+                    }
+                
             }
             .toolbarBackground(.visible, for: .tabBar)
         }
